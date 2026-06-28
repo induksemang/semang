@@ -33,7 +33,7 @@ export default function RootLayout({
 		>
 			<body className="flex min-h-full flex-col">
 				{children}
-				<SpeedInsights />
+				{process.env.VERCEL && <SpeedInsights />}
 			</body>
 		</html>
 	);
