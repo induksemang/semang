@@ -1,4 +1,10 @@
 @import "tailwindcss";
+
+@layer base {
+	html {
+		scroll-behavior: smooth;
+	}
+}
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -189,6 +195,13 @@
 	--sidebar-accent-foreground: #d6e8e3;
 	--sidebar-border: rgba(255, 255, 255, 0.1);
 	--sidebar-ring: #82b8ad;
+}
+
+@utility container {
+	margin-inline: auto;
+	max-width: 80rem;
+	padding-inline: 1.5rem;
+	width: 100%;
 }
 
 @layer base {

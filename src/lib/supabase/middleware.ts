@@ -34,6 +34,7 @@ export async function updateSession(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
 	const isPublicPage =
+		pathname === "/" ||
 		pathname.startsWith("/p/") ||
 		pathname.startsWith("/api/cron/") ||
 		pathname.startsWith("/api/p/");
