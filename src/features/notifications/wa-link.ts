@@ -8,7 +8,7 @@ export class WaLinkSender implements NotificationSender {
 	}
 
 	compose(invoice: InvoiceForNotification, jenis: NotificationKind): ComposedMessage {
-		const uploadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/p/bukti/${invoice.uploadToken}`;
+		const uploadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/p/proof/${invoice.uploadToken}`;
 		const sapaan = this.getSapaan(jenis);
 		const rekening = `${invoice.bankCode} ${invoice.bankAccountNumber} a.n. ${invoice.bankHolder}`;
 

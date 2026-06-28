@@ -38,11 +38,11 @@ export async function updateSession(request: NextRequest) {
 		pathname.startsWith("/api/cron/") ||
 		pathname.startsWith("/api/p/");
 
-	const isAuthPage = pathname.startsWith("/masuk") || pathname.startsWith("/daftar");
+	const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
 
 	if (!user && !isPublicPage && !isAuthPage) {
 		const url = request.nextUrl.clone();
-		url.pathname = "/masuk";
+		url.pathname = "/login";
 		return NextResponse.redirect(url);
 	}
 
