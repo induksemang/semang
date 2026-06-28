@@ -47,6 +47,7 @@ next-env.d.ts
 # local tooling
 .claude/
 .superpowers/
+.agents/
 
 # planning docs
 docs/superpowers/
