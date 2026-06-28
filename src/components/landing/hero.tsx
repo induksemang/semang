@@ -102,7 +102,7 @@ function PhoneMockup() {
 						<div className="text-sm leading-normal text-teal-800">
 							Sudah transfer ya bu 🙏 bukti sudah saya upload
 						</div>
-						<div className="mt-1 text-right text-xs text-teal-400">09.46</div>
+						<div className="mt-1 text-right text-xs text-teal-600">09.46</div>
 					</div>
 					<div className="max-w-[88%] self-start rounded-[14px] bg-white px-3.5 py-2.75 shadow-[0_1px_1px_rgba(0,0,0,0.08)]">
 						<div className="text-warm-900 text-sm leading-normal">

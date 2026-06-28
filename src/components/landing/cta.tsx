@@ -14,7 +14,7 @@ export function Cta() {
 					<h2 className="mx-auto mb-4 max-w-3xl text-[clamp(1.75rem,4.5vw,2.5rem)] leading-tight font-extrabold tracking-tight text-balance text-white">
 						Lihat pesan tagihan atas nama kost-mu sendiri dalam 5 menit
 					</h2>
-					<p className="mx-auto mb-8 max-w-130 text-lg leading-relaxed text-pretty text-teal-100">
+					<p className="mx-auto mb-8 max-w-130 text-lg leading-relaxed text-pretty text-teal-50">
 						Daftar, atur kamar &amp; harga, lalu kirim contoh tagihan ke WhatsApp-mu
 						sendiri. Tanpa kartu kredit, tanpa install.
 					</p>
@@ -27,7 +27,7 @@ export function Cta() {
 						</a>
 						<a
 							href="#try-it-for-free"
-							className="rounded-md border-2 border-white/40 bg-white/10 px-8 py-4 text-base font-bold text-white transition-colors hover:bg-white/20"
+							className="rounded-md border-2 border-white/40 px-8 py-4 text-base font-bold text-white transition-colors hover:bg-white/20"
 						>
 							Jadwalkan demo
 						</a>
