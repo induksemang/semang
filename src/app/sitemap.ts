@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://semang.vercel.com";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://semang.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	return [
