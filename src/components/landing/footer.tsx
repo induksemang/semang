@@ -27,14 +27,20 @@ export function Footer() {
 				<div className="mb-9 flex flex-wrap justify-between gap-8">
 					<div className="max-w-75">
 						<div className="mb-3.5 flex items-center gap-2.75">
-							<Image src="/logo.svg" alt="Semang" width={36} height={36} className="size-9 rounded-md" />
+							<Image
+								src="/logo.svg"
+								alt="Semang"
+								width={36}
+								height={36}
+								className="size-9 rounded-md"
+							/>
 							<span className="text-lg font-extrabold tracking-tight text-teal-900">
 								Semang
 							</span>
 						</div>
 						<p className="text-warm-500 text-sm leading-relaxed">
 							Cara paling sederhana menagih, mencatat, dan mengelola kost — dimulai
-							dari yang masih pakai buku tulis.
+							dari yang masih pakai buku catatan.
 						</p>
 					</div>
 					<div className="flex w-full flex-wrap justify-between gap-14 md:max-w-60">
