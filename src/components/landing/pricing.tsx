@@ -3,8 +3,9 @@ import { SectionHeading } from "./section-heading";
 
 type Tier = {
 	name: string;
+	sub: string;
 	price: string;
-	period: string;
+	unit: string;
 	meta: string;
 	features: string[];
 	cta: string;
@@ -14,63 +15,86 @@ type Tier = {
 const tiers: Tier[] = [
 	{
 		name: "Gratis",
+		sub: "Kost kecil/rumahan",
 		price: "Rp0",
-		period: "selamanya",
-		meta: "≤5 kamar · 1 properti",
+		unit: "selamanya",
+		meta: "sampai 5 kamar · 1 properti",
 		features: [
-			"Tagihan + bukti + konfirmasi",
-			"Pengingat dasar",
-			"Data bisa diunduh kapan saja"
+			"Tagihan otomatis via WhatsApp",
+			"Pembayaran online + kuitansi digital",
+			"Reminder dasar (hari-H)",
+			"Laporan kas ringkas"
 		],
 		cta: "Mulai gratis"
 	},
 	{
 		name: "Starter",
+		sub: "Kost yang mulai berkembang",
 		price: "Rp2.000",
-		period: "/kamar/bln",
-		meta: "min. Rp20.000 · ≤15 kamar",
+		unit: "per kamar terisi, per bulan",
+		meta: "sampai 15 kamar · minimum Rp20.000 per bulan",
 		features: [
-			"Semua fitur Gratis",
-			"Pengingat bertahap + denda",
-			"Meter listrik + laporan ekspor"
+			"Semua di Gratis, plus:",
+			"Reminder bertingkat penuh (H-3 s.d. H+7)",
+			"Tipe kamar dengan harga berbeda",
+			"Ringkasan mingguan ke WA-mu",
+			"Ekspor CSV / Excel"
 		],
-		cta: "Pilih Starter"
-	},
-	{
-		name: "Pro",
-		price: "Rp3.500",
-		period: "/kamar/bln",
-		meta: "≤50 kamar · 3 properti",
-		features: ["Semua fitur Starter", "Portal penghuni", "Tiket perbaikan + 2 staf"],
-		cta: "Coba 2 siklus gratis",
+		cta: "Coba 60 hari gratis",
 		featured: true
 	},
 	{
+		name: "Pro",
+		sub: "Kost menengah–eksklusif",
+		price: "Rp3.500",
+		unit: "per kamar terisi, per bulan",
+		meta: "sampai 50 kamar · 3 properti",
+		features: [
+			"Semua di Starter, plus:",
+			"Ringkasan lebih sering & per kamar",
+			"2 akun penjaga kost (peran terbatas)",
+			"Laporan keuangan lengkap"
+		],
+		cta: "Coba 60 hari gratis"
+	},
+	{
 		name: "Bisnis",
+		sub: "Multi-properti/operator",
 		price: "Rp5.000",
-		period: "/kamar/bln",
-		meta: "min. Rp250.000 · tak terbatas",
-		features: ["Semua fitur Pro", "Laba-rugi per properti", "Staf & properti tak terbatas"],
+		unit: "per kamar terisi, per bulan",
+		meta: "kamar tak terbatas · minimum Rp250.000 per bulan",
+		features: [
+			"Semua di Pro, plus:",
+			"Kamar, properti & staf tak terbatas",
+			"Laporan laba-rugi per properti",
+			"Dukungan prioritas"
+		],
 		cta: "Hubungi kami"
 	}
 ];
 
 export function Pricing() {
 	return (
-		<section id="pricing" className="container scroll-mt-16 py-10 md:py-14 lg:py-18">
+		<section
+			id="harga"
+			className="container scroll-mt-16 space-y-8 py-10 md:py-14 lg:space-y-12 lg:py-18"
+		>
 			<SectionHeading
-				eyebrow="Harga adil per kamar"
-				title="Mulai gratis, bayar saat tumbuh"
-				description="Coba 2 bulan penuh semua fitur Pro, tanpa kartu kredit. Setelah masa coba habis, otomatis turun ke paket gratis — datamu tetap aman."
+				eyebrow="Harga"
+				title="Bayar hanya untuk kamar yang terisi."
+				description="Kamar kosong tidak ditagih. Semua paket termasuk pembayaran online tanpa markup biaya ke penyewa. Coba semua fitur Pro gratis 60 hari — tanpa kartu kredit."
 			/>
-			<div className="mt-12 grid items-stretch gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
-				{tiers.map((tier) => (
-					<PriceCard key={tier.name} tier={tier} />
-				))}
+			<div className="space-y-6">
+				<div className="grid items-stretch gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
+					{tiers.map((tier) => (
+						<PriceCard key={tier.name} tier={tier} />
+					))}
+				</div>
+				<p className="text-warm-400 text-center text-sm leading-relaxed font-medium">
+					Setelah trial berakhir, akunmu otomatis pindah ke paket Gratis — semua data
+					tetap utuh. Bayar tahunan hemat ±2 bulan.
+				</p>
 			</div>
-			<p className="text-warm-400 mt-6 text-center text-sm font-semibold">
-				Tanpa biaya tambahan tiap transaksi · bayar tahunan diskon ±2 bulan
-			</p>
 		</section>
 	);
 }
@@ -80,78 +104,94 @@ function PriceCard({ tier }: { tier: Tier }) {
 	return (
 		<div
 			className={cn(
-				"relative flex flex-col rounded-xl border p-7",
+				"relative flex flex-col gap-6 rounded-xl border p-7",
 				featured
 					? "border-teal-700 bg-teal-700 shadow-[0_16px_36px_rgba(39,87,79,0.28)]"
-					: "border-border bg-card"
+					: "border-border bg-card shadow-warm-sm"
 			)}
 		>
 			{featured && (
-				<span className="absolute -top-2.75 left-7 rounded-full bg-teal-500 px-3 py-1.25 text-xs font-extrabold tracking-wide text-white uppercase">
+				<span className="bg-primary absolute -top-2.75 left-7 rounded-full px-3 py-1.25 text-xs font-extrabold tracking-wide text-white uppercase">
 					Paling pas
 				</span>
 			)}
-			<div
-				className={cn(
-					"mb-2.5 text-sm font-bold",
-					featured ? "text-teal-300" : "text-warm-500"
-				)}
-			>
-				{tier.name}
-			</div>
-			<div className="mb-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
-				<span
-					className={cn(
-						"text-[clamp(1.5625rem,2.4vw,2.125rem)] font-extrabold tracking-tight",
-						featured ? "text-white" : "text-warm-900"
-					)}
-				>
-					{tier.price}
-				</span>
-				<span
-					className={cn(
-						"text-sm font-semibold",
-						featured ? "text-teal-200" : "text-warm-500"
-					)}
-				>
-					{tier.period}
-				</span>
-			</div>
-			<div
-				className={cn(
-					"mb-5 text-sm font-semibold",
-					featured ? "text-teal-300" : "text-warm-500"
-				)}
-			>
-				{tier.meta}
-			</div>
-			<ul className="mb-6 flex flex-1 flex-col gap-2.5">
-				{tier.features.map((feature) => (
-					<li
-						key={feature}
-						className={cn(
-							"flex gap-2.25 text-sm",
-							featured ? "text-teal-100" : "text-warm-700"
-						)}
-					>
-						<span
+			<div className="flex flex-1 flex-col gap-5">
+				<div className="flex flex-col gap-4.5">
+					<div className="flex flex-col gap-1">
+						<h3
 							className={cn(
-								"font-extrabold",
-								featured ? "text-teal-300" : "text-teal-500"
+								"text-lg font-extrabold",
+								featured ? "text-white" : "text-warm-900"
 							)}
 						>
-							✓
-						</span>
-						{feature}
-					</li>
-				))}
-			</ul>
+							{tier.name}
+						</h3>
+						<p
+							className={cn(
+								"text-sm font-semibold",
+								featured ? "text-teal-300" : "text-warm-400"
+							)}
+						>
+							{tier.sub}
+						</p>
+					</div>
+					<div className="flex flex-col gap-2.5">
+						<div className="flex flex-col gap-0.5">
+							<div
+								className={cn(
+									"text-[clamp(1.5625rem,2.4vw,2.125rem)] font-extrabold tracking-tight",
+									featured ? "text-white" : "text-warm-900"
+								)}
+							>
+								{tier.price}
+							</div>
+							<p
+								className={cn(
+									"text-sm font-semibold",
+									featured ? "text-teal-200" : "text-warm-400"
+								)}
+							>
+								{tier.unit}
+							</p>
+						</div>
+						<p
+							className={cn(
+								"text-sm font-semibold",
+								featured ? "text-teal-300" : "text-warm-400"
+							)}
+						>
+							{tier.meta}
+						</p>
+					</div>
+				</div>
+				<ul className="flex flex-col gap-2.5">
+					{tier.features.map((feature) => (
+						<li
+							key={feature}
+							className={cn(
+								"flex gap-2.25 text-sm",
+								featured ? "text-teal-100" : "text-warm-700"
+							)}
+						>
+							<span
+								className={cn(
+									"font-extrabold",
+									featured ? "text-teal-300" : "text-success"
+								)}
+							>
+								✓
+							</span>
+							{feature}
+						</li>
+					))}
+				</ul>
+			</div>
 			<a
-				href="#try-it-for-free"
+				href="#daftar"
 				className={cn(
 					"rounded-md py-3.25 text-center text-base font-bold transition-colors",
 					featured
-						? "bg-white text-teal-700 hover:bg-teal-50"
+						? "bg-white text-teal-900 hover:bg-teal-50"
 						: "border-2 border-teal-200 bg-white text-teal-700 hover:bg-teal-50"
 				)}
 			>
