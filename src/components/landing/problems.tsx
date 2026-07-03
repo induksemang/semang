@@ -24,25 +24,32 @@ const problems = [
 
 export function Problems() {
 	return (
-		<section id="problems" className="container scroll-mt-16 py-10 md:py-14 lg:py-18">
+		<section
+			id="masalah"
+			className="container scroll-mt-16 space-y-8 py-10 md:py-14 lg:space-y-12 lg:py-18"
+		>
 			<SectionHeading
 				eyebrow="Tiga hal yang paling melelahkan"
 				title="Mengelola kost pakai buku catatan & chat itu capek"
 				description="Semang dirancang langsung dari tiga keluhan terbesar pemilik kost di Indonesia."
 			/>
-			<div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+			<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 				{problems.map((problem) => (
 					<article
 						key={problem.title}
-						className="border-border bg-card shadow-warm-sm rounded-xl border p-7.5"
+						className="border-border bg-card shadow-warm-sm space-y-4.5 rounded-xl border p-7.5"
 					>
 						<div
-							className={`mb-4.5 flex size-12 items-center justify-center rounded-lg ${problem.iconBg}`}
+							className={`flex size-12 items-center justify-center rounded-lg ${problem.iconBg}`}
 						>
 							<problem.icon className="size-6" strokeWidth={2} />
 						</div>
-						<h3 className="text-warm-900 mb-2.5 text-lg font-bold">{problem.title}</h3>
-						<p className="text-warm-600 text-base leading-relaxed">{problem.body}</p>
+						<div className="space-y-2.5">
+							<h3 className="text-warm-900 text-lg font-bold">{problem.title}</h3>
+							<p className="text-warm-600 text-base leading-relaxed">
+								{problem.body}
+							</p>
+						</div>
 					</article>
 				))}
 			</div>
