@@ -4,10 +4,11 @@ const columns = [
 	{
 		title: "Produk",
 		links: [
-			{ href: "#problems", label: "Masalah" },
-			{ href: "#how-it-works", label: "Cara kerja" },
-			{ href: "#features", label: "Fitur" },
-			{ href: "#pricing", label: "Harga" }
+			{ href: "#masalah", label: "Masalah" },
+			{ href: "#cara-kerja", label: "Cara kerja" },
+			{ href: "#fitur", label: "Fitur" },
+			{ href: "#kepercayaan", label: "Keamanan uang" },
+			{ href: "#harga", label: "Harga" }
 		]
 	},
 	{
@@ -23,10 +24,10 @@ const columns = [
 export function Footer() {
 	return (
 		<footer className="border-border border-t">
-			<div className="container py-8 md:py-12">
-				<div className="mb-9 flex flex-wrap justify-between gap-8">
-					<div className="max-w-75">
-						<div className="mb-3.5 flex items-center gap-2.75">
+			<div className="container space-y-9 py-8 md:py-12">
+				<div className="flex flex-wrap justify-between gap-8">
+					<div className="max-w-75 space-y-3.5">
+						<div className="flex items-center gap-2.75">
 							<Image
 								src="/logo.svg"
 								alt="Semang"
@@ -39,14 +40,14 @@ export function Footer() {
 							</span>
 						</div>
 						<p className="text-warm-500 text-sm leading-relaxed">
-							Cara paling sederhana menagih, mencatat, dan mengelola kost — dimulai
-							dari yang masih pakai buku catatan.
+							Kost-mu ditagih otomatis, uang masuk tercatat sendiri, tanpa kamu
+							menagih siapa-siapa.
 						</p>
 					</div>
-					<div className="flex w-full flex-wrap justify-between gap-14 md:max-w-60">
+					<div className="flex w-full flex-wrap justify-between gap-14 sm:w-fit">
 						{columns.map((column) => (
-							<nav key={column.title}>
-								<div className="text-warm-400 mb-3.5 text-xs font-bold tracking-wider uppercase">
+							<nav key={column.title} className="space-y-3.5">
+								<div className="text-warm-400 text-xs font-bold tracking-wider uppercase">
 									{column.title}
 								</div>
 								<ul className="flex flex-col gap-2.5">
