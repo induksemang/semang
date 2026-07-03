@@ -4,10 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 
 const links = [
-	{ href: "#problems", label: "Masalah" },
-	{ href: "#how-it-works", label: "Cara kerja" },
-	{ href: "#features", label: "Fitur" },
-	{ href: "#pricing", label: "Harga" }
+	{ href: "#masalah", label: "Masalah" },
+	{ href: "#cara-kerja", label: "Cara kerja" },
+	{ href: "#fitur", label: "Fitur" },
+	{ href: "#kepercayaan", label: "Keamanan uang" },
+	{ href: "#harga", label: "Harga" }
 ];
 
 export function Nav() {
@@ -36,14 +37,14 @@ export function Nav() {
 							<a
 								key={link.href}
 								href={link.href}
-								className="text-warm-700 text-sm font-semibold transition-colors hover:text-teal-500"
+								className="text-warm-700 hover:text-primary text-sm font-semibold transition-colors"
 							>
 								{link.label}
 							</a>
 						))}
 						<a
-							href="#try-it-for-free"
-							className="shadow-warm-teal rounded-md bg-teal-500 px-4.5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-teal-600"
+							href="#daftar"
+							className="shadow-warm-teal bg-primary text-primary-foreground rounded-md px-4.5 py-2.5 text-sm font-bold transition-colors hover:bg-teal-600"
 						>
 							Coba gratis
 						</a>
@@ -124,15 +125,15 @@ export function Nav() {
 					<div className="border-border border-t">
 						<div className="container py-6">
 							<a
-								href="#try-it-for-free"
-								className="shadow-warm-teal block w-full rounded-md bg-teal-500 py-3.5 text-center text-base font-bold text-white transition-colors hover:bg-teal-600"
+								href="#daftar"
+								className="shadow-warm-teal bg-primary text-primary-foreground block w-full rounded-md py-3.5 text-center text-base font-bold transition-colors hover:bg-teal-600"
 								onClick={() => setOpen(false)}
 							>
-								Coba Gratis
+								Coba gratis
 							</a>
 						</div>
 					</div>
-				</div> /* <-- PENAMBAHAN TAG PENUTUP DI SINI */
+				</div>
 			)}
 		</>
 	);
