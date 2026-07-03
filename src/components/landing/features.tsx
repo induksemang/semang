@@ -1,95 +1,160 @@
-import { Bell, LayoutGrid, LineChart, ListChecks } from "lucide-react";
 import { SectionHeading } from "./section-heading";
-
-const highlightTags = ["Tanpa QRIS", "Nominal tetap bulat", "Bayar rapel didukung"];
 
 const features = [
 	{
-		icon: Bell,
-		iconBg: "bg-warning-bg text-warning-fg",
-		title: "Pengingat bertahap",
-		body: "Pesan 3 hari sebelum, hari-H, dan 3 hari sesudah jatuh tempo disiapkan otomatis. Sistem yang mengingatkan — bukan kamu."
+		iconBg: "bg-teal-100",
+		title: "Jatuh tempo mengikuti kebiasaanmu",
+		body: "Tanggal masuk masing-masing penyewa, atau satu tanggal tetap untuk semua — termasuk perlakuan tagihan pertama untuk yang masuk di tengah bulan.",
+		icon: (
+			<svg
+				width="23"
+				height="23"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="#27574F"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<rect x="3" y="4" width="18" height="18" rx="2" />
+				<line x1="16" y1="2" x2="16" y2="6" />
+				<line x1="8" y1="2" x2="8" y2="6" />
+				<line x1="3" y1="10" x2="21" y2="10" />
+			</svg>
+		)
 	},
 	{
-		icon: LineChart,
-		iconBg: "bg-success-bg text-success-fg",
+		iconBg: "bg-teal-100",
+		title: "Bulanan, mingguan, harian",
+		body: "Penyewa sementara? Sewa per minggu atau per hari dengan harga turunan otomatis yang bisa kamu ubah sendiri.",
+		icon: (
+			<svg
+				width="23"
+				height="23"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="#27574F"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<circle cx="12" cy="12" r="10" />
+				<polyline points="12 6 12 12 16 14" />
+			</svg>
+		)
+	},
+	{
+		iconBg: "bg-success-bg",
+		title: "Cicilan & bayar di muka",
+		body: "Sepakat dicicil? Kamu yang menetapkan besarannya, sistem mengirim link dengan nominal terkunci. Bayar setahun di muka dengan diskon juga bisa.",
+		icon: (
+			<svg
+				width="23"
+				height="23"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="#256E4B"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<rect x="2" y="6" width="20" height="12" rx="2" />
+				<circle cx="12" cy="12" r="2" />
+				<path d="M6 12h.01" />
+				<path d="M18 12h.01" />
+			</svg>
+		)
+	},
+	{
+		iconBg: "bg-teal-100",
+		title: "Tipe kamar & harga bertingkat",
+		body: "Kamar AC, kamar mandi dalam, standar — tiap tipe punya harganya sendiri, masih bisa disesuaikan per kamar.",
+		icon: (
+			<svg
+				width="23"
+				height="23"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="#27574F"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<rect x="3" y="3" width="7" height="7" rx="1" />
+				<rect x="14" y="3" width="7" height="7" rx="1" />
+				<rect x="3" y="14" width="7" height="7" rx="1" />
+				<rect x="14" y="14" width="7" height="7" rx="1" />
+			</svg>
+		)
+	},
+	{
+		iconBg: "bg-teal-100",
+		title: "Kabar rutin ke WhatsApp-mu",
+		body: "Ringkasan berkala: siapa sudah bayar, siapa menunggak — langsung di WhatsApp, dengan tautan ke dashboard untuk rinciannya.",
+		icon: (
+			<svg
+				width="23"
+				height="23"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="#27574F"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
+			</svg>
+		)
+	},
+	{
+		iconBg: "bg-success-bg",
 		title: "Laporan kas & ekspor",
-		body: 'Rekap uang masuk per bulan, status per kamar, ekspor CSV/Excel. "Bulan ini Rp22 juta tercatat otomatis."'
-	},
-	{
-		icon: ListChecks,
-		iconBg: "bg-info-bg text-info-fg",
-		title: "Cepat siap dipakai",
-		body: "Ada panduan langkah demi langkah, bukan halaman kosong. Kurang dari 10 menit sampai kamu bisa kirim contoh tagihan ke WA."
+		body: "Rekap uang masuk per bulan, lunas/telat/menunggak per kamar, tren sederhana, ekspor ke Excel kapan saja.",
+		icon: (
+			<svg
+				width="23"
+				height="23"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="#256E4B"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+				<polyline points="16 7 22 7 22 13" />
+			</svg>
+		)
 	}
 ];
 
 export function Features() {
 	return (
-		<section id="features" className="container scroll-mt-16 py-10 md:py-14 lg:py-18">
+		<section
+			id="fitur"
+			className="container scroll-mt-16 space-y-8 py-10 md:py-14 lg:space-y-12 lg:py-18"
+		>
 			<SectionHeading
-				eyebrow="Yang kamu dapat"
-				title="Cukup untuk merapikan kost, tanpa kerumitan"
-				description="Setiap fitur menjawab satu masalah nyata. Tanpa istilah ribet, tanpa halaman kosong."
+				eyebrow="Fitur"
+				title="Mengikuti cara kost-mu berjalan — bukan sebaliknya."
+				description="Pola penagihan yang sudah kamu pakai bertahun-tahun didukung, bukan dipaksa berubah."
 			/>
 
-			<div className="mt-12 grid gap-5 lg:grid-cols-2">
-				{/* Differentiator */}
-				<article className="flex min-h-70 flex-col justify-between rounded-xl border border-teal-100 bg-teal-50 p-9">
-					<div>
-						<span className="mb-4.5 inline-flex rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-700">
-							Pembeda utama
-						</span>
-						<h3 className="mb-3 text-2xl font-extrabold tracking-tight text-teal-900">
-							Pembayaran dicocokkan lewat token, bukan tebak-tebak nominal
-						</h3>
-						<p className="text-warm-700 max-w-135 text-base leading-relaxed">
-							Setiap tagihan punya tautan upload unik. Saat penghuni mengunggah bukti,
-							sistem sudah tahu persis itu untuk tagihan yang mana — tahan terhadap
-							harga beda-beda maupun bayar beberapa bulan sekaligus.
-						</p>
-					</div>
-					<ul className="mt-6 flex flex-wrap gap-2.5">
-						{highlightTags.map((tag) => (
-							<li
-								key={tag}
-								className="inline-flex items-center gap-1.75 rounded-full bg-white px-3.5 py-1.75 text-sm font-bold text-teal-700"
-							>
-								<span className="size-1.5 rounded-full bg-teal-500" />
-								{tag}
-							</li>
-						))}
-					</ul>
-				</article>
-
-				{/* Self-fill */}
-				<article className="border-border bg-card shadow-warm-sm rounded-xl border p-8">
-					<div className="mb-4.5 flex size-12 items-center justify-center rounded-lg bg-teal-100 text-teal-700">
-						<LayoutGrid className="size-6" strokeWidth={2} />
-					</div>
-					<h3 className="text-warm-900 mb-2.5 text-lg font-bold">
-						Penghuni isi datanya sendiri
-					</h3>
-					<p className="text-warm-600 text-base leading-relaxed">
-						Sebar QR/link per kamar di grup WA. Penghuni mengisi nama &amp; nomornya
-						sendiri — beban input pindah dari kamu ke mereka.
-					</p>
-				</article>
-			</div>
-
-			<div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+			<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 				{features.map((feature) => (
 					<article
 						key={feature.title}
-						className="border-border bg-card shadow-warm-sm rounded-xl border p-7.5"
+						className="border-border bg-card shadow-warm-sm space-y-4 rounded-xl border p-6.5"
 					>
 						<div
-							className={`mb-4 flex size-11.5 items-center justify-center rounded-md ${feature.iconBg}`}
+							className={`flex size-11.5 items-center justify-center rounded-md ${feature.iconBg}`}
 						>
-							<feature.icon className="size-5.75" strokeWidth={2} />
+							{feature.icon}
 						</div>
-						<h3 className="text-warm-900 mb-2 text-lg font-bold">{feature.title}</h3>
-						<p className="text-warm-600 text-sm leading-relaxed">{feature.body}</p>
+						<div className="space-y-2">
+							<h3 className="text-warm-900 text-lg font-bold">{feature.title}</h3>
+							<p className="text-warm-600 text-sm leading-relaxed">{feature.body}</p>
+						</div>
 					</article>
 				))}
 			</div>
