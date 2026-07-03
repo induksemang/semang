@@ -1,4 +1,4 @@
-import { ArrowRightLeft, ClipboardX, Frown } from "lucide-react";
+import { CircleHelp, ClipboardX, Frown } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 
 const problems = [
@@ -15,9 +15,9 @@ const problems = [
 		body: "Bukti transfer terselip di chat, KTP tercecer, dan tiap akhir bulan harus mengingat-ingat siapa yang sudah bayar."
 	},
 	{
-		icon: ArrowRightLeft,
+		icon: CircleHelp,
 		iconBg: "bg-info-bg text-info-fg",
-		title: "Pembayaran nyasar",
+		title: "Transfer tanpa keterangan",
 		body: "Transfer masuk tanpa keterangan, lalu harus mencocokkan mutasi rekening satu per satu dengan penghuni."
 	}
 ];
