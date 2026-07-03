@@ -77,24 +77,7 @@ function PhoneMockup() {
 			<div className="flex h-full flex-col overflow-hidden rounded-[36px] bg-[#ECE5DD]">
 				{/* WA header */}
 				<div className="flex items-center gap-2.5 bg-teal-700 px-4 pt-4 pb-3.5">
-					<div className="bg-primary flex size-8.5 flex-none items-center justify-center rounded-full">
-						<svg
-							width="18"
-							height="18"
-							viewBox="0 0 32 32"
-							fill="none"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								d="M5 30V12a11 11 0 0 1 22 0v18"
-								stroke="#fff"
-								strokeWidth="3"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-							/>
-							<circle cx="22.5" cy="18.5" r="1.4" fill="#fff" />
-						</svg>
-					</div>
+					<img src="/logo.svg" alt="" className="size-8.5 flex-none rounded-full" />
 					<div className="min-w-0 flex-1">
 						<div className="flex items-center gap-1.5">
 							<span className="text-sm font-bold text-white">Semang</span>
