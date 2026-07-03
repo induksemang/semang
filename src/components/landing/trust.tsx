@@ -1,41 +1,97 @@
-import { Clock, FileDown, Lock, Shield } from "lucide-react";
+import { SectionHeading } from "./section-heading";
 
 const points = [
 	{
-		icon: Shield,
-		title: "Kami tak pegang uangmu",
-		body: "Uang mengalir langsung penghuni → rekeningmu. Platform hanya pembawa pesan dan pencatat."
+		title: "Langsung ke rekeningmu",
+		body: "Diproses Xendit — payment gateway berlisensi yang dipakai ribuan bisnis Indonesia. Dana mengalir ke rekeningmu, tanpa mampir ke mana pun.",
+		icon: (
+			<svg
+				width="22"
+				height="22"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<line x1="3" y1="22" x2="21" y2="22" />
+				<line x1="6" y1="18" x2="6" y2="11" />
+				<line x1="10" y1="18" x2="10" y2="11" />
+				<line x1="14" y1="18" x2="14" y2="11" />
+				<line x1="18" y1="18" x2="18" y2="11" />
+				<path d="M12 2 3 7.5h18z" />
+			</svg>
+		)
 	},
 	{
-		icon: Lock,
-		title: "Data tiap pemilik terpisah",
-		body: "Data tiap pemilik dipisah aman di sistem. Link bukti bayar pakai kode acak yang tak bisa ditebak untuk tiap tagihan."
+		title: "Mulai tanpa syarat verifikasi",
+		body: "Menagih otomatis jalan sejak hari pertama. Verifikasi identitas hanya diperlukan untuk mengaktifkan pelunasan online otomatis — bukan untuk mulai.",
+		icon: (
+			<svg
+				width="22"
+				height="22"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+			</svg>
+		)
 	},
 	{
-		icon: FileDown,
-		title: "Datamu tetap milikmu",
-		body: "Bisa kamu unduh kapan saja. Turun ke paket Gratis pun, semua datamu tetap utuh."
-	},
-	{
-		icon: Clock,
-		title: "Satu harga, jujur",
-		body: "Tanpa komisi tersembunyi, tanpa bayar untuk membalas pesan. Gratis selamanya untuk ≤5 kamar."
+		title: "Datamu tetap aman",
+		body: "Berhenti berlangganan? Akun otomatis pindah ke paket Gratis, semua data tetap milikmu dan bisa diekspor kapan saja. Data penyewa dilindungi sesuai UU PDP.",
+		icon: (
+			<svg
+				width="22"
+				height="22"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			>
+				<ellipse cx="12" cy="5" rx="9" ry="3" />
+				<path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5" />
+				<path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3" />
+			</svg>
+		)
 	}
 ];
 
 export function Trust() {
 	return (
-		<section className="border-border bg-warm-50 border-y">
-			<div className="container grid gap-5 py-10 sm:grid-cols-2 md:py-14 lg:grid-cols-4 lg:py-18">
-				{points.map((point) => (
-					<div key={point.title}>
-						<div className="border-border bg-card mb-4 flex size-11 items-center justify-center rounded-md border text-teal-500">
-							<point.icon className="size-5.5" strokeWidth={2} />
+		<section id="kepercayaan" className="scroll-mt-16 bg-teal-900">
+			<div className="container space-y-8 py-10 md:py-14 lg:space-y-12 lg:py-18">
+				<SectionHeading
+					tone="dark"
+					eyebrow="Keamanan uang"
+					title="Uangmu tidak pernah menyentuh Semang."
+					description="Pembayaran penyewa langsung masuk ke rekeningmu sendiri lewat jalur pembayaran resmi berlisensi. Kami hanya perangkat lunaknya — bukan penampung uang."
+				/>
+				<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+					{points.map((point) => (
+						<div
+							key={point.title}
+							className="shadow-warm-sm space-y-4 rounded-xl border border-teal-600 bg-teal-800 p-6.5"
+						>
+							<div className="flex size-11 items-center justify-center rounded-md bg-teal-600 text-teal-200">
+								{point.icon}
+							</div>
+							<div className="space-y-2">
+								<h3 className="text-lg font-bold text-white">{point.title}</h3>
+								<p className="text-sm leading-relaxed text-teal-200">
+									{point.body}
+								</p>
+							</div>
 						</div>
-						<h3 className="text-warm-900 mb-1.75 text-base font-bold">{point.title}</h3>
-						<p className="text-warm-600 text-sm leading-relaxed">{point.body}</p>
-					</div>
-				))}
+					))}
+				</div>
 			</div>
 		</section>
 	);
