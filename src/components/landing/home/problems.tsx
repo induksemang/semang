@@ -1,5 +1,5 @@
 import { CircleHelp, ClipboardX, Frown } from "lucide-react";
-import { SectionHeading } from "./shared/section-heading";
+import { SectionHeading } from "../shared/section-heading";
 
 const problems = [
 	{
