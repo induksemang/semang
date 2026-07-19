@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { SectionHeading } from "./section-heading";
+import { SectionHeading } from "./shared/section-heading";
 
 type Tier = {
 	name: string;
