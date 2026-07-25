@@ -32,7 +32,7 @@ const stages = [
 
 export function MonthlyCycle() {
 	return (
-		<section className="container space-y-8 py-10 md:py-14 lg:space-y-11 lg:py-18">
+		<section className="container space-y-8 py-10 md:space-y-10 md:py-14 lg:space-y-11 lg:py-18">
 			<SectionHeading
 				align="left"
 				eyebrow="Siklus bulanan"
@@ -40,26 +40,26 @@ export function MonthlyCycle() {
 				description="Tanpa pemilik menekan tombol apa pun, dari tagihan sampai laporan ter-update."
 			/>
 
-			<div className="flex flex-col items-stretch lg:flex-row">
+			<div className="flex flex-col items-stretch md:flex-row">
 				{stages.map((stage, index) => (
 					<div key={stage.num} className="contents">
 						{index > 0 && (
 							<div
 								aria-hidden
-								className="text-primary flex flex-none items-center justify-center px-2 py-1 text-xl font-extrabold"
+								className="text-primary flex flex-none items-center justify-center px-2 py-1 text-xl font-extrabold md:px-1 lg:px-2"
 							>
-								<span className="rotate-90 lg:rotate-0">→</span>
+								<span className="rotate-90 md:rotate-0">→</span>
 							</div>
 						)}
 						<div
 							className={cn(
-								"flex flex-1 items-start gap-3 rounded-md border px-4.5 py-4 lg:block lg:rounded-lg lg:px-5 lg:py-5.5",
+								"flex flex-1 items-start gap-3 rounded-md border px-4.5 py-4 md:block md:rounded-lg md:px-3.5 md:py-4.5 lg:px-5 lg:py-5.5",
 								stage.className
 							)}
 						>
 							<span
 								className={cn(
-									"flex size-6.5 flex-none items-center justify-center rounded-full text-xs font-extrabold text-white lg:mb-3 lg:size-7",
+									"flex size-6.5 flex-none items-center justify-center rounded-full text-xs font-extrabold text-white md:mb-2.5 md:size-7 lg:mb-3",
 									stage.dark ? "bg-white/25" : "bg-teal-700"
 								)}
 							>

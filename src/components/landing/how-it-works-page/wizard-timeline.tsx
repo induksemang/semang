@@ -64,15 +64,15 @@ const steps: Step[] = [
 
 export function WizardTimeline() {
 	return (
-		<section>
+		<section className="bg-warm-canvas">
 			<div className="container py-10 md:py-14 lg:py-18">
 				<div className="mx-auto max-w-190">
 					{steps.map((step, index) => (
-						<div key={step.num} className="flex gap-3.5 lg:gap-5">
+						<div key={step.num} className="flex gap-3.5 md:gap-4.5 lg:gap-5">
 							<div className="flex flex-none flex-col items-center">
 								<span
 									className={cn(
-										"flex size-7.5 items-center justify-center rounded-full text-xs font-extrabold text-white lg:size-8.5 lg:text-sm",
+										"flex size-7.5 items-center justify-center rounded-full text-xs font-extrabold text-white md:size-8.5 md:text-sm",
 										step.done
 											? "bg-success"
 											: step.highlight
@@ -83,21 +83,23 @@ export function WizardTimeline() {
 									{step.num}
 								</span>
 								{index < steps.length - 1 && (
-									<span className="bg-border min-h-5 w-0.5 flex-1 lg:min-h-6" />
+									<span className="bg-border min-h-5 w-0.5 flex-1 md:min-h-6" />
 								)}
 							</div>
 							<div
-								className={index < steps.length - 1 ? "pb-5.5 lg:pb-7" : undefined}
+								className={index < steps.length - 1 ? "pb-5.5 md:pb-7" : undefined}
 							>
 								{step.badge && (
-									<span className="mb-1.5 inline-flex rounded-full bg-teal-100 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-teal-700 uppercase lg:mb-2">
+									<span className="mb-1.5 inline-flex rounded-full bg-teal-100 px-2.5 py-1 text-[10px] font-extrabold tracking-wide text-teal-700 uppercase md:mb-2">
 										{step.badge}
 									</span>
 								)}
-								<h3 className="mb-1 text-base font-bold text-teal-900 lg:mb-1.5 lg:text-lg">
+								<h3 className="mb-1 text-base font-bold text-teal-900 md:mb-1.5 md:text-lg">
 									{step.title}
 								</h3>
-								<p className="text-warm-600 text-sm leading-relaxed">{step.body}</p>
+								<p className="text-warm-600 text-sm leading-relaxed md:text-[0.9375rem]">
+									{step.body}
+								</p>
 							</div>
 						</div>
 					))}

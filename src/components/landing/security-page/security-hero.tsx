@@ -71,21 +71,21 @@ export function SecurityHero() {
 						<p className="text-xs font-bold tracking-widest text-teal-300 uppercase">
 							Keamanan &amp; kepercayaan
 						</p>
-						<h1 className="max-w-190 text-3xl font-extrabold tracking-tight text-balance text-white sm:text-4xl md:text-5xl">
+						<h1 className="max-w-190 text-3xl font-extrabold tracking-tight text-balance text-white sm:text-4xl lg:text-5xl">
 							Uangmu tidak pernah menyentuh Semang.
 						</h1>
 					</div>
-					<p className="max-w-160 text-[15px] leading-relaxed text-pretty text-teal-200 sm:text-lg">
+					<p className="max-w-160 text-sm leading-relaxed text-pretty text-teal-200 sm:text-lg">
 						Prinsipnya sederhana: uang sewa langsung masuk ke rekeningmu sendiri — kami
 						tidak pernah memegangnya.
 					</p>
 				</div>
 
-				<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 md:gap-4 lg:gap-5">
 					{points.map((point) => (
 						<div
 							key={point.title}
-							className="space-y-3 rounded-md border border-teal-600 bg-teal-800 p-5 lg:space-y-4 lg:rounded-lg lg:p-6.5"
+							className="space-y-3 rounded-md border border-teal-600 bg-teal-800 p-5 md:p-4.5 lg:space-y-4 lg:rounded-lg lg:p-6.5"
 						>
 							<div className="flex size-10 items-center justify-center rounded-md bg-teal-600 text-teal-200 lg:size-11">
 								{point.icon}

@@ -15,7 +15,7 @@ export function MarkPaidDemo() {
 	const [method, setMethod] = useState<Method>("Tunai");
 
 	return (
-		<div className="relative max-w-140 min-w-0 flex-1 basis-95 pt-3.5 pb-2.5">
+		<div className="relative max-w-140 min-w-0 flex-1 basis-80 pt-3.5 pb-2.5 lg:basis-95">
 			<div className="bg-warning-bg border-warning/20 text-warning-fg shadow-warm-sm absolute -top-1 right-4.5 z-2 rotate-3 rounded-lg border px-3 py-1.5 text-xs font-extrabold">
 				coba klik! 👆
 			</div>

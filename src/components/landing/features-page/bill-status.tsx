@@ -25,7 +25,7 @@ function Pill({
 
 function Lunas() {
 	return (
-		<span className="bg-success flex-none rounded-full px-5 py-2.5 text-sm font-extrabold whitespace-nowrap text-white shadow-[0_5px_14px_rgba(47,139,95,0.28)]">
+		<span className="bg-success shadow-success flex-none rounded-full px-5 py-2.5 text-sm font-extrabold whitespace-nowrap text-white">
 			Lunas ✓
 		</span>
 	);
@@ -33,7 +33,7 @@ function Lunas() {
 
 export function BillStatus() {
 	return (
-		<section>
+		<section className="bg-warm-canvas">
 			<div className="container space-y-8 py-10 md:py-14 lg:space-y-10 lg:py-18">
 				<SectionHeading
 					align="left"

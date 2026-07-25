@@ -6,10 +6,10 @@ const roomTypes = [
 
 export function PropertyManagement() {
 	return (
-		<section>
+		<section className="bg-warm-canvas">
 			<div className="container py-10 md:py-14 lg:py-18">
-				<div className="flex flex-wrap items-center gap-x-12 gap-y-8">
-					<div className="min-w-0 flex-1 basis-95 space-y-3 lg:space-y-4">
+				<div className="flex flex-wrap items-center gap-x-8 gap-y-8 lg:gap-x-12">
+					<div className="min-w-0 flex-1 basis-90 space-y-3 lg:basis-95 lg:space-y-4">
 						<h2 className="text-xl font-extrabold tracking-tight text-teal-900 lg:text-2xl">
 							Kost, tipe kamar &amp; kamar dalam satu tempat
 						</h2>
@@ -25,7 +25,7 @@ export function PropertyManagement() {
 							bisa.
 						</p>
 					</div>
-					<div className="max-w-105 min-w-0 flex-1 basis-80">
+					<div className="max-w-105 min-w-0 flex-1 basis-72 lg:basis-80">
 						<div className="border-border bg-card overflow-hidden rounded-lg border">
 							<div className="border-border bg-warm-50 text-warm-400 border-b px-5 py-4 text-xs font-bold tracking-wide uppercase">
 								Tipe kamar — contoh

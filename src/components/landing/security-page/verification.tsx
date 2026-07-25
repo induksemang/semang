@@ -15,11 +15,11 @@ const afterVerification = [
 
 export function Verification() {
 	return (
-		<section>
+		<section className="bg-warm-canvas">
 			<div className="container space-y-14 py-10 md:py-14 lg:py-18">
-				<div className="flex flex-wrap items-start gap-x-14 gap-y-10">
+				<div className="flex flex-wrap items-start gap-x-8 gap-y-10 lg:gap-x-14">
 					{/* Copy + kartu verifikasi */}
-					<div className="min-w-0 flex-1 basis-85 space-y-7">
+					<div className="min-w-0 flex-1 basis-72 space-y-7 lg:basis-85">
 						<SectionHeading
 							align="left"
 							eyebrow="Verifikasi & pelunasan"
@@ -54,7 +54,7 @@ export function Verification() {
 					</div>
 
 					{/* Dua kartu jalur */}
-					<div className="flex min-w-0 flex-1 basis-135 flex-col gap-4 lg:gap-5">
+					<div className="flex min-w-0 flex-1 basis-96 flex-col gap-4 lg:basis-135 lg:gap-5">
 						<div className="border-border bg-card space-y-3 rounded-md border p-5 lg:space-y-4 lg:rounded-xl lg:p-7">
 							<div className="flex flex-wrap items-baseline justify-between gap-3">
 								<div className="text-warm-400 font-mono text-xs font-bold tracking-widest">
@@ -103,8 +103,8 @@ export function Verification() {
 				</div>
 
 				{/* Bayar tunai tetap bisa */}
-				<div className="flex flex-wrap items-center gap-x-12 gap-y-8">
-					<div className="min-w-0 flex-1 basis-85 space-y-4.5">
+				<div className="flex flex-wrap items-center gap-x-8 gap-y-8 lg:gap-x-12">
+					<div className="min-w-0 flex-1 basis-72 space-y-4.5 lg:basis-85">
 						<div className="space-y-2.5">
 							<h3 className="text-lg font-extrabold tracking-tight text-balance text-teal-900 lg:text-2xl">
 								&ldquo;Bu, saya bayar cash aja ya&rdquo; — tetap bisa. 🤝

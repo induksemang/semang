@@ -21,14 +21,14 @@ const planUpdates = [
 
 export function PeriodicUpdates() {
 	return (
-		<section>
-			<div className="container flex flex-wrap items-center gap-x-14 gap-y-10 py-10 md:py-14 lg:py-18">
-				<div className="min-w-0 flex-1 basis-95 space-y-5">
+		<section className="bg-warm-canvas">
+			<div className="container flex flex-wrap items-center gap-x-8 gap-y-10 py-10 md:py-14 lg:gap-x-14 lg:py-18">
+				<div className="min-w-0 flex-1 basis-80 space-y-5 lg:basis-95">
 					<div className="space-y-2.5">
 						<p className="text-primary text-xs font-bold tracking-widest uppercase">
 							Update berkala
 						</p>
-						<h2 className="text-2xl font-extrabold tracking-tight text-teal-900">
+						<h2 className="text-2xl font-extrabold tracking-tight text-balance text-teal-900">
 							Laporan yang datang sendiri — sebelum kamu bertanya.
 						</h2>
 						<p className="text-warm-600 text-sm leading-relaxed md:text-base">
@@ -44,7 +44,9 @@ export function PeriodicUpdates() {
 								>
 									{item.plan}
 								</span>
-								<span className={`text-xs font-semibold ${item.bodyClass}`}>
+								<span
+									className={`text-xs font-semibold md:text-sm ${item.bodyClass}`}
+								>
 									{item.body}
 								</span>
 							</div>
@@ -53,12 +55,12 @@ export function PeriodicUpdates() {
 				</div>
 
 				{/* Vignette ringkasan WA */}
-				<div className="relative max-w-110 min-w-0 flex-1 basis-85 pt-2.5 pb-6">
+				<div className="relative max-w-110 min-w-0 flex-1 basis-72 pt-2.5 pb-6 lg:basis-85">
 					<div className="bg-warning-bg border-warning/20 text-warning-fg shadow-warm-sm absolute -top-3.5 right-2 z-2 rotate-2 rounded-lg border px-3 py-1.5 text-xs font-extrabold">
 						tanpa buka laptop 🙌
 					</div>
-					<div className="shadow-warm-lg -rotate-1 rounded-xl bg-[#ECE5DD] p-4.5">
-						<div className="bg-card space-y-1.5 self-start rounded-[4px_14px_14px_14px] px-4 py-3.5 shadow-[0_1px_1px_rgba(0,0,0,0.08)]">
+					<div className="bg-whatsapp-canvas shadow-warm-lg -rotate-1 rounded-xl p-4.5">
+						<div className="bg-card shadow-chat space-y-1.5 self-start rounded-[4px_14px_14px_14px] px-4 py-3.5">
 							<div className="text-xs font-bold text-black">
 								Semang · ringkasan mingguan
 							</div>

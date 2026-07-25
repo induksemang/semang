@@ -75,20 +75,20 @@ export function Architecture() {
 				description="Pembayaran penyewa diproses lewat akun pembayaran atas namamu sendiri, lalu langsung diteruskan ke rekening bankmu. Semang hanya mencatat dan mengonfirmasi — tidak pernah menampung uangmu."
 			/>
 
-			<div className="flex flex-col items-center lg:flex-row">
+			<div className="flex flex-col items-center md:flex-row">
 				{nodes.map((node, index) => (
 					<div key={node.title} className="contents">
 						{index > 0 && (
 							<div
 								aria-hidden
-								className="text-warm-300 flex flex-none items-center justify-center px-4 py-1 text-xl font-extrabold"
+								className="text-warm-300 flex flex-none items-center justify-center px-2 py-1 text-xl font-extrabold lg:px-4"
 							>
-								<span className="rotate-90 lg:rotate-0">→</span>
+								<span className="rotate-90 md:rotate-0">→</span>
 							</div>
 						)}
 						<div
 							className={cn(
-								"w-full flex-1 space-y-1 rounded-md border p-4.5 text-center lg:rounded-lg lg:p-6",
+								"w-full flex-1 space-y-1 rounded-md border p-4.5 text-center md:p-4 lg:rounded-lg lg:p-6",
 								node.featured
 									? "border-teal-200 bg-teal-100"
 									: "border-border bg-card"

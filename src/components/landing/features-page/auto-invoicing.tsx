@@ -121,7 +121,6 @@ export function AutoInvoicing() {
 				align="left"
 				eyebrow="Tagihan otomatis"
 				title="Seluruh aturan penagihan, sudah dipikirkan."
-				description="Jatuh tempo, denda, dan pengingat berjalan sendiri setiap bulan — tidak perlu diketik ulang."
 			/>
 
 			{/* Dua cara jatuh tempo */}
@@ -200,7 +199,7 @@ export function AutoInvoicing() {
 						tanggal masuk, dan kamu bisa mengubahnya kapan saja.
 					</p>
 				</div>
-				<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="grid auto-rows-fr gap-4 sm:grid-cols-2 md:grid-cols-3">
 					{firstInvoiceOptions.map((option) => (
 						<div
 							key={option.label}
@@ -211,7 +210,7 @@ export function AutoInvoicing() {
 									: "border-border bg-card"
 							)}
 						>
-							<div className="flex items-center gap-2">
+							<div className="flex min-h-5 items-center gap-2">
 								<span
 									className={cn(
 										"font-mono text-[10px] font-bold tracking-wider uppercase",
@@ -250,7 +249,7 @@ export function AutoInvoicing() {
 						bertubi-tubi untuk sewa pendek.
 					</p>
 				</div>
-				<div className="flex flex-col gap-4 md:flex-row md:gap-9">
+				<div className="flex flex-col gap-4 md:flex-row md:gap-6 lg:gap-9">
 					{rentalUnits.map((unit) => (
 						<div
 							key={unit.unit}
