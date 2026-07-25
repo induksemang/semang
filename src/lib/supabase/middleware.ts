@@ -33,8 +33,11 @@ export async function updateSession(request: NextRequest) {
 
 	const { pathname } = request.nextUrl;
 
+	const publicMarketingPages = ["/cara-kerja", "/fitur", "/harga", "/keamanan"];
+
 	const isPublicPage =
 		pathname === "/" ||
+		publicMarketingPages.includes(pathname) ||
 		pathname.startsWith("/p/") ||
 		pathname.startsWith("/api/cron/") ||
 		pathname.startsWith("/api/p/");
