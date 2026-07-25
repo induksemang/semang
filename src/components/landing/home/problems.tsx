@@ -35,20 +35,24 @@ export function Problems() {
 								diam-diam.
 							</p>
 						</div>
-						<div className="bg-whatsapp-canvas flex flex-1 flex-col justify-center gap-2.5 rounded-lg p-4.5">
-							<div className="bg-card shadow-chat max-w-[78%] space-y-0.5 self-start rounded-[4px_12px_12px_12px] px-3.5 py-2.5">
-								<p className="text-xs font-bold text-teal-700">
-									Semang · Kost Melati
-								</p>
-								<p className="text-warm-800 text-xs leading-normal">
-									🧾 Halo Rara, tagihan Kamar 3 · Juli — <b>Rp1.500.000</b>, jatuh
-									tempo 1 Juli.
-								</p>
+						<div className="bg-whatsapp-canvas flex flex-1 flex-col justify-center gap-2.5 rounded-lg px-3 py-3.5 md:px-3.5 md:py-4.5">
+							<div className="bg-card shadow-chat max-w-[92%] space-y-1 self-start rounded-[4px_14px_14px_14px] px-3.5 py-2.75 md:max-w-[88%]">
+								<div className="space-y-1.5">
+									<div className="text-xs font-bold text-black">
+										🧾 Semang · Kost Melati
+									</div>
+									<div className="text-xs leading-normal text-black">
+										Halo Rara, tagihan Kamar 3 · Juli — <b>Rp1.500.000</b>,
+										jatuh tempo 1 Juli.
+									</div>
+								</div>
+								<div className="text-right text-[10px] text-gray-500">08.00</div>
 							</div>
-							<div className="bg-whatsapp-bubble shadow-chat max-w-[60%] self-end rounded-[12px_4px_12px_12px] px-3.5 py-2.5">
-								<p className="text-xs leading-normal text-black">
+							<div className="bg-whatsapp-bubble shadow-chat max-w-[80%] space-y-1 self-end rounded-[14px_4px_14px_14px] px-3.5 py-2.75">
+								<div className="text-xs leading-normal text-black">
 									Siap, kubayar sekarang 🙏
-								</p>
+								</div>
+								<div className="text-right text-[10px] text-gray-500">08.03 ✓✓</div>
 							</div>
 						</div>
 						<div className="flex items-center gap-2.5">

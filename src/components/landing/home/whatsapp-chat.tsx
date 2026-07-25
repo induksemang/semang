@@ -63,7 +63,7 @@ export function WhatsappChat() {
 				</div>
 				<div className="bg-card shadow-chat max-w-[92%] space-y-1 self-start rounded-[4px_14px_14px_14px] px-3.5 py-2.75 md:max-w-[88%]">
 					<div className="text-xs leading-normal text-black">
-						<b>✓ Pembayaran diterima — lunas</b>
+						<b>✅ Pembayaran diterima — lunas</b>
 						<br />
 						Rp1.500.000 · Kamar 3 · Juli 2026.
 						<br />
