@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Cta } from "@/components/landing/shared/cta";
-import { Faq } from "@/components/landing/pricing-page/faq";
+import { Faq } from "@/components/landing/pricing/faq";
 import { Footer } from "@/components/landing/shared/footer";
-import { Comparison } from "@/components/landing/pricing-page/comparison";
+import { Comparison } from "@/components/landing/pricing/comparison";
 import { Nav } from "@/components/landing/shared/nav";
 import { PageHeader } from "@/components/landing/shared/page-header";
-import { Pricing } from "@/components/landing/pricing-page/pricing";
+import { Pricing } from "@/components/landing/pricing/pricing";
 
 export const dynamic = "force-static";
 

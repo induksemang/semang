@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { MonthlyCycle } from "@/components/landing/how-it-works-page/monthly-cycle";
-import { PeriodicUpdates } from "@/components/landing/how-it-works-page/periodic-updates";
-import { WizardTimeline } from "@/components/landing/how-it-works-page/wizard-timeline";
+import { MonthlyCycle } from "@/components/landing/how-it-works/monthly-cycle";
+import { PeriodicUpdates } from "@/components/landing/how-it-works/periodic-updates";
+import { WizardTimeline } from "@/components/landing/how-it-works/wizard-timeline";
 import { Cta } from "@/components/landing/shared/cta";
 import { Footer } from "@/components/landing/shared/footer";
 import { Nav } from "@/components/landing/shared/nav";

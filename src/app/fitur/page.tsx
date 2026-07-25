@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Cta } from "@/components/landing/shared/cta";
-import { PropertyManagement } from "@/components/landing/features-page/property-management";
-import { BillStatus } from "@/components/landing/features-page/bill-status";
-import { AutoInvoicing } from "@/components/landing/features-page/auto-invoicing";
-import { OccupancyReport } from "@/components/landing/features-page/occupancy-report";
+import { PropertyManagement } from "@/components/landing/features/property-management";
+import { BillStatus } from "@/components/landing/features/bill-status";
+import { AutoInvoicing } from "@/components/landing/features/auto-invoicing";
+import { OccupancyReport } from "@/components/landing/features/occupancy-report";
 import { Footer } from "@/components/landing/shared/footer";
 import { Nav } from "@/components/landing/shared/nav";
 import { PageHeader } from "@/components/landing/shared/page-header";
