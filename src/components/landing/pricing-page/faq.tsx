@@ -50,7 +50,7 @@ export function Faq() {
 						<div
 							key={faq.q}
 							className={cn(
-								"md:border-border md:bg-card md:shadow-warm-sm rounded-lg border",
+								"md:border-border md:bg-card md:shadow-warm-sm rounded-lg border transition-colors duration-300",
 								open ? "border-teal-200 bg-teal-50" : "border-border bg-card"
 							)}
 						>
@@ -67,7 +67,7 @@ export function Faq() {
 								<span
 									aria-hidden
 									className={cn(
-										"flex size-6.5 flex-none items-center justify-center rounded-full md:hidden",
+										"flex size-6.5 flex-none items-center justify-center rounded-full transition-colors duration-300 md:hidden",
 										open ? "bg-primary text-white" : "text-primary bg-teal-50"
 									)}
 								>
@@ -78,26 +78,38 @@ export function Faq() {
 											strokeWidth={2}
 											strokeLinecap="round"
 										/>
-										{!open && (
-											<path
-												d="M6 1.5v9"
-												stroke="currentColor"
-												strokeWidth={2}
-												strokeLinecap="round"
-											/>
-										)}
+										<path
+											d="M6 1.5v9"
+											stroke="currentColor"
+											strokeWidth={2}
+											strokeLinecap="round"
+											style={{
+												transformBox: "fill-box",
+												transformOrigin: "center"
+											}}
+											className={cn(
+												"transition-transform duration-300 ease-out",
+												open && "scale-y-0"
+											)}
+										/>
 									</svg>
 								</span>
 							</button>
 							<div
 								id={`faq-panel-${index}`}
 								className={cn(
-									"px-4.5 pb-4 md:block md:px-6 md:pt-2 md:pb-5.5",
-									open ? "block" : "hidden"
+									"grid transition-[grid-template-rows] duration-300 ease-out md:grid-rows-[1fr]",
+									open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
 								)}
 							>
-								<div className="mb-3 h-px bg-teal-100 md:hidden" />
-								<p className="text-warm-600 text-sm leading-relaxed">{faq.a}</p>
+								<div className="overflow-hidden">
+									<div className="px-4.5 pb-4 md:px-6 md:pt-2 md:pb-5.5">
+										<div className="mb-3 h-px bg-teal-100 md:hidden" />
+										<p className="text-warm-600 text-sm leading-relaxed">
+											{faq.a}
+										</p>
+									</div>
+								</div>
 							</div>
 						</div>
 					);
