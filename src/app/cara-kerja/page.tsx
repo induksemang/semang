@@ -23,7 +23,13 @@ export default function CaraKerjaPage() {
 				align="center"
 				eyebrow="Cara kerja"
 				title="Dari daftar sampai tagihan pertama terkirim — di bawah 5 menit."
-				description="Begitu selesai daftar, kamu langsung melihat dua hal dengan mata sendiri: tagihan terkirim dan pembayaran diterima. Tanpa menunggu penyewa sungguhan."
+				description={
+					<>
+						Begitu selesai daftar, kamu langsung melihat dua hal dengan mata sendiri:
+						tagihan terkirim <i>dan</i> pembayaran diterima. Tanpa menunggu penyewa
+						sungguhan.
+					</>
+				}
 			/>
 			<WizardTimeline />
 			<MonthlyCycle />

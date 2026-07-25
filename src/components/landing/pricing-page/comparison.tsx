@@ -43,7 +43,7 @@ function Cell({ value, featured }: { value: string; featured: boolean }) {
 
 export function Comparison() {
 	return (
-		<section>
+		<section className="bg-warm-canvas">
 			<div className="container space-y-4 py-10 md:py-14 lg:py-18">
 				<div className="space-y-1.5">
 					<h2 className="text-xl font-extrabold tracking-tight text-teal-900 sm:text-2xl">

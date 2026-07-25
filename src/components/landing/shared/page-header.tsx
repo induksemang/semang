@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 type PageHeaderProps = {
 	eyebrow: string;
 	title: string;
-	description: string;
+	description: React.ReactNode;
 	align?: "left" | "center";
 };
 
@@ -22,7 +22,7 @@ export function PageHeader({ eyebrow, title, description, align = "left" }: Page
 				</p>
 				<h1
 					className={cn(
-						"max-w-190 text-3xl font-extrabold tracking-tight text-balance text-teal-900 md:text-5xl",
+						"max-w-190 text-3xl font-extrabold tracking-tight text-balance text-teal-900 md:text-4xl lg:text-5xl",
 						center && "mx-auto"
 					)}
 				>
@@ -31,7 +31,7 @@ export function PageHeader({ eyebrow, title, description, align = "left" }: Page
 			</div>
 			<p
 				className={cn(
-					"text-warm-600 max-w-155 text-[15px] leading-relaxed text-pretty sm:text-base lg:text-lg",
+					"text-warm-600 max-w-155 text-sm leading-relaxed text-pretty sm:text-base lg:text-lg",
 					center && "mx-auto"
 				)}
 			>
