@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
-import { MobileMenu } from "./mobile-menu";
+import { MENU_CLIP_CLOSED, MENU_CLIP_OPEN, MobileMenu } from "./mobile-menu";
 
 const links = [
 	{ href: "/", label: "Beranda" },
@@ -22,7 +22,8 @@ export function Nav() {
 
 	return (
 		<>
-			<nav className="border-border bg-background/90 sticky top-0 z-50 border-b backdrop-blur-md">
+			{/* nav duduk di atas overlay menu supaya tombol burger tetap satu elemen */}
+			<nav className="bg-background/90 sticky top-0 z-70 backdrop-blur-md">
 				<div className="container flex items-center justify-between py-3 md:py-3.5">
 					<Link href="/" className="flex items-center gap-2.5 md:gap-3">
 						<Image
@@ -65,26 +66,73 @@ export function Nav() {
 					<div className="flex items-center gap-2.5 md:hidden">
 						<a
 							href="#daftar"
-							className="bg-primary text-primary-foreground rounded-md px-3.5 py-2.25 text-sm font-bold"
+							className={cn(
+								"bg-primary text-primary-foreground rounded-md px-3.5 py-2.25 text-sm font-bold",
+								open && "pointer-events-none"
+							)}
+							tabIndex={open ? -1 : undefined}
 						>
 							Coba gratis
 						</a>
 						<button
 							type="button"
-							className="border-border bg-card flex size-9.5 flex-col items-center justify-center gap-1 rounded-md border"
-							onClick={() => setOpen(true)}
-							aria-label="Buka menu"
+							className={cn(
+								// tombol satu-satunya elemen yang tetap di atas wipe, jadi morph-nya terlihat penuh
+								"relative z-10 flex size-9.5 items-center justify-center rounded-md border transition-colors duration-500 ease-out",
+								open ? "border-teal-600 bg-white" : "border-border bg-card"
+							)}
+							onClick={() => setOpen((value) => !value)}
+							aria-label={open ? "Tutup menu" : "Buka menu"}
 							aria-expanded={open}
 							aria-controls="menu-mobile"
 						>
-							<span className="bg-warm-700 h-0.5 w-4 rounded-full" />
-							<span className="bg-warm-700 h-0.5 w-4 rounded-full" />
+							<span
+								className={cn(
+									"absolute h-0.5 w-4 rounded-full transition-all duration-500 ease-out",
+									open ? "rotate-45 bg-teal-900" : "bg-warm-700 -translate-y-1"
+								)}
+							/>
+							<span
+								className={cn(
+									"absolute h-0.5 w-4 rounded-full transition-all duration-500 ease-out",
+									open ? "-rotate-45 bg-teal-900" : "bg-warm-700 translate-y-1"
+								)}
+							/>
 						</button>
+					</div>
+				</div>
+
+				{/* garis bawah ditaruh di dalam padding box supaya ikut tersapu wipe */}
+				<span className="bg-border absolute inset-x-0 bottom-0 h-px" />
+
+				{/* salinan gelap header: murni visual, disapu lingkaran yang sama dengan panel menu */}
+				<div
+					aria-hidden
+					className={cn(
+						// flex items-center: logo ikut center pada tinggi nav, bukan pada tinggi
+						// kontennya sendiri, supaya sejajar persis dengan logo di header light
+						"pointer-events-none absolute inset-0 flex items-center bg-teal-900 transition-[clip-path] duration-500 ease-out md:hidden",
+						open ? MENU_CLIP_OPEN : MENU_CLIP_CLOSED
+					)}
+				>
+					<div className="container">
+						<div className="flex items-center gap-2.5">
+							<Image
+								src="/logo-white.svg"
+								alt=""
+								width={38}
+								height={38}
+								className="size-8 rounded-md"
+							/>
+							<span className="text-lg font-extrabold tracking-tight text-white">
+								Semang
+							</span>
+						</div>
 					</div>
 				</div>
 			</nav>
 
-			{open && <MobileMenu links={links} pathname={pathname} onClose={close} />}
+			<MobileMenu links={links} pathname={pathname} open={open} onClose={close} />
 		</>
 	);
 }

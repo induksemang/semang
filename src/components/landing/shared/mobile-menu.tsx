@@ -1,18 +1,27 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 
+// Pusat = tengah tombol burger: x = container padding 24px + setengah tombol 19px,
+// y = nav py-3 (12px) + 19px. Radius absolut (bukan persen) supaya lingkaran
+// identik di nav dan panel, meski tinggi kedua elemen jauh berbeda.
+// Ditulis utuh (bukan template literal) supaya terbaca scanner Tailwind.
+export const MENU_CLIP_OPEN = "[clip-path:circle(1200px_at_calc(100%_-_43px)_31px)]";
+export const MENU_CLIP_CLOSED = "[clip-path:circle(0px_at_calc(100%_-_43px)_31px)]";
+
 type MobileMenuProps = {
 	links: { href: string; label: string }[];
 	pathname: string;
+	open: boolean;
 	onClose: () => void;
 };
 
-export function MobileMenu({ links, pathname, onClose }: MobileMenuProps) {
+export function MobileMenu({ links, pathname, open, onClose }: MobileMenuProps) {
 	useEffect(() => {
+		if (!open) return;
+
 		const { style } = document.body;
 		const previous = style.overflow;
 		style.overflow = "hidden";
@@ -26,55 +35,31 @@ export function MobileMenu({ links, pathname, onClose }: MobileMenuProps) {
 			style.overflow = previous;
 			document.removeEventListener("keydown", onKeyDown);
 		};
-	}, [onClose]);
+	}, [open, onClose]);
 
 	return (
 		<div
 			id="menu-mobile"
-			className="fixed inset-0 z-60 flex flex-col bg-teal-900 md:hidden"
+			className={cn(
+				// ponytail: clip-path tumbuh dari titik tombol burger di nav (kanan atas)
+				"fixed inset-0 z-60 flex flex-col bg-teal-900 pt-16 transition-[clip-path] duration-500 ease-out md:hidden",
+				open ? MENU_CLIP_OPEN : MENU_CLIP_CLOSED
+			)}
 			role="dialog"
 			aria-modal="true"
 			aria-label="Menu navigasi"
+			inert={!open}
 		>
-			<div className="container flex items-center justify-between py-3">
-				<Link href="/" className="flex items-center gap-2.5" onClick={onClose}>
-					<Image
-						src="/logo-white.svg"
-						alt="Semang"
-						width={38}
-						height={38}
-						className="size-8.5 rounded-md"
-					/>
-					<span className="text-lg font-extrabold tracking-tight text-white">Semang</span>
-				</Link>
-				<button
-					type="button"
-					className="flex size-9.5 items-center justify-center rounded-md border border-teal-600 bg-white"
-					onClick={onClose}
-					aria-label="Tutup menu"
-				>
-					<svg
-						className="size-3.5 text-teal-900"
-						viewBox="0 0 14 14"
-						fill="none"
-						aria-hidden
-					>
-						<path
-							d="M2 2 12 12M12 2 2 12"
-							stroke="currentColor"
-							strokeWidth={2}
-							strokeLinecap="round"
-						/>
-					</svg>
-				</button>
-			</div>
-
 			<nav className="container flex flex-1 flex-col justify-center gap-1">
 				{links.map((link, index) => (
 					<Link
 						key={link.href}
 						href={link.href}
-						className="flex items-baseline gap-3 py-2.5"
+						className={cn(
+							"flex items-baseline gap-3 py-2.5 transition-all duration-500 ease-out",
+							open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+						)}
+						style={{ transitionDelay: open ? `${120 + index * 55}ms` : "0ms" }}
 						onClick={onClose}
 					>
 						<span className="font-mono text-xs font-bold text-teal-300">
@@ -92,7 +77,13 @@ export function MobileMenu({ links, pathname, onClose }: MobileMenuProps) {
 				))}
 			</nav>
 
-			<div className="container flex flex-col gap-2.5 pb-5.5">
+			<div
+				className={cn(
+					"container flex flex-col gap-2.5 pb-5.5 transition-all duration-500 ease-out",
+					open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+				)}
+				style={{ transitionDelay: open ? `${120 + links.length * 55}ms` : "0ms" }}
+			>
 				<a
 					href="#daftar"
 					className="shadow-warm-lg rounded-lg bg-white py-4 text-center text-base font-extrabold text-teal-900"
