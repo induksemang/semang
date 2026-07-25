@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { cn, scrollToHash } from "@/lib/utils";
 
 // Pusat = tengah tombol burger: x = container padding 24px + setengah tombol 19px,
 // y = nav py-3 (12px) + 19px. Radius absolut (bukan persen) supaya lingkaran
@@ -87,7 +87,10 @@ export function MobileMenu({ links, pathname, open, onClose }: MobileMenuProps) 
 				<a
 					href="#daftar"
 					className="shadow-warm-lg rounded-lg bg-white py-4 text-center text-base font-extrabold text-teal-900"
-					onClick={onClose}
+					onClick={(event) => {
+						scrollToHash(event);
+						onClose();
+					}}
 				>
 					Coba gratis — 5 menit
 				</a>

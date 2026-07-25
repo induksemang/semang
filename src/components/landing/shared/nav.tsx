@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, scrollToHash } from "@/lib/utils";
 import { MENU_CLIP_CLOSED, MENU_CLIP_OPEN, MobileMenu } from "./mobile-menu";
 
 const links = [
@@ -56,6 +56,7 @@ export function Nav() {
 						))}
 						<a
 							href="#daftar"
+							onClick={scrollToHash}
 							className="shadow-warm-teal bg-primary text-primary-foreground rounded-md px-3.5 py-2.5 text-sm font-bold transition-colors hover:bg-teal-600 lg:px-4.5"
 						>
 							Coba gratis
@@ -66,6 +67,7 @@ export function Nav() {
 					<div className="flex items-center gap-2.5 md:hidden">
 						<a
 							href="#daftar"
+							onClick={scrollToHash}
 							className={cn(
 								"bg-primary text-primary-foreground rounded-md px-3.5 py-2.25 text-sm font-bold",
 								open && "pointer-events-none"

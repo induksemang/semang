@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { HashLink } from "../shared/hash-link";
 
 type Tier = {
 	name: string;
@@ -175,7 +176,7 @@ function PriceCard({ tier }: { tier: Tier }) {
 					))}
 				</ul>
 			</div>
-			<a
+			<HashLink
 				href="#daftar"
 				className={cn(
 					"rounded-md py-3.25 text-center text-base font-bold transition-colors",
@@ -185,7 +186,7 @@ function PriceCard({ tier }: { tier: Tier }) {
 				)}
 			>
 				{tier.cta}
-			</a>
+			</HashLink>
 		</div>
 	);
 }

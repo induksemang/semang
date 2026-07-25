@@ -1,3 +1,4 @@
+import { HashLink } from "../shared/hash-link";
 import { WhatsappChat } from "./whatsapp-chat";
 
 const guarantees = [
@@ -32,18 +33,18 @@ export function Hero() {
 					</div>
 					<div className="space-y-6 md:space-y-7">
 						<div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
-							<a
+							<HashLink
 								href="#daftar"
 								className="bg-primary shadow-warm-teal-lg rounded-lg px-6.5 py-4 text-center text-base font-bold text-white transition-colors hover:bg-teal-600 sm:rounded-md"
 							>
 								Mulai gratis — 5 menit
-							</a>
-							<a
+							</HashLink>
+							<HashLink
 								href="#cara-kerja"
 								className="rounded-lg border-2 border-teal-200 bg-white px-6.5 py-4 text-center text-base font-bold text-teal-700 transition-colors hover:bg-teal-50 sm:rounded-md"
 							>
 								Lihat cara kerja
-							</a>
+							</HashLink>
 						</div>
 						<ul className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5.5 sm:gap-y-3">
 							{guarantees.map((item) => (
