@@ -40,13 +40,13 @@ export function Problems() {
 								<p className="text-xs font-bold text-teal-700">
 									Semang · Kost Melati
 								</p>
-								<p className="text-warm-800 text-sm leading-relaxed">
+								<p className="text-warm-800 text-xs leading-normal">
 									🧾 Halo Rara, tagihan Kamar 3 · Juli — <b>Rp1.500.000</b>, jatuh
 									tempo 1 Juli.
 								</p>
 							</div>
 							<div className="bg-whatsapp-bubble shadow-chat max-w-[60%] self-end rounded-[12px_4px_12px_12px] px-3.5 py-2.5">
-								<p className="text-sm leading-relaxed text-black">
+								<p className="text-xs leading-normal text-black">
 									Siap, kubayar sekarang 🙏
 								</p>
 							</div>
