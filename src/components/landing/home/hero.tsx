@@ -8,10 +8,10 @@ const guarantees = [
 
 export function Hero() {
 	return (
-		<header id="top" className="container py-8 md:py-14 lg:py-18">
+		<header id="top" className="relative z-10 container py-8 md:py-14 lg:py-18">
 			<div className="flex flex-wrap items-center gap-x-8 md:gap-y-8 lg:flex-nowrap lg:gap-x-14">
 				{/* Copy */}
-				<div className="min-w-0 flex-1 basis-90 space-y-7 md:space-y-8 lg:basis-95">
+				<div className="relative z-1 min-w-0 flex-1 basis-90 space-y-7 md:space-y-8 lg:basis-95">
 					<div className="space-y-5 md:space-y-6">
 						<div className="inline-flex items-center gap-2 rounded-full bg-teal-100 px-3.5 py-1.5">
 							<span className="bg-primary size-1.5 rounded-full" />
@@ -64,7 +64,7 @@ export function Hero() {
 				<div className="relative flex w-full flex-1 basis-75 justify-center pt-8 md:pt-0">
 					<div
 						aria-hidden
-						className="absolute top-1/2 left-1/2 size-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-100/70 blur-[80px]"
+						className="pointer-events-none absolute top-1/2 left-1/2 z-0 size-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-100/70 blur-[80px]"
 					/>
 					{/* Tanpa bezel selama mockup masih wrap ke bawah (< md = basis 360 + 300 + gap 32 + padding 48) */}
 					<div className="shadow-warm-lg relative z-1 w-full overflow-hidden rounded-xl md:hidden">
