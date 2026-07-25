@@ -4,8 +4,8 @@ import { SectionHeading } from "../shared/section-heading";
 export function PricingTeaser() {
 	return (
 		<section className="@container container py-10 md:py-14 lg:py-18">
-			<div className="flex flex-col items-center gap-y-5 sm:gap-y-8 @3xl:flex-row @3xl:flex-wrap @3xl:justify-center @3xl:gap-x-12">
-				<div className="min-w-0 space-y-6 @3xl:flex-1 @3xl:basis-95">
+			<div className="flex flex-col items-center gap-y-5 sm:gap-y-8 @2xl:flex-row @2xl:flex-wrap @2xl:justify-center @2xl:gap-x-8 @3xl:gap-x-12">
+				<div className="min-w-0 space-y-6 @2xl:flex-1 @2xl:basis-90 @3xl:basis-95">
 					<SectionHeading
 						align="left"
 						eyebrow="Harga"
@@ -14,14 +14,14 @@ export function PricingTeaser() {
 					/>
 					<Link
 						href="/harga"
-						className="text-primary hidden items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600 @3xl:inline-flex"
+						className="text-primary hidden items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600 @2xl:inline-flex"
 					>
 						Lihat semua paket &amp; FAQ →
 					</Link>
 				</div>
 
-				<div className="mx-auto max-w-85 min-w-0 sm:mx-0 @3xl:flex-1 @3xl:basis-75">
-					<div className="relative rounded-lg border border-teal-700 bg-teal-700 p-6.5 shadow-[0_16px_36px_rgba(39,87,79,0.28)] lg:rounded-xl lg:p-7">
+				<div className="mx-auto max-w-85 min-w-0 sm:mx-0 @2xl:flex-1 @2xl:basis-72 @3xl:basis-75">
+					<div className="shadow-teal-card relative rounded-lg border border-teal-700 bg-teal-700 p-6.5 lg:rounded-xl lg:p-7">
 						<span className="bg-primary absolute -top-2.75 left-6 rounded-full px-3 py-1.25 text-xs font-extrabold tracking-wide text-white uppercase">
 							Paling pas
 						</span>
@@ -48,7 +48,7 @@ export function PricingTeaser() {
 					</div>
 					<Link
 						href="/harga"
-						className="text-primary mt-3.5 inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600 @3xl:hidden"
+						className="text-primary mt-3.5 inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600 @2xl:hidden"
 					>
 						Lihat semua paket &amp; FAQ →
 					</Link>

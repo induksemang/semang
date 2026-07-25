@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { SectionHeading } from "../shared/section-heading";
 
 type Tier = {
 	name: string;
@@ -75,26 +74,16 @@ const tiers: Tier[] = [
 
 export function Pricing() {
 	return (
-		<section
-			id="harga"
-			className="container scroll-mt-16 space-y-8 py-10 md:py-14 lg:space-y-12 lg:py-18"
-		>
-			<SectionHeading
-				eyebrow="Harga"
-				title="Bayar hanya untuk kamar yang terisi."
-				description="Kamar kosong tidak ditagih. Semua paket termasuk pembayaran online tanpa markup biaya ke penyewa. Coba semua fitur Pro gratis 60 hari — tanpa kartu kredit."
-			/>
-			<div className="space-y-6">
-				<div className="grid items-stretch gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
-					{tiers.map((tier) => (
-						<PriceCard key={tier.name} tier={tier} />
-					))}
-				</div>
-				<p className="text-warm-400 text-center text-sm leading-relaxed font-medium">
-					Setelah trial berakhir, akunmu otomatis pindah ke paket Gratis — semua data
-					tetap utuh. Bayar tahunan hemat ±2 bulan.
-				</p>
+		<section id="harga" className="container scroll-mt-16 space-y-6 pb-10 md:pb-14 lg:pb-18">
+			<div className="grid items-stretch gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
+				{tiers.map((tier) => (
+					<PriceCard key={tier.name} tier={tier} />
+				))}
 			</div>
+			<p className="text-warm-500 max-w-180 text-sm leading-relaxed font-medium">
+				Coba gratis 60 hari dengan semua fitur Pro terbuka — tanpa kartu kredit. Setelahnya
+				akun pindah ke paket Gratis dan semua data tetap utuh. Bayar tahunan hemat ±2 bulan.
+			</p>
 		</section>
 	);
 }
@@ -104,9 +93,9 @@ function PriceCard({ tier }: { tier: Tier }) {
 	return (
 		<div
 			className={cn(
-				"relative flex flex-col gap-6 rounded-xl border p-7",
+				"relative flex flex-col gap-6 rounded-xl border p-5.5 md:p-7",
 				featured
-					? "border-teal-700 bg-teal-700 shadow-[0_16px_36px_rgba(39,87,79,0.28)]"
+					? "shadow-teal-card border-teal-700 bg-teal-700"
 					: "border-border bg-card shadow-warm-sm"
 			)}
 		>

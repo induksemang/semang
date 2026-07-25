@@ -1,11 +1,10 @@
 import { Cta } from "@/components/landing/shared/cta";
-import { Faq } from "@/components/landing/pricing-page/faq";
 import { Features } from "@/components/landing/home/features";
 import { Footer } from "@/components/landing/shared/footer";
 import { Hero } from "@/components/landing/home/hero";
 import { HowItWorks } from "@/components/landing/home/how-it-works";
 import { Nav } from "@/components/landing/shared/nav";
-import { Pricing } from "@/components/landing/pricing-page/pricing";
+import { PricingTeaser } from "@/components/landing/home/pricing-teaser";
 import { Problems } from "@/components/landing/home/problems";
 import { Trust } from "@/components/landing/home/trust";
 
@@ -18,10 +17,9 @@ export default function LandingPage() {
 			<Hero />
 			<Problems />
 			<HowItWorks />
-			<Trust />
 			<Features />
-			<Pricing />
-			<Faq />
+			<Trust />
+			<PricingTeaser />
 			<Cta />
 			<Footer />
 		</main>
