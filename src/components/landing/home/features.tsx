@@ -1,162 +1,148 @@
+import Link from "next/link";
 import { SectionHeading } from "../shared/section-heading";
 
-const features = [
-	{
-		iconBg: "bg-teal-100",
-		title: "Jatuh tempo mengikuti kebiasaanmu",
-		body: "Tanggal masuk masing-masing penyewa, atau satu tanggal tetap untuk semua — termasuk perlakuan tagihan pertama untuk yang masuk di tengah bulan.",
-		icon: (
-			<svg
-				width="23"
-				height="23"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="#27574F"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<rect x="3" y="4" width="18" height="18" rx="2" />
-				<line x1="16" y1="2" x2="16" y2="6" />
-				<line x1="8" y1="2" x2="8" y2="6" />
-				<line x1="3" y1="10" x2="21" y2="10" />
-			</svg>
-		)
-	},
-	{
-		iconBg: "bg-teal-100",
-		title: "Bulanan, mingguan, harian",
-		body: "Penyewa sementara? Sewa per minggu atau per hari dengan harga turunan otomatis yang bisa kamu ubah sendiri.",
-		icon: (
-			<svg
-				width="23"
-				height="23"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="#27574F"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<circle cx="12" cy="12" r="10" />
-				<polyline points="12 6 12 12 16 14" />
-			</svg>
-		)
-	},
-	{
-		iconBg: "bg-success-bg",
-		title: "Cicilan & bayar di muka",
-		body: "Sepakat dicicil? Kamu yang menetapkan besarannya, sistem mengirim link dengan nominal terkunci. Bayar setahun di muka dengan diskon juga bisa.",
-		icon: (
-			<svg
-				width="23"
-				height="23"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="#256E4B"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<rect x="2" y="6" width="20" height="12" rx="2" />
-				<circle cx="12" cy="12" r="2" />
-				<path d="M6 12h.01" />
-				<path d="M18 12h.01" />
-			</svg>
-		)
-	},
-	{
-		iconBg: "bg-teal-100",
-		title: "Tipe kamar & harga bertingkat",
-		body: "Kamar AC, kamar mandi dalam, standar — tiap tipe punya harganya sendiri, masih bisa disesuaikan per kamar.",
-		icon: (
-			<svg
-				width="23"
-				height="23"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="#27574F"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<rect x="3" y="3" width="7" height="7" rx="1" />
-				<rect x="14" y="3" width="7" height="7" rx="1" />
-				<rect x="3" y="14" width="7" height="7" rx="1" />
-				<rect x="14" y="14" width="7" height="7" rx="1" />
-			</svg>
-		)
-	},
-	{
-		iconBg: "bg-teal-100",
-		title: "Kabar rutin ke WhatsApp-mu",
-		body: "Ringkasan berkala: siapa sudah bayar, siapa menunggak — langsung di WhatsApp, dengan tautan ke dashboard untuk rinciannya.",
-		icon: (
-			<svg
-				width="23"
-				height="23"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="#27574F"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z" />
-			</svg>
-		)
-	},
-	{
-		iconBg: "bg-success-bg",
-		title: "Laporan kas & ekspor",
-		body: "Rekap uang masuk per bulan, lunas/telat/menunggak per kamar, tren sederhana, ekspor ke Excel kapan saja.",
-		icon: (
-			<svg
-				width="23"
-				height="23"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="#256E4B"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-				<polyline points="16 7 22 7 22 13" />
-			</svg>
-		)
-	}
+const calendarDays = Array.from({ length: 21 }, (_, i) => i + 1);
+const dueDays = [9, 17];
+
+const ratePlans = ["Bulanan · Rp1.500.000", "Mingguan · Rp425.000", "Harian · Rp85.000"];
+
+const roomTypes = [
+	{ label: "Standar", price: "1,2jt", highlight: false },
+	{ label: "KM dalam", price: "1,5jt", highlight: false },
+	{ label: "AC + KM dalam", price: "1,9jt", highlight: true }
 ];
 
 export function Features() {
 	return (
-		<section
-			id="fitur"
-			className="container scroll-mt-16 space-y-8 py-10 md:py-14 lg:space-y-12 lg:py-18"
-		>
-			<SectionHeading
-				eyebrow="Fitur"
-				title="Mengikuti cara kost-mu berjalan — bukan sebaliknya."
-				description="Pola penagihan yang sudah kamu pakai bertahun-tahun didukung, bukan dipaksa berubah."
-			/>
+		<section id="fitur" className="bg-warm-canvas scroll-mt-16 py-10 md:py-14 lg:py-18">
+			<div className="container space-y-10 lg:space-y-12">
+				<SectionHeading
+					align="left"
+					eyebrow="Penagihan yang mengikuti caramu"
+					title="Aturan kost-mu, bukan aturan aplikasi."
+				/>
 
-			<div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-				{features.map((feature) => (
-					<article
-						key={feature.title}
-						className="border-border bg-card shadow-warm-sm space-y-4 rounded-xl border p-6.5"
-					>
-						<div
-							className={`flex size-11.5 items-center justify-center rounded-md ${feature.iconBg}`}
-						>
-							{feature.icon}
+				<div className="grid grid-cols-1 gap-5 md:grid-cols-12">
+					{/* Jatuh tempo fleksibel + mini calendar */}
+					<article className="bg-card border-border flex flex-col gap-4 rounded-xl border p-5 md:col-span-6 md:p-6 lg:col-span-7 lg:flex-row lg:items-center lg:gap-7 lg:p-7.5">
+						<div className="min-w-0 space-y-2 lg:flex-1">
+							<h3 className="text-xl font-extrabold tracking-tight text-teal-900">
+								Jatuh tempo fleksibel
+							</h3>
+							<p className="text-warm-600 text-sm leading-relaxed">
+								Ikuti tanggal masuk tiap penyewa, atau satu tanggal tetap untuk
+								semua — ganti mode kapan saja.
+							</p>
 						</div>
-						<div className="space-y-2">
-							<h3 className="text-warm-900 text-lg font-bold">{feature.title}</h3>
-							<p className="text-warm-600 text-sm leading-relaxed">{feature.body}</p>
+						<div className="bg-warm-canvas border-border mt-auto w-full flex-none space-y-2.5 rounded-xl border px-4 py-3.5 lg:mt-0 lg:w-54">
+							<div className="text-warm-500 font-mono text-xs font-bold tracking-widest">
+								JULI 2026
+							</div>
+							<div className="text-warm-500 grid grid-cols-7 gap-1 text-center text-xs font-semibold">
+								{calendarDays.map((day) => (
+									<span
+										key={day}
+										className={
+											day === 1
+												? "bg-primary inline-flex size-6 items-center justify-center rounded-full font-extrabold text-white"
+												: dueDays.includes(day)
+													? "border-primary inline-flex size-6 items-center justify-center rounded-full border-2 font-extrabold text-teal-700"
+													: "inline-flex size-6 items-center justify-center"
+										}
+									>
+										{day}
+									</span>
+								))}
+							</div>
 						</div>
 					</article>
-				))}
+
+					{/* Bulanan, mingguan, harian */}
+					<article className="flex flex-col gap-3.5 rounded-xl border border-teal-100 bg-teal-50 p-5 md:col-span-6 md:p-6 lg:col-span-5 lg:p-7.5">
+						<h3 className="text-xl font-extrabold tracking-tight text-teal-900">
+							Bulanan, mingguan, harian
+						</h3>
+						<p className="text-sm leading-relaxed text-teal-700">
+							Penyewa sementara? Harga turunan otomatis, bisa kamu ubah sendiri.
+						</p>
+						<div className="mt-auto flex flex-wrap gap-2">
+							{ratePlans.map((plan) => (
+								<span
+									key={plan}
+									className="rounded-full border border-teal-200 bg-white px-3.5 py-1.5 text-xs font-bold text-teal-900"
+								>
+									{plan}
+								</span>
+							))}
+						</div>
+					</article>
+
+					{/* Cicilan & bayar di muka */}
+					<article className="bg-card border-border flex flex-col gap-3.5 rounded-xl border p-5 md:col-span-6 md:p-6 lg:col-span-5 lg:p-7.5">
+						<h3 className="text-xl font-extrabold tracking-tight text-teal-900">
+							Cicilan &amp; bayar di muka
+						</h3>
+						<p className="text-warm-600 text-sm leading-relaxed">
+							Kamu tetapkan besarannya, penyewa dapat link bayar dengan jumlah yang
+							sudah pasti.
+						</p>
+						<div className="mt-auto space-y-2">
+							<div className="flex h-3.5 overflow-hidden rounded-full border border-teal-100">
+								<span className="bg-primary w-1/2" />
+								<span className="w-1/2 bg-teal-50" />
+							</div>
+							<div className="text-warm-500 flex justify-between font-mono text-xs font-bold">
+								<span className="text-teal-700">Rp750.000 DIBAYAR</span>
+								<span>Rp750.000 SISA</span>
+							</div>
+						</div>
+					</article>
+
+					{/* Tipe kamar & harga bertingkat */}
+					<article className="flex flex-col gap-4 rounded-xl border border-teal-600 bg-teal-900 p-5 md:col-span-6 md:p-6 lg:col-span-7 lg:flex-row lg:items-center lg:gap-7 lg:p-7.5">
+						<div className="min-w-0 space-y-2 lg:flex-1">
+							<h3 className="text-xl font-extrabold tracking-tight text-white">
+								Tipe kamar &amp; harga bertingkat
+							</h3>
+							<p className="text-sm leading-relaxed text-teal-200">
+								Kamar AC, kamar mandi dalam, lantai atas — harga berbeda per tipe,
+								diatur sekali.
+							</p>
+						</div>
+						<div className="mt-auto flex w-full flex-none flex-col gap-2 lg:mt-0 lg:w-58">
+							{roomTypes.map((room) => (
+								<div
+									key={room.label}
+									className={
+										room.highlight
+											? "border-primary flex items-center justify-between rounded-lg border bg-teal-600 px-3.5 py-2.5"
+											: "flex items-center justify-between rounded-lg border border-teal-600 bg-teal-800 px-3.5 py-2.5"
+									}
+								>
+									<span className="text-sm font-bold text-white">
+										{room.label}
+									</span>
+									<span
+										className={
+											room.highlight
+												? "font-mono text-xs font-bold text-teal-100"
+												: "font-mono text-xs font-bold text-teal-300"
+										}
+									>
+										{room.price}
+									</span>
+								</div>
+							))}
+						</div>
+					</article>
+				</div>
+
+				<Link
+					href="/fitur"
+					className="text-primary inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600"
+				>
+					Lihat semua fitur &amp; logika penagihan →
+				</Link>
 			</div>
 		</section>
 	);
