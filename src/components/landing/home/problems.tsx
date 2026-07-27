@@ -46,13 +46,13 @@ export function Problems() {
 										jatuh tempo 1 Juli.
 									</div>
 								</div>
-								<div className="text-right text-[10px] text-gray-500">08.00</div>
+								<div className="text-right text-[10px] text-gray-600">08.00</div>
 							</div>
 							<div className="bg-whatsapp-bubble shadow-chat max-w-[80%] space-y-1 self-end rounded-[14px_4px_14px_14px] px-3.5 py-2.75">
 								<div className="text-xs leading-normal text-black">
 									Siap, kubayar sekarang 🙏
 								</div>
-								<div className="text-right text-[10px] text-gray-500">08.03 ✓✓</div>
+								<div className="text-right text-[10px] text-gray-600">08.03 ✓✓</div>
 							</div>
 						</div>
 						<div className="flex items-center gap-2.5">
