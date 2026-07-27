@@ -52,14 +52,14 @@ export function WhatsappChat() {
 						<div className="text-info text-xs font-semibold break-all">
 							semang.id/bayar/k3-92fa
 						</div>
-						<div className="text-right text-[10px] text-gray-500">08.00</div>
+						<div className="text-right text-[10px] text-gray-600">08.00</div>
 					</div>
 				</div>
 				<div className="bg-whatsapp-bubble shadow-chat max-w-[80%] space-y-1 self-end rounded-[14px_4px_14px_14px] px-3.5 py-2.75">
 					<div className="text-xs leading-normal text-black">
 						Sudah kubayar barusan pakai QRIS ya 🙏
 					</div>
-					<div className="text-right text-[10px] text-gray-500">08.41 ✓✓</div>
+					<div className="text-right text-[10px] text-gray-600">08.41 ✓✓</div>
 				</div>
 				<div className="bg-card shadow-chat max-w-[92%] space-y-1 self-start rounded-[4px_14px_14px_14px] px-3.5 py-2.75 md:max-w-[88%]">
 					<div className="text-xs leading-normal text-black">
@@ -70,7 +70,7 @@ export function WhatsappChat() {
 						Kuitansi digital:{" "}
 						<span className="text-info font-semibold">semang.id/kuitansi/k3-92fa</span>
 					</div>
-					<div className="text-right text-[10px] text-gray-500">08.42</div>
+					<div className="text-right text-[10px] text-gray-600">08.42</div>
 				</div>
 			</div>
 		</div>

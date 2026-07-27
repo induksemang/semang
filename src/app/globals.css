@@ -127,8 +127,8 @@
 	--popover: #ffffff;
 	--popover-foreground: #211e19;
 
-	/* Primary = Teal 500 */
-	--primary: #3c8377;
+	/* Primary = Teal 600 (WCAG AA: 5.8:1 on canvas, 6.2:1 with white text) */
+	--primary: #2e6b61;
 	--primary-foreground: #ffffff;
 
 	/* Secondary = Warm 50 */
@@ -149,13 +149,13 @@
 	/* Borders & inputs */
 	--border: #ebe6dd;
 	--input: #ddd6c9;
-	--ring: #3c8377;
+	--ring: #2e6b61;
 
 	/* Base radius = 12px (design's "md") */
 	--radius: 0.75rem;
 
 	/* Charts */
-	--chart-1: #3c8377;
+	--chart-1: #2e6b61;
 	--chart-2: #2f8b5f;
 	--chart-3: #c2841f;
 	--chart-4: #3877a6;
@@ -164,12 +164,12 @@
 	/* Sidebar */
 	--sidebar: #f4f1eb;
 	--sidebar-foreground: #211e19;
-	--sidebar-primary: #3c8377;
+	--sidebar-primary: #2e6b61;
 	--sidebar-primary-foreground: #ffffff;
 	--sidebar-accent: #d6e8e3;
 	--sidebar-accent-foreground: #27574f;
 	--sidebar-border: #ebe6dd;
-	--sidebar-ring: #3c8377;
+	--sidebar-ring: #2e6b61;
 }
 
 .dark {
