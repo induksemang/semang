@@ -1,8 +1,9 @@
 name: Keep Supabase Alive
 on:
     schedule:
-        # Run at 16:00 UTC on Thursday (4) and Saturday (6) = midnight WITA on Friday & Sunday
-        - cron: "0 16 * * 4,6"
+        # Run daily at 16:00 UTC = midnight WITA. Free tier pauses after 7 days
+        # idle, and GitHub cron is best-effort, so daily keeps the margin wide.
+        - cron: "0 16 * * *"
     workflow_dispatch:
 jobs:
     ping:
