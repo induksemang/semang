@@ -1,87 +1,260 @@
-@startuml Semang_ERD
+@startuml Semang_ERD_v2
+
+' ============================================================
+' SEMANG — Entity Relationship Diagram
+' Versi 2.0 · Acuan: Semang PRD v2.0, Semang SRD v2.0
+'
+' Konvensi:
+'   - Nama tabel, nama kolom, dan seluruh nilai enum memakai bahasa
+'     Inggris dan ditulis penuh tanpa singkatan.
+'   - Semua waktu memakai timestamptz. Semua teks memakai text.
+'   - Semua nilai uang memakai numeric(14,2).
+'   - Enum disimpan sebagai text dengan CHECK, bukan tipe enum bawaan
+'     Postgres, agar nilai baru bisa ditambahkan tanpa mengunci tabel.
+'   - owner_id disalin ke tabel yang sering dibaca agar tiap kebijakan
+'     Row Level Security cukup satu perbandingan berindeks.
+'   - Penjelasan tiap kolom, daftar nilai enum, dan alasan desain ada
+'     di Semang_ERD.md.
+'
+' Prinsip desain:
+'   1. Uang tidak pernah melewati Semang.
+'   2. Tidak ada berkas. Kuitansi disusun saat dibuka.
+'   3. Tidak ada kata sandi.
+'   4. Biaya pesan diukur, bukan diperkirakan.
+'   5. Perubahan masa depan menambah, bukan merombak.
+' ============================================================
+
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName "Liberation Sans"
+skinparam nodesep 40
+skinparam ranksep 70
+skinparam ArrowThickness 0.8
+hide circle
+
+' ============================================================
 
 entity users {
   * id : uuid <<PK>>
   --
-  * name : varchar
-  * email : varchar <<UK>>
-  * phone_wa : varchar <<UK>>
-  ' password dikelola Supabase Auth (auth.users), tidak disimpan di tabel ini
-  email_verified_at : timestamp
-  phone_verified_at : timestamp
-  * locale : varchar
-  * created_at : timestamp
-  * updated_at : timestamp
-  deleted_at : timestamp
+  name : text
+  email : text <<UK>>
+  whatsapp_number : text <<UK>>
+  whatsapp_number_verified_at : timestamptz
+  * locale : text = 'id'
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deletion_requested_at : timestamptz
+  deleted_at : timestamptz
 }
+
+entity auth_identities {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>>
+  * provider : text
+  * provider_subject : text
+  last_used_at : timestamptz
+  * created_at : timestamptz
+  revoked_at : timestamptz
+  --
+  <<UK>> (provider, provider_subject)
+}
+
+entity login_codes {
+  * id : uuid <<PK>>
+  --
+  user_id : uuid <<FK>>
+  * whatsapp_number : text
+  * purpose : text
+  * code_hash : text
+  * expires_at : timestamptz
+  * attempt_count : smallint = 0
+  consumed_at : timestamptz
+  invalidated_at : timestamptz
+  * created_at : timestamptz
+}
+
+entity request_limits {
+  * id : uuid <<PK>>
+  --
+  * scope : text
+  * scope_key : text
+  * window_start : timestamptz
+  * request_count : integer
+  * violation_count : smallint = 0
+  blocked_until : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  --
+  <<UK>> (scope, scope_key, window_start)
+}
+
+' ============================================================
 
 entity bank_accounts {
   * id : uuid <<PK>>
   --
   * user_id : uuid <<FK>>
-  * bank_code : varchar
-  * account_number : varchar
-  * account_holder : varchar
-  * is_default : boolean
-  * created_at : timestamp
-  * updated_at : timestamp
-  deleted_at : timestamp
+  * bank_code : text
+  * account_number : text
+  * account_holder : text
+  * is_default : boolean = false
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+}
+
+entity xendit_sub_accounts {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>> <<UK>>
+  xendit_account_id : text <<UK>>
+  settlement_bank_account_id : uuid <<FK>>
+  * verification_status : text = 'not_started'
+  verification_submitted_at : timestamptz
+  verification_completed_at : timestamptz
+  verification_rejection_reason : text
+  * created_at : timestamptz
+  * updated_at : timestamptz
+}
+
+' ============================================================
+
+entity provinces {
+  * id : uuid <<PK>>
+  --
+  * statistics_code : text <<UK>>
+  * name : text
+  * timezone : text
+  * is_active : boolean = true
+  * created_at : timestamptz
+  * updated_at : timestamptz
+}
+
+entity regions {
+  * id : uuid <<PK>>
+  --
+  * province_id : uuid <<FK>>
+  * statistics_code : text <<UK>>
+  * name : text
+  * kind : text
+  * is_active : boolean = true
+  superseded_by_region_id : uuid <<FK>>
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
 entity properties {
   * id : uuid <<PK>>
   --
   * owner_id : uuid <<FK>>
-  * name : varchar
-  * city : varchar
-  * default_rent : bigint
-  * default_due_day : smallint
-  * timezone : varchar
-  * unique_code_enabled : boolean
-  * status : varchar
-  * created_at : timestamp
-  * updated_at : timestamp
-  deleted_at : timestamp
+  * name : text
+  region_id : uuid <<FK>>
+  timezone : text
+  * default_rent : numeric(14,2)
+  * due_date_mode : text = 'from_move_in_date'
+  fixed_due_day : smallint
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
 }
 
-entity property_staff {
+entity room_types {
   * id : uuid <<PK>>
   --
   * property_id : uuid <<FK>>
-  * user_id : uuid <<FK>>
-  * role : varchar
-  invited_at : timestamp
-  accepted_at : timestamp
-  * created_at : timestamp
-  revoked_at : timestamp
+  * owner_id : uuid <<FK>>
+  * name : text
+  * rent : numeric(14,2)
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
 }
 
 entity rooms {
   * id : uuid <<PK>>
   --
   * property_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
+  room_type_id : uuid <<FK>>
   * room_number : integer
-  label : varchar
-  rent_override : bigint
-  due_day_override : smallint
-  * status : varchar
-  * created_at : timestamp
-  * updated_at : timestamp
-  deleted_at : timestamp
+  label : text
+  rent_override : numeric(14,2)
+  * status : text = 'vacant'
+  unavailable_reason : text
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  deleted_at : timestamptz
+  --
+  <<UK>> (property_id, room_number)
 }
 
 entity tenants {
   * id : uuid <<PK>>
   --
-  * room_id : uuid <<FK>>
+  * property_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
   user_id : uuid <<FK>>
-  * name : varchar
-  * phone_wa : varchar
+  name : text
+  whatsapp_number : text
+  * rent_unit : text = 'monthly'
+  * unit_amount : numeric(14,2)
+  * unit_amount_is_override : boolean = false
+  first_invoice_treatment : text
   * moved_in_at : date
   moved_out_at : date
-  notes : text
-  * created_at : timestamp
-  * updated_at : timestamp
+  next_due_date : date
+  consent_at : timestamptz
+  consent_version : text
+  messaging_opted_out_at : timestamptz
+  anonymized_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
+}
+
+entity room_assignments {
+  * id : uuid <<PK>>
+  --
+  * tenant_id : uuid <<FK>>
+  * room_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
+  * kind : text = 'permanent'
+  reason : text
+  returns_to_room_id : uuid <<FK>>
+  * started_on : date
+  ended_on : date
+  * created_at : timestamptz
+  * updated_at : timestamptz
+}
+
+' ============================================================
+
+entity multi_period_groups {
+  * id : uuid <<PK>>
+  --
+  * tenant_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
+  discount_invoice_id : uuid <<FK>>
+  * period_count : smallint
+  * amount_before_discount : numeric(14,2)
+  * discount_kind : text
+  * discount_value : numeric(14,2)
+  * amount_after_discount : numeric(14,2)
+  * created_by : uuid <<FK>>
+  * created_at : timestamptz
+}
+
+entity invoice_counters {
+  * id : uuid <<PK>>
+  --
+  * owner_id : uuid <<FK>>
+  * period : text
+  * last_number : integer = 0
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  --
+  <<UK>> (owner_id, period)
 }
 
 entity invoices {
@@ -89,201 +262,389 @@ entity invoices {
   --
   * room_id : uuid <<FK>>
   * tenant_id : uuid <<FK>>
-  * period : char(7)
-  * base_amount : bigint
-  unique_code : smallint
-  * total_amount : bigint
-  * currency : char(3)
-  * status : varchar
+  * owner_id : uuid <<FK>>
+  parent_invoice_id : uuid <<FK>>
+  multi_period_group_id : uuid <<FK>>
+  period_sequence : smallint
+  * invoice_number : text
+  * tenant_name_snapshot : text
+  * tenant_whatsapp_number_snapshot : text
+  * rent_unit : text
+  * period_start : date
+  * period_end : date
+  * period_label : text
   * due_date : date
-  * idempotency_key : varchar <<UK>>
-  sent_at : timestamp
-  paid_at : timestamp
-  overdue_at : timestamp
-  defaulted_at : timestamp
-  * created_at : timestamp
-  * updated_at : timestamp
+  * subtotal : numeric(14,2)
+  * discount_total : numeric(14,2) = 0
+  * total_amount : numeric(14,2)
+  * amount_paid : numeric(14,2) = 0
+  * currency : text = 'IDR'
+  * status : text = 'draft'
+  * idempotency_key : text <<UK>>
+  sent_at : timestamptz
+  paid_at : timestamptz
+  overdue_at : timestamptz
+  defaulted_at : timestamptz
+  cancelled_at : timestamptz
+  cancellation_reason : text
+  * created_at : timestamptz
+  * updated_at : timestamptz
+  --
+  <<UK>> (owner_id, invoice_number)
 }
 
 entity invoice_items {
   * id : uuid <<PK>>
   --
   * invoice_id : uuid <<FK>>
-  * kind : varchar
-  * description : varchar
-  * amount : bigint
+  * kind : text
+  * description : text
+  * amount : numeric(14,2)
   metadata : jsonb
-  * created_at : timestamp
+  * created_at : timestamptz
 }
 
-entity proofs {
+' ============================================================
+
+entity payment_links {
   * id : uuid <<PK>>
   --
   * invoice_id : uuid <<FK>>
-  * storage_key : varchar
-  * mime_type : varchar
-  file_size : bigint
-  * status : varchar
-  rejection_reason : text
-  decided_by : uuid <<FK>>
-  decided_at : timestamp
-  * uploaded_at : timestamp
-  * created_at : timestamp
+  * xendit_invoice_id : text <<UK>>
+  * url : text
+  * amount : numeric(14,2)
+  * status : text
+  expires_at : timestamptz
+  superseded_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
 entity payments {
   * id : uuid <<PK>>
   --
   * invoice_id : uuid <<FK>>
-  proof_id : uuid <<FK>>
-  * source : varchar
-  * amount : bigint
-  * status : varchar
-  provider : varchar
-  provider_ref : varchar <<UK>>
-  provider_fee : bigint
+  * owner_id : uuid <<FK>>
+  payment_link_id : uuid <<FK>>
+  * source : text
+  * is_auto_verified : boolean
+  * amount : numeric(14,2)
+  * currency : text = 'IDR'
+  * status : text
+  provider_reference : text <<UK>>
+  provider_fee : numeric(14,2)
   provider_payload : jsonb
-  * idempotency_key : varchar <<UK>>
-  confirmed_by : uuid <<FK>>
-  paid_at : timestamp
-  * created_at : timestamp
-  * updated_at : timestamp
+  * idempotency_key : text <<UK>>
+  recorded_by : uuid <<FK>>
+  note : text
+  * paid_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
-entity invoice_events {
+' ============================================================
+
+entity message_templates {
   * id : uuid <<PK>>
   --
-  * invoice_id : uuid <<FK>>
-  actor_id : uuid <<FK>>
-  * event_type : varchar
-  from_status : varchar
-  to_status : varchar
-  metadata : jsonb
-  * created_at : timestamp
+  * code : text <<UK>>
+  * category : text
+  * language : text = 'id'
+  meta_template_name : text
+  * status : text
+  * version : smallint
+  approved_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
-entity notifications {
+entity message_rates {
   * id : uuid <<PK>>
   --
-  * invoice_id : uuid <<FK>>
-  * recipient_phone : varchar
-  * kind : varchar
-  * channel : varchar
-  * payload : text
-  * status : varchar
-  provider_ref : varchar
-  opened_at : timestamp
-  sent_at : timestamp
-  * created_at : timestamp
+  * market : text = 'Indonesia'
+  * category : text
+  * rate_per_message : numeric(14,2)
+  * currency : text = 'IDR'
+  * effective_from : date
+  effective_to : date
+  source_url : text
+  * read_at : date
+  * created_at : timestamptz
+  --
+  <<UK>> (market, category, effective_from)
 }
 
-entity public_tokens {
+entity messages {
   * id : uuid <<PK>>
   --
-  * kind : varchar
-  * target_id : uuid
-  * token_hash : varchar <<UK>>
-  * expires_at : timestamp
-  used_at : timestamp
-  * created_at : timestamp
+  * template_id : uuid <<FK>>
+  * template_version : smallint
+  * owner_id : uuid <<FK>>
+  invoice_id : uuid <<FK>>
+  property_id : uuid <<FK>>
+  login_code_id : uuid <<FK>>
+  subscription_id : uuid <<FK>>
+  recipient_user_id : uuid <<FK>>
+  * recipient_whatsapp_number : text
+  * kind : text
+  * payload : jsonb
+  * status : text = 'scheduled'
+  * scheduled_at : timestamptz
+  sent_at : timestamptz
+  delivered_at : timestamptz
+  failed_at : timestamptz
+  cancelled_at : timestamptz
+  error_code : text
+  whatsapp_message_id : text <<UK>>
+  is_billable : boolean
+  pricing_category : text
+  pricing_type : text
+  charged_amount : numeric(14,2)
+  message_rate_id : uuid <<FK>>
+  * idempotency_key : text <<UK>>
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
+
+' ============================================================
 
 entity plans {
   * id : uuid <<PK>>
   --
-  * code : varchar <<UK>>
-  * name : varchar
-  * price_per_room : bigint
-  * min_monthly : bigint
-  * max_rooms : integer
-  * max_properties : integer
-  * is_active : boolean
-  * created_at : timestamp
-  * updated_at : timestamp
+  * code : text <<UK>>
+  * name : text
+  * is_purchasable : boolean
+  * price_per_room : numeric(14,2)
+  * minimum_monthly_amount : numeric(14,2)
+  maximum_rooms : integer
+  maximum_properties : integer
+  * is_active : boolean = true
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
 entity plan_features {
   * id : uuid <<PK>>
   --
   * plan_id : uuid <<FK>>
-  * feature_key : varchar
+  * feature_key : text
   * enabled : boolean
   limit_value : integer
-  * created_at : timestamp
+  * created_at : timestamptz
+  --
+  <<UK>> (plan_id, feature_key)
 }
 
 entity subscriptions {
   * id : uuid <<PK>>
   --
-  * owner_id : uuid <<FK>>
+  * owner_id : uuid <<FK>> <<UK>>
   * plan_id : uuid <<FK>>
-  * status : varchar
-  * billing_cycle : varchar
-  trial_invoices_left : smallint
+  * status : text
+  billing_cycle : text
+  trial_started_at : date
+  trial_ends_at : date
   current_period_start : date
   current_period_end : date
-  cancelled_at : timestamp
-  * created_at : timestamp
-  * updated_at : timestamp
+  grace_period_ends_at : date
+  cancellation_requested_at : timestamptz
+  cancellation_effective_at : date
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
-entity subscription_addons {
+entity subscription_invoices {
   * id : uuid <<PK>>
   --
   * subscription_id : uuid <<FK>>
-  * feature_key : varchar
-  * price_monthly : bigint
-  * status : varchar
-  activated_at : timestamp
-  deactivated_at : timestamp
-  * created_at : timestamp
+  * owner_id : uuid <<FK>>
+  * plan_id : uuid <<FK>>
+  * period_start : date
+  * period_end : date
+  * billing_cycle : text
+  * occupied_rooms_snapshot : integer
+  * snapshot_taken_at : date
+  * price_per_room : numeric(14,2)
+  * computed_amount : numeric(14,2)
+  * minimum_monthly_applied : boolean
+  * discount_amount : numeric(14,2) = 0
+  * total_amount : numeric(14,2)
+  * status : text
+  provider_reference : text <<UK>>
+  failure_reason : text
+  attempt_count : smallint = 0
+  last_attempt_at : timestamptz
+  paid_at : timestamptz
+  * idempotency_key : text <<UK>>
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
-entity webhook_logs {
+' ============================================================
+
+entity public_tokens {
   * id : uuid <<PK>>
   --
-  * source : varchar
-  * event_type : varchar
-  * idempotency_key : varchar <<UK>>
+  * kind : text
+  * target_type : text
+  * target_id : uuid
+  * owner_id : uuid <<FK>>
+  * token_hash : text <<UK>>
+  * expires_at : timestamptz
+  used_at : timestamptz
+  revoked_at : timestamptz
+  * created_at : timestamptz
+}
+
+entity audit_events {
+  * id : uuid <<PK>>
+  --
+  * entity_type : text
+  * entity_id : uuid
+  owner_id : uuid <<FK>>
+  actor_id : uuid <<FK>>
+  * event_type : text
+  from_status : text
+  to_status : text
+  metadata : jsonb
+  * created_at : timestamptz
+}
+
+entity message_cost_months {
+  * id : uuid <<PK>>
+  --
+  * owner_id : uuid <<FK>>
+  property_id : uuid <<FK>>
+  * month : date
+  * delivered_count : integer
+  * billable_count : integer
+  * charged_amount : numeric(14,2)
+  * summarised_at : timestamptz
+  --
+  <<UK>> (owner_id, property_id, month)
+}
+
+entity webhook_events {
+  * id : uuid <<PK>>
+  --
+  * source : text
+  * event_type : text
+  * external_id : text <<UK>>
   * payload : jsonb
-  * processed : boolean
-  attempt_count : integer
+  * processed : boolean = false
+  * attempt_count : integer = 0
   last_error : text
-  processed_at : timestamp
-  * created_at : timestamp
+  processed_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
 }
 
 ' ============================================================
-' RELASI
+
+entity property_staff {
+  * id : uuid <<PK>>
+  --
+  * property_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
+  * user_id : uuid <<FK>>
+  * role : text
+  invited_at : timestamptz
+  accepted_at : timestamptz
+  revoked_at : timestamptz
+  * created_at : timestamptz
+}
+
+entity maintenance_tickets {
+  * id : uuid <<PK>>
+  --
+  * room_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
+  reported_by_tenant_id : uuid <<FK>>
+  * title : text
+  description : text
+  * status : text
+  * priority : text
+  assigned_to : uuid <<FK>>
+  resolved_at : timestamptz
+  * created_at : timestamptz
+  * updated_at : timestamptz
+}
+
+entity meter_readings {
+  * id : uuid <<PK>>
+  --
+  * room_id : uuid <<FK>>
+  * owner_id : uuid <<FK>>
+  * reading_date : date
+  * kilowatt_hours : numeric(10,2)
+  photo_storage_key : text
+  recorded_by : uuid <<FK>>
+  invoice_item_id : uuid <<FK>>
+  * created_at : timestamptz
+}
+
 ' ============================================================
+' RELATIONSHIPS
+' ============================================================
+' Only one relationship is drawn per pair of tables, and self-references
+' are not drawn at all. Secondary foreign keys are visible as columns and
+' explained in Semang_ERD.md.
 
-users          ||--o{ bank_accounts      : "has bank account"
-users          ||--o{ properties         : "owns"
-users          |o--o{ property_staff     : "staffs at"
-users          |o--o{ tenants            : "links as (Phase 2)"
-users          ||--o| subscriptions      : "subscribes via"
+users               ||--o{ auth_identities       : "authenticates via"
+users               ||--o{ login_codes           : "receives code"
+users               ||--o{ bank_accounts         : "owns"
+users               ||--o| xendit_sub_accounts   : "has"
+users               ||--o{ properties            : "owns"
+users               ||--o| subscriptions         : "subscribes through"
+users               |o--o{ payments              : "records manually"
+users               |o--o{ audit_events          : "performs"
+users               ||--o{ invoice_counters       : "numbers invoices through"
+users               ||--o{ message_cost_months     : "is summarised in"
+users               |o--o{ tenants               : "linked as (Phase 2)"
+users               |o--o{ property_staff        : "works at"
 
-properties     ||--o{ property_staff     : "is managed by"
-properties     ||--|{ rooms              : "consists of"
+bank_accounts       |o--o| xendit_sub_accounts   : "receives settlement"
 
-rooms          ||--o{ tenants            : "is occupied by"
-rooms          ||--o{ invoices           : "is billed through"
+provinces           ||--|{ regions               : "contains"
+regions             |o--o{ properties            : "determines time zone of"
 
-tenants        ||--o{ invoices           : "is liable for"
+properties          ||--o{ room_types            : "defines"
+properties          ||--|{ rooms                 : "consists of"
+properties          ||--o{ tenants               : "hosts"
+properties          ||--o{ property_staff        : "is managed by"
+properties          ||--o{ messages              : "is notified through"
+properties          |o--o{ message_cost_months     : "is broken down in"
 
-invoices       ||--|{ invoice_items      : "is itemized in"
-invoices       ||--o{ proofs             : "is evidenced by"
-invoices       ||--o{ payments           : "is paid through"
-invoices       ||--o{ invoice_events     : "is logged in"
-invoices       ||--o{ notifications      : "is notified via"
+room_types          |o--o{ rooms                 : "priced by"
 
-proofs         |o--o| payments           : "backs"
-users          |o--o{ proofs             : "decides"
-users          |o--o{ payments           : "confirms"
-users          |o--o{ invoice_events     : "acts in"
+rooms               ||--o{ room_assignments      : "is occupied through"
+rooms               ||--o{ invoices              : "is billed through"
+rooms               ||--o{ maintenance_tickets   : "is reported on"
+rooms               ||--o{ meter_readings        : "is metered by"
 
-plans          ||--o{ plan_features      : "bundles"
-plans          ||--o{ subscriptions      : "is chosen in"
-subscriptions  ||--o{ subscription_addons : "is extended by"
+tenants             ||--|{ room_assignments      : "is placed through"
+tenants             ||--o{ invoices              : "owes"
+tenants             ||--o{ multi_period_groups   : "prepays through"
+tenants             |o--o{ maintenance_tickets   : "reports"
+
+multi_period_groups |o--o{ invoices              : "groups"
+invoices            ||--|{ invoice_items         : "is itemised in"
+invoices            ||--o{ payment_links         : "is paid through"
+invoices            ||--o{ payments              : "is settled by"
+invoices            ||--o{ messages              : "is notified through"
+
+payment_links       |o--o{ payments              : "produces"
+
+message_templates   ||--o{ messages              : "renders"
+message_rates       |o--o{ messages              : "prices"
+login_codes         |o--o| messages              : "is delivered through"
+
+plans               ||--o{ plan_features         : "grants"
+plans               ||--o{ subscriptions         : "is used by"
+plans               ||--o{ subscription_invoices : "is billed as"
+subscriptions       ||--o{ subscription_invoices : "is charged through"
+subscriptions       |o--o{ messages              : "is warned through"
+
+invoice_items       |o--o| meter_readings        : "originates from (Phase 2)"
 
 @enduml

@@ -1,224 +1,344 @@
 # SEMANG — Software Requirements Document (SRD)
 
-**Versi:** 1.0 (MVP) · **Status:** Draft · **Bahasa:** Indonesia
-**Acuan:** Semang PRD v1.0
+**Versi:** 2.0 (MVP) · **Status:** Draft · **Bahasa:** Indonesia
+**Acuan:** Semang PRD v2.0
+**Acuan tarif WABA:** rate card IDR resmi Meta berlaku 1 Juli 2026 — utility Indonesia Rp356,65/pesan (PRD §16)
 
 > **Tagline:** Kost-mu ditagih otomatis, uang masuk tercatat sendiri, tanpa kamu menagih siapa-siapa.
-> **Fokus:** spesifikasi kebutuhan fungsional & non-fungsional Tahap 0 (MVP, biaya Rp0)
+> **Fokus:** spesifikasi kebutuhan fungsional & non-fungsional MVP v2.0 — otomasi penuh penagihan via WhatsApp Cloud API dan pembayaran online via Xendit XenPlatform, tanpa platform pernah menampung dana.
 
 ## 1. Pendahuluan
 
-**Tujuan dokumen:** Mendefinisikan kebutuhan perangkat lunak Semang Tahap 0 secara terukur dan dapat diverifikasi, sebagai jembatan antara PRD (apa yang dibangun dan mengapa) dengan TRD (bagaimana membangunnya). Setiap kebutuhan diberi ID unik yang dirujuk oleh TRD.
+**Tujuan dokumen:** Mendefinisikan kebutuhan perangkat lunak Semang MVP v2.0 secara terukur dan dapat diverifikasi, sebagai jembatan antara PRD v2.0 (apa yang dibangun dan mengapa) dengan TRD (bagaimana membangunnya). Setiap kebutuhan diberi ID unik yang dirujuk oleh TRD. Rujukan bagian PRD ditulis sebagai "PRD §n".
 
-**Lingkup:** Hanya Tahap 0 (MVP) sesuai PRD §5. Fitur Tahap 1–4 disebut hanya bila memengaruhi keputusan desain hari ini (mis. upgrade path notifikasi).
+**Lingkup:** Hanya MVP v2.0 sesuai PRD §5. Fitur Tahap 1–3 (PRD §17) disebut hanya bila memengaruhi keputusan desain hari ini (mis. interface yang dapat diperluas, skema data yang menampung paket).
 
 **Definisi istilah:**
 
-| Istilah            | Arti                                                                                         |
-|--------------------|----------------------------------------------------------------------------------------------|
-| Pemilik            | Pengguna utama: pemilik/pengelola kost yang memiliki akun Semang                             |
-| Penghuni           | Penyewa kamar; berinteraksi via link publik tanpa akun                                       |
-| Tagihan            | Kewajiban bayar satu kamar untuk satu siklus, dengan nominal unik                            |
-| Kode unik nominal  | Tiga digit terakhir nominal tagihan yang mengidentifikasi kamar (mis. Rp1.500.003 → Kamar 3) |
-| Siklus             | Periode penagihan satu kamar; default bulanan pada tanggal jatuh tempo                       |
-| Antrean siap-kirim | Daftar pesan wa.me yang telah disusun sistem dan menunggu tap pemilik                        |
-| Bukti              | Foto bukti transfer yang diunggah penghuni melalui link publik                               |
+| Istilah                | Arti                                                                                                                           |
+|------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Pemilik                | Pengguna utama: pemilik/pengelola kost yang memiliki akun Semang                                                               |
+| Penyewa                | Penghuni kamar; tidak pernah membuat akun, berinteraksi via pesan WhatsApp dan halaman publik bertoken                         |
+| Tagihan                | Kewajiban bayar satu kamar untuk satu periode, dengan nominal bulat                                          |
+| Siklus                 | Periode penagihan satu penyewa sesuai unit sewanya (bulanan/mingguan/harian)                                                   |
+| Unit sewa              | Basis durasi sewa per penyewa: bulanan (default), mingguan, atau harian (PRD §8.7)                                             |
+| Tipe kamar             | Kelompok kamar dengan harga sendiri (mis. Standar, AC, KM Dalam) — PRD §6.1                                                    |
+| Sub-akun               | Akun Xendit milik pemilik di bawah platform Semang (XenPlatform); dana penyewa masuk langsung ke sini lalu ke rekening pemilik |
+| KYC sub-akun           | Verifikasi identitas & rekening pemilik untuk mengaktifkan pelunasan otomatis via Xendit (PRD §9.2)                            |
+| Link pembayaran        | URL pembayaran Xendit dengan nominal terkunci, unik per tagihan/cicilan                                                        |
+| Penandaan lunas manual | Aksi pemilik menandai tagihan lunas atas pembayaran tunai/transfer langsung di luar Xendit (PRD §9.4)                          |
+| Kamar terisi           | Nama yang dipakai ke pemilik untuk basis penagihan langganan; yang dihitung adalah jumlah penyewa aktif pada tanggal snapshot, bukan jumlah kamar berstatus terisi (PRD §8.10)                                        |
+| Template utility       | Template WhatsApp Cloud API kategori transaksional (bukan marketing) — Rp356,65/pesan vs marketing Rp586,33/pesan pada rate card Indonesia; wajib bebas unsur promosi |
+| Tarif per pesan        | Satuan biaya WABA: dihitung per pesan yang sampai ke penerima, per pasangan pasar–kategori. Untuk Semang: Indonesia–Utility, Rp356,65/pesan (rate card berlaku 1 Juli 2026). Tidak ada pesan gratis (PRD §11, §16) |
+| Penempatan kamar       | Catatan kamar mana yang ditempati seorang penyewa beserta masa berlakunya; bisa berganti selama masa sewa, tetap maupun sementara (PRD §6.3) |
+| Wilayah                | Kota atau kabupaten tempat kost berada, dipilih dari daftar seluruh Indonesia; menentukan zona waktu penagihan (PRD §6.1) |
+| Momen wow              | Titik onboarding saat pemilik menerima contoh tagihan nyata di WhatsApp-nya sendiri (PRD §10.2)                                |
 
 ## 2. Deskripsi Umum Sistem
 
-**Konteks:** Aplikasi web multi-tenant. Pemilik mengakses dashboard melalui browser (mobile-first). Penghuni tidak pernah membuat akun — seluruh interaksinya melalui link publik bertoken (form isi data, halaman upload bukti, kuitansi).
+**Konteks:** Aplikasi web multi-tenant (SaaS). Pemilik mengakses dashboard melalui browser (mobile-first). Penyewa tidak pernah membuat akun — seluruh interaksinya melalui pesan WhatsApp yang dikirim sistem dan halaman publik bertoken (form isi-mandiri, halaman pembayaran Xendit, kuitansi). Semang tidak pernah menampung dana pengguna: pembayaran mengalir dari penyewa langsung ke rekening pemilik melalui sub-akun Xendit milik pemilik (PRD Filosofi Inti #1).
 
 **Aktor:**
 
-- **Pemilik** — mengelola kost, mengirim tagihan, mengonfirmasi pembayaran, melihat laporan.
-- **Penghuni** — mengisi data diri, menerima pesan tagihan via WA, transfer langsung ke rekening pemilik, mengunggah bukti.
-- **Sistem (cron)** — men-generate tagihan per siklus, menyusun antrean reminder, menjalankan timeout state machine.
+- **Pemilik** — mengelola kost/tipe kamar/kamar/penyewa, menjalani KYC sub-akun, menyetujui cicilan & diskon multi-periode, menandai lunas manual, melihat laporan, mengelola langganan.
+- **Penyewa** — mengisi data diri via link, menerima tagihan & reminder via WhatsApp, membayar via link Xendit (atau tunai/transfer langsung ke pemilik), mengakses kuitansi via link.
+- **Sistem terjadwal (cron)** — membuat tagihan tiap siklus, mengirim tagihan/reminder/update berkala, menjalankan transisi status berbasis waktu (telat, menunggak), menagih langganan pemilik.
+- **WhatsApp Cloud API** — kanal pengiriman pesan keluar; webhook status pengiriman masuk ke Semang.
+- **Xendit** — pembuatan link pembayaran, webhook konfirmasi pembayaran, compliance API untuk KYC sub-akun.
 
 **Asumsi & dependensi:**
 
-- Pemilik dan penghuni memiliki WhatsApp aktif dan terbiasa transfer bank/m-banking.
-- Tahap 0 berjalan sepenuhnya pada free tier (Vercel Hobby, Supabase Free, Resend Free) → seluruh kebutuhan tunduk pada batas kuota free tier.
-- Tidak ada uang yang mengalir melalui platform; Semang tidak berintegrasi dengan payment gateway pada Tahap 0.
+- Pemilik dan penyewa memiliki WhatsApp aktif; penyewa terbiasa membayar via QRIS/VA/e-wallet atau transfer bank.
+- Prasyarat operasional harus selesai sebelum peluncuran: verifikasi bisnis Meta atas WABA Semang, entitas usaha/NIB, KYC platform Xendit + service agreement (PRD §9.2, §15.1). Pengembangan dan proses verifikasi berjalan paralel.
+- Ada biaya operasional sejak hari pertama → pengendalian biaya pesan menjadi kebutuhan non-fungsional (NFR-07). Biaya WhatsApp dihitung **per pesan yang sampai ke penerima** untuk pasangan pasar–kategori Indonesia–Utility (bukan per percakapan 24 jam); MDR Xendit umumnya ditanggung pemilik.
+- Tarif WABA yang dipakai dalam perhitungan margin berasal dari rate card IDR resmi Meta (PRD §16): utility Indonesia Rp356,65/pesan, berlaku 1 Juli 2026. Tarif dapat berubah maksimal 4× setahun (1 Jan / 1 Apr / 1 Jul / 1 Okt) → peninjauan kuartalan.
+- **Tidak ada pesan gratis.** Seluruh desain pesan menganggap tiap pengiriman kena tarif penuh.
+- Diskon volume tidak berlaku: ambang pertamanya 750.000 pesan sebulan (±300.000 kamar terisi), jauh di luar jangkauan Semang.
+- Semang tidak pernah memegang dana → bebas kewajiban lisensi PJP (PRD §9.1); kepatuhan larangan surcharge PBI 23/6/PBI/2021 wajib (PRD §7.5).
 
 ## 3. Kebutuhan Fungsional
 
+Seluruh kebutuhan di bagian ini wajib untuk MVP. Yang di luar lingkup MVP tidak ditulis sebagai kebutuhan, melainkan didaftar di §8.
+
 ### 3.1 Autentikasi & Akun (AUTH)
 
-| ID      | Kebutuhan                                                                                                              | Prioritas |
-|---------|------------------------------------------------------------------------------------------------------------------------|-----------|
-| AUTH-01 | Pendaftaran dengan email + nomor WA + password; tanpa verifikasi email demi friksi serendah mungkin (Filosofi Inti #2) | Wajib     |
-| AUTH-02 | Login dengan email ATAU nomor WA + password; password di-hash (bcrypt/argon2), tidak pernah disimpan apa adanya        | Wajib     |
-| AUTH-03 | Nomor WA pemilik disimpan di profil dan dipakai untuk tombol "kirim contoh ke WA saya"                                 | Wajib     |
-| AUTH-04 | Sesi login bertahan ≥30 hari pada perangkat yang sama (pemilik non-teknis tidak boleh sering dipaksa login ulang)      | Wajib     |
-| AUTH-05 | Reset password ditunda ke pasca-MVP; saat hadir memakai Supabase Auth + Resend (gratis). Di Tahap 0 tidak ada reset    | Tunda     |
-| AUTH-06 | Login via OTP WhatsApp disiapkan sebagai jalur masa depan, diaktifkan saat WABA tersedia (Tahap 2)                     | Tunda     |
+| ID      | Kebutuhan                                                                                                                                                                        |
+|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| AUTH-01 | Pendaftaran lewat dua jalur setara: (a) Google OAuth, atau (b) nomor WhatsApp + kode verifikasi sekali pakai (PRD §10.2 langkah 1) |
+| AUTH-02 | Login lewat Google ATAU nomor WhatsApp + kode verifikasi. Kedua jalur selalu tersedia untuk setiap akun, terlepas dari jalur mana yang dipakai saat mendaftar; tidak ada pengaturan yang perlu diaktifkan lebih dulu (PRD §10.2) |
+| AUTH-03 | Nomor WA pemilik wajib diisi semua pemilik, dan dipakai untuk dua hal sekaligus: nomor tujuan contoh tagihan dan update berkala, dan cara masuk lewat kode verifikasi. Tidak ada kode yang dikirim saat nomor pertama kali disimpan — bahwa nomor itu benar milik pemilik baru terbukti waktu ia memakai kode untuk masuk lewat jalur WhatsApp (PRD §10.2) |
+| AUTH-04 | Sesi login bertahan ≥30 hari pada perangkat yang sama dan diperpanjang saat dipakai (pemilik non-teknis tidak boleh sering dipaksa login ulang). Kode verifikasi hanya diminta saat sesi habis atau perangkat baru, tidak setiap kali membuka Semang |
+| AUTH-05 | Pemulihan akses berjalan lewat jalur masuk yang lain. Jalur WhatsApp selalu tersedia untuk setiap akun; jalur Google tersedia bagi akun yang dibuat lewat Google atau yang menautkan identitas Google-nya kemudian. Kehilangan akses ke nomor WA ditangani lewat jalur bantuan manual oleh founder yang didokumentasikan |
+| AUTH-06 | Satu akun per identitas Google dan satu akun per nomor WhatsApp; nomor yang sudah terpakai di satu akun ditolak saat pendaftaran maupun penggantian nomor di akun lain (PRD §5)                        |
+| AUTH-07 | Penggantian nomor WA lewat Pengaturan memerlukan kode verifikasi ke nomor baru sebelum berlaku, karena nomor itu juga dipakai untuk masuk; nomor lama berhenti bisa dipakai masuk begitu penggantian selesai                                     |
+| AUTH-08 | Kode verifikasi: sekali pakai, kedaluwarsa singkat, dibandingkan dengan cara yang tidak membocorkan hasil dari lama waktu pembandingan, dan dibatalkan setelah dipakai atau setelah kode baru diminta                                       |
+| AUTH-09 | Jumlah permintaan kode dibatasi per nomor, per akun, dan per alamat IP, dengan jeda yang makin panjang setiap kali gagal — satu kode berbiaya Rp356,65, dan inilah cara termudah bagi orang lain untuk menghabiskan saldo WhatsApp Business Semang (PRD §15.1) |
+| AUTH-10 | Kode verifikasi dikirim lewat template kategori **authentication** milik nomor bisnis WhatsApp Semang sendiri, terpisah dari template utility penagihan; pengiriman melalui interface `NotificationSender` yang sama (NFR-10)                       |
 
-### 3.2 Manajemen Kost & Kamar (KOST)
+### 3.2 Manajemen Kost, Tipe Kamar & Kamar (KOST)
 
-| ID      | Kebutuhan                                                                                                          | Prioritas |
-|---------|--------------------------------------------------------------------------------------------------------------------|-----------|
-| KOST-01 | Pemilik dapat membuat 1 properti kost dengan nama, kota, dan jumlah kamar (1–50)                                   | Wajib     |
-| KOST-02 | Sistem men-generate kamar otomatis bernomor urut (Kamar 1…N) saat properti dibuat                                  | Wajib     |
-| KOST-03 | Harga sewa default dan tanggal jatuh tempo tunggal ditetapkan di level properti, dapat dioverride per kamar        | Wajib     |
-| KOST-04 | Pemilik dapat menambah/mengubah/menonaktifkan kamar setelah onboarding (soft delete; histori tagihan tidak hilang) | Wajib     |
-| KOST-05 | Status kamar (terisi/kosong) ter-update otomatis dari keberadaan penghuni aktif                                    | Wajib     |
+| ID      | Kebutuhan                                                                                                                                                                                  |
+|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| KOST-01 | Pemilik dapat membuat properti kost dengan nama, jumlah kamar, dan wilayah (kota/kabupaten) yang dipilih dari daftar seluruh Indonesia — bukan diketik bebas. Jumlah kamar dan properti menentukan paket berbayar yang berlaku, bukan sebaliknya (SUB-01): Starter 1 properti ≤15 kamar, Pro ≤3 properti ≤50 kamar, Bisnis tak terbatas. Keadaan tidak berlangganan tidak dibatasi jumlah kamar maupun properti (SUB-09) |
+| KOST-02 | Sistem membuat kamar otomatis bernomor urut (Kamar 1…N) saat properti dibuat; saat onboarding cukup nama kost + jumlah kamar + harga sewa bawaan (wilayah diisi pada setup lanjutan, ONB-06) |
+| KOST-03 | Pemilik dapat mendefinisikan tipe kamar dengan nama dan harga masing-masing, lalu menetapkan tipe itu pada tiap kamar (PRD §6.1). Tipe kamar tersedia tanpa syarat paket — tidak berbiaya per pemakaian (SUB-04)             |
+| KOST-04 | Urutan harga yang dipakai: harga khusus satu kamar > harga tipe kamar > harga bawaan properti. Kamar tanpa tipe dan tanpa harga khusus memakai harga bawaan                                                  |
+| KOST-05 | Pemilik dapat menambah/mengubah/menonaktifkan kamar setelah onboarding (ditandai terhapus tanpa benar-benar dibuang, sehingga riwayat tagihan tidak hilang)                                                                         |
+| KOST-06 | Status `terisi` dan `dipesan` diperbarui otomatis dari penempatan kamar yang berlaku, bukan diisi pemilik; status lainnya ditetapkan pemilik (daftar lengkapnya di KOST-12)                                                                                                             |
+| KOST-07 | Pengaturan mode penentuan jatuh tempo per properti: "dari tanggal masuk" (default) atau "tanggal tetap" (PRD §8.5); dapat diubah setelah berjalan sesuai TGH-06                            |
+| KOST-08 | Wilayah properti dipilih dari daftar kota dan kabupaten Indonesia lewat pencarian bertaip; daftar ini data acuan yang diisi lewat migrasi, bukan diketik pengguna |
+| KOST-09 | Zona waktu properti disalin dari provinsi wilayah yang dipilih, lalu dibekukan — tidak dibaca ulang saat dipakai, sehingga pembaruan daftar wilayah tidak menggeser jatuh tempo kost yang sudah berjalan. Pemilik dapat menimpanya, dan penimpaan itu tercatat di jejak aksi |
+| KOST-10 | Zona waktu perangkat pemilik tidak dipakai sebagai sumber: yang menentukan tanggal jatuh tempo adalah lokasi kost, bukan lokasi pemiliknya saat itu |
+| KOST-11 | Properti tanpa zona waktu tidak boleh masuk siklus penagihan; cron melewatinya dan mencatatnya sebagai perlu ditindak, bukan menebak zonanya |
+| KOST-12 | Status kamar membedakan sebab tidak bisa ditempati: kosong, terisi, dipesan, sedang dibangun, sedang direnovasi, atau tidak tersedia dengan alasan lain. Kamar yang sedang dibangun atau direnovasi tidak terhitung sebagai kamar kosong yang menunggu penyewa (PRD §6.1) |
 
-### 3.3 Data Penghuni (PHN)
+### 3.3 Data Penyewa (PNY)
 
-| ID     | Kebutuhan                                                                                        | Prioritas |
-|--------|--------------------------------------------------------------------------------------------------|-----------|
-| PHN-01 | Setiap kamar memiliki link/QR publik bertoken untuk isi-mandiri data penghuni (nama, nomor WA)   | Wajib     |
-| PHN-02 | Link isi-mandiri kedaluwarsa setelah dipakai atau setelah 30 hari; pemilik dapat me-regenerate   | Wajib     |
-| PHN-03 | Pemilik dapat menginput/mengubah data penghuni secara manual                                     | Wajib     |
-| PHN-04 | Nomor WA penghuni divalidasi format E.164 Indonesia (+62) sebelum disimpan                       | Wajib     |
-| PHN-05 | Pemilik dapat menandai penghuni keluar (checkout); kamar menjadi kosong, histori tetap tersimpan | Wajib     |
-| PHN-06 | Impor massal dari foto buku catatan (input oleh founder secara manual di Tahap 0)                | Opsional  |
+| ID     | Kebutuhan                                                                                                                                                                                 |
+|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PNY-01 | Setiap kamar memiliki link publik bertoken untuk isi-mandiri data penyewa (nama, nomor WA) dengan persetujuan ringkas sebelum dikirim; link dibagikan pemilik lewat WhatsApp (PRD §6.2, PDP-02)                                    |
+| PNY-02 | Link isi-mandiri kedaluwarsa setelah dipakai atau setelah 30 hari; pemilik dapat membuat link baru                                                                                            |
+| PNY-03 | Pemilik dapat menginput/mengubah data penyewa secara manual                                                                                                                               |
+| PNY-04 | Nomor WA penyewa divalidasi format E.164 Indonesia (+62) sebelum disimpan                                                                                                                 |
+| PNY-05 | Setiap penyewa memiliki tanggal masuk dan unit sewa (bulanan default; mingguan/harian sesuai PRD §8.7) yang menentukan siklus tagihannya                                                  |
+| PNY-06 | Pemilik dapat menandai penyewa keluar (checkout); penempatan kamarnya berakhir dan kamar kembali kosong kecuali statusnya ditetapkan lain, histori tetap tersimpan; tagihan menunggak milik penyewa keluar tetap hidup dan muncul di laporan piutang (BR-14) |
+| PNY-07 | Satu kamar maksimal satu penempatan berlaku pada satu waktu; pergantian penyewa (orang berbeda) melalui checkout → isi-mandiri/input baru                                                                                      |
+| PNY-08 | Penyewa terdaftar pada properti, bukan terpaku pada satu kamar; penempatan kamarnya dicatat terpisah beserta masa berlakunya, sehingga satu orang dapat berpindah kamar tanpa menjadi dua penyewa berbeda (PRD §6.3) |
+| PNY-09 | Pemilik dapat memindahkan penyewa ke kamar lain secara **tetap** atau **sementara**. Pemindahan sementara mencatat alasannya dan kamar yang akan ditempati kembali |
+| PNY-10 | Selama pemindahan sementara berlaku, kamar asal berstatus dipesan — tidak muncul sebagai kamar tersedia dan tidak dapat diisi penyewa lain |
+| PNY-11 | Pemindahan **sementara** tidak mengubah nominal sewa penyewa, meski kamar penggantinya bertipe lebih mahal — penyewa tidak punya pilihan, jadi tidak menanggung akibatnya. Pemindahan **tetap** boleh mengubah nominal karena penyewa memilih kamarnya. Nominal selalu diambil dari kesepakatan penyewa, bukan dari harga kamar yang sedang ditempati (PRD §6.3) |
+| PNY-12 | Pemindahan sementara dapat diubah menjadi tetap: kamar asal berhenti dipesan dan kembali tersedia, kamar sementara menjadi penempatan tetap, dan sejak titik itu nominal sewa boleh disesuaikan (PRD §6.3) |
+| PNY-13 | Penyewa hanya dapat ditempatkan pada kamar berstatus kosong; kamar yang sedang dibangun, direnovasi, dipesan, atau tidak tersedia tidak dapat diisi |
 
-### 3.4 Tagihan & State Machine (TGH)
+### 3.4 Mesin Tagihan & Logika Penagihan (TGH)
 
-| ID     | Kebutuhan                                                                                                                                     | Prioritas |
-|--------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| TGH-01 | Sistem men-generate tagihan otomatis untuk setiap kamar terisi pada tanggal siklusnya                                                         | Wajib     |
-| TGH-02 | Pencocokan bukti↔tagihan dilakukan via token halaman upload (unik per tagihan), BUKAN via nominal; nominal tagihan tetap bulat                | Wajib     |
-| TGH-03 | Tagihan mengikuti state machine: draft → terjadwal → terkirim → menunggu_konfirmasi → lunas, dengan cabang telat dan menunggak (lihat PRD §8) | Wajib     |
-| TGH-04 | Setiap state memiliki timeout dengan aksi default; tidak ada tagihan menggantung tanpa batas                                                  | Wajib     |
-| TGH-05 | Generate tagihan bersifat idempoten: eksekusi cron ganda pada hari yang sama tidak menghasilkan tagihan duplikat                              | Wajib     |
-| TGH-06 | Pemilik dapat membuat tagihan manual ad-hoc (tagihan pertama prorata penghuni baru, denda, biaya tambahan) di luar siklus                     | Wajib     |
-| TGH-07 | Seluruh transisi state tercatat di audit trail (siapa, kapan, dari state apa ke state apa)                                                    | Wajib     |
-| TGH-08 | Bila tanggal jatuh tempo melebihi hari terakhir bulan berjalan, tagihan jatuh tempo pada hari terakhir bulan tersebut                         | Wajib     |
-| TGH-09 | Kode unik nominal tersedia sebagai fitur opt-in per properti (default mati); bila aktif, 3 digit terakhir nominal = nomor kamar               | Opsional  |
-| TGH-10 | Satu bukti dapat dipakai pemilik untuk mengonfirmasi beberapa tagihan (pembayaran beberapa bulan sekaligus)                                   | Wajib     |
+Seluruh logika di bagian ini mengimplementasikan PRD §8.
 
-### 3.5 Notifikasi & Antrean Siap-Kirim (NTF)
+| ID     | Kebutuhan                                                                                                                                                                                                                                                                                                                                                 |
+|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| TGH-01 | Sistem membuat tagihan otomatis untuk setiap penyewa aktif pada tanggal siklusnya — kamar yang tercantum diambil dari penempatan yang berlaku (PNY-08), dengan nominal bulat mengikuti urutan harga (KOST-04) dan unit sewa penyewa (PNY-05)                                                                                                                                                                          |
+| TGH-02 | Pembuatan tagihan bersifat idempoten: eksekusi cron ganda pada hari yang sama tidak menghasilkan tagihan duplikat                                                                                                                                                                                                                                          |
+| TGH-03 | Mode "dari tanggal masuk": jatuh tempo tiap penyewa mengikuti tanggal masuknya; tidak pernah ada prorata tagihan pertama (PRD §8.5)                                                                                                                                                                                                                       |
+| TGH-04 | Mode "tanggal tetap": satu tanggal jatuh tempo untuk semua penyewa properti; penyewa baru yang masuk di luar tanggal itu memicu pilihan perlakuan tagihan pertama (TGH-07)                                                                                                                                                                                |
+| TGH-05 | Jatuh tempo tanggal 29–31 pada bulan yang tidak memilikinya dipindah ke hari terakhir bulan tersebut; berlaku di kedua mode sehingga tidak ada tagihan gagal dibuat (PRD §8.5)                                                                                                                                                                            |
+| TGH-06 | Perubahan mode jatuh tempo hanya memengaruhi tagihan yang belum dibuat; bila menimbulkan hari belum tertagih, sistem membuat SATU tagihan penutup celah (bukan menghitung ulang tagihan lama); pemilik melihat pratinjau sebelum menyetujui (PRD §8.5)                                                                                                    |
+| TGH-07 | Perlakuan tagihan pertama (mode tanggal tetap): pemilik memilih saat menambah penyewa — (a) prorata sisa bulan, (b) gabung ke depan (prorata + periode penuh berikut dalam SATU tagihan), (c) penuh bulan ini. Sistem menyarankan default cerdas (masuk mendekati akhir periode → gabung; awal/tengah → prorata) yang dapat ditimpa satu ketuk (PRD §8.6) |
+| TGH-08 | Harga turunan unit sewa: harian = bulanan ÷ 30 dibulatkan ke ribuan terdekat KE ATAS; mingguan = harian × 7. Keduanya default yang dapat ditimpa pemilik (PRD §8.7)                                                                                                                                                                                       |
+| TGH-09 | Pembayaran di muka multi-periode: pemilik membuat rangkaian periode sekaligus dengan diskon manual (nominal atau persen); diskon tercatat sebagai baris tersendiri pada tagihan; jatuh tempo berikutnya maju otomatis (PRD §8.8)                                                                                                                          |
+| TGH-10 | Cicilan (pembayaran sebagian) hanya atas persetujuan/pencatatan pemilik: pemilik menetapkan besaran cicilan dan jatuh tempo sisa; setiap cicilan mendapat link pembayaran bernominal terkunci; sisa tercatat sebagai bagian terbuka tagihan dan dapat dicicil lagi sampai nol (PRD §8.9). Penyewa tidak pernah mengetik nominal                           |
+| TGH-11 | Status tagihan: draft, terkirim, sebagian, lunas, telat, menunggak, dibatalkan — dengan arti tiap status persis PRD §8.2 dan seluruh transisi persis tabel PRD §8.3. Lunas dan dibatalkan adalah status akhir; telat/menunggak selalu bisa dilunasi kapan pun (otomatis maupun manual)                                                                                                         |
+| TGH-12 | Transisi berbasis waktu berjalan otomatis via cron: lewat jatuh tempo → telat; telat H+30 tanpa pelunasan → menunggak. Tidak ada status yang menunggu tanpa batas waktu (PRD §8.1)                                                                                                                                                                        |
+| TGH-13 | Pembatalan dari status sebagian hanya menghapus sisa yang belum dibayar; pembayaran yang sudah masuk tetap tercatat sebagai pembayaran terpisah (PRD §8.3)                                                                                                                                                                                                |
+| TGH-14 | Pencatatan refund checkout lebih awal (multi-periode): pemilik membatalkan periode yang belum berjalan dengan alasan "refund — checkout lebih awal"; sistem menghitung nominal sisa periode belum berjalan sebagai referensi (murni informasi — Semang TIDAK memproses pengembalian dana); periode yang sudah berjalan tidak ikut dibatalkan (PRD §8.8)   |
+| TGH-15 | Perubahan harga (termasuk harga tipe kamar) hanya berlaku untuk tagihan yang belum dibuat; tagihan yang sudah ada tidak pernah berubah (PRD §8.5)                                                                                                                                                                                                         |
+| TGH-16 | Seluruh transisi status dan aksi finansial tercatat di jejak aksi: siapa, kapan, dari status apa ke status apa, dan pemicunya (webhook Xendit / manual pemilik / cron) — PRD §6.7                                                                                                                                                                        |
+| TGH-17 | Setiap tagihan diberi nomor berurut per pemilik yang bisa dibaca dan disebut manusia (PRD §6.4), diambil dari penghitung per pemilik di dalam transaksi yang sama — bukan dari nilai tertinggi yang ada, yang menghasilkan nomor kembar saat cron berjalan bersamaan |
+| TGH-18 | Tagihan menyimpan nama dan nomor WA penyewa **saat tagihan dibuat**; kuitansi memakai salinan itu, bukan data penyewa terkini (PRD §6.7, §7.3) |
 
-| ID     | Kebutuhan                                                                                                                                         | Prioritas |
-|--------|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| NTF-01 | Sistem menyusun pesan tagihan lengkap (nominal unik + rekening pemilik + link upload bukti) sebagai link wa.me pre-filled                         | Wajib     |
-| NTF-02 | Antrean "siap kirim" menampilkan semua pesan yang menunggu: tagihan baru, reminder H-3, hari-H, H+3, H+7                                          | Wajib     |
-| NTF-03 | Satu tap per pesan membuka WhatsApp dengan teks terisi; sistem mencatat status "sudah dibuka" per pesan                                           | Wajib     |
-| NTF-04 | Lapisan notifikasi diimplementasikan di balik interface `NotificationSender` agar implementasi wa.me dapat diganti WABA tanpa mengubah modul lain | Wajib     |
-| NTF-05 | Notifikasi ke pemilik (bukti masuk, pengingat konfirmasi, ringkasan bulanan) dikirim via email (Resend) dan ditampilkan di dashboard              | Wajib     |
-| NTF-06 | Template pesan dapat dikustomisasi ringan oleh pemilik (sapaan, catatan kaki) tanpa mengubah elemen wajib                                         | Opsional  |
+### 3.5 Pembayaran Online & Pelunasan (PAY)
 
-### 3.6 Bukti Transfer & Konfirmasi (BKT)
+Bagian ini mengimplementasikan PRD §9. Dua jalur pelunasan saling melengkapi: otomatis via Xendit (jalur utama setelah KYC) dan penandaan lunas manual (jalur wajar sebelum KYC, jalan darurat setelahnya).
 
-| ID     | Kebutuhan                                                                                                                                      | Prioritas |
-|--------|------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
-| BKT-01 | Setiap tagihan memiliki halaman upload publik bertoken tak-tertebak (≥128 bit entropi)                                                         | Wajib     |
-| BKT-02 | Halaman upload berukuran <200KB dan berfungsi pada koneksi 3G dan perangkat low-end                                                            | Wajib     |
-| BKT-03 | Gambar bukti dikompres di sisi client (target ≤200KB) dan metadata EXIF dihapus sebelum diunggah                                               | Wajib     |
-| BKT-04 | Sistem mencocokkan bukti dengan tagihan via token halaman upload (unik per tagihan); pemilik memverifikasi jumlah secara visual saat konfirmasi | Wajib     |
-| BKT-05 | Pemilik mengonfirmasi (Terima/Tolak) dengan satu tap dari dashboard atau notifikasi email                                                      | Wajib     |
-| BKT-06 | Konfirmasi "Terima" → tagihan lunas + kuitansi digital ter-generate dan dapat diakses penghuni via link                                        | Wajib     |
-| BKT-07 | Konfirmasi "Tolak" wajib disertai alasan singkat; tagihan kembali ke terkirim dengan catatan                                                   | Wajib     |
-| BKT-08 | Penghuni dapat mengunggah ulang bukti bila ditolak, pada halaman yang sama                                                                     | Wajib     |
+| ID     | Kebutuhan                                                                                                                                                                                                                                                                                                                                                                  |
+|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PAY-01 | Integrasi Xendit XenPlatform: Semang sebagai platform utama, setiap pemilik sebagai sub-akun; dana penyewa mengalir langsung ke rekening pemilik — tidak pernah ada saldo yang ditahan Semang. Inilah dasar kepercayaan yang dijanjikan ke pemilik (PRD §7.1, §9.1)                                                                                                                                                                   |
+| PAY-02 | KYC sub-akun (identitas + rekening tujuan) dijalankan DI DALAM antarmuka Semang, tersinkron dengan compliance API Xendit — pemilik tidak keluar dari Semang (PRD §9.2). Opsi kepatuhan "Xendit fully KYC" dipakai untuk memindahkan beban verifikasi ke Xendit (PRD §15.2)                                                                                                 |
+| PAY-03 | Tagihan tidak pernah menunggu KYC: sejak siklus pertama tagihan terkirim otomatis; sebelum KYC pesan berisi nomor rekening pemilik, setelah KYC pesan otomatis beralih berisi link pembayaran Xendit pada siklus berikutnya — tanpa ada tagihan tertahan/menumpuk (PRD §9.4)                                                                                               |
+| PAY-04 | Setiap tagihan/cicilan pasca-KYC memiliki link pembayaran Xendit dengan nominal terkunci; penyewa membayar via QRIS/VA/e-wallet dan tidak pernah menghitung atau mengetik nominal (PRD §9.3)                                                                                                                                                                               |
+| PAY-05 | Halaman pembayaran selalu menampilkan nama kost, periode, dan nominal — pembeda tagihan sah dari penipuan link (PRD §7.4, §9.3)                                                                                                                                                                                                                                            |
+| PAY-06 | Webhook pembayaran Xendit melunasi tagihan otomatis (terkirim/sebagian/telat/menunggak → lunas atau sebagian sesuai sisa), memicu kuitansi digital, pembatalan reminder tersisa (NTF-06), pembaruan laporan, dan pencatatan jejak aksi — tanpa aksi pemilik (PRD §6.6, §10.3)                                                                                                        |
+| PAY-07 | Pemrosesan webhook idempoten dan terverifikasi (signature/token callback Xendit): callback ganda tidak menghasilkan pembayaran ganda; callback tak sah ditolak                                                                                                                                                                                                             |
+| PAY-08 | Penandaan lunas manual tersedia untuk tagihan berstatus terkirim, sebagian, telat, atau menunggak — HANYA pelunasan penuh atas sisa tagihan (pencatatan pembayaran sebagian secara manual di luar lingkup, PRD §5)                                                                                                                                                         |
+| PAY-09 | Saat menandai lunas manual, pemilik memilih metode — Tunai atau Transfer langsung ke rekening — plus catatan singkat opsional; klasifikasi metode tersimpan dan terpisah di laporan dari pembayaran terverifikasi Xendit (PRD §9.4, LAP-05)                                                                                                                                |
+| PAY-10 | Peringatan konfirmasi penandaan manual dibedakan per metode dengan nada netral, identik sebelum/sesudah KYC, tanpa kalimat dorongan tambahan: Tunai → fokus akurasi ("pastikan Anda benar-benar sudah menerima uangnya"); Transfer langsung → arahkan cek mutasi rekening. Konfirmasi harus berupa tombol yang ditekan sadar — tidak bisa terjadi tanpa sengaja (PRD §9.4) |
+| PAY-11 | Penandaan lunas manual murni pencatatan sepihak oleh pemilik atas transaksi yang terjadi di luar sistem; penyewa tidak mengunggah apa pun dan tidak terlibat di dalamnya (PRD §9.4)                                                                                                                                                                                                              |
+| PAY-12 | Penandaan lunas manual tersedia baik saat berlangganan maupun tidak (jaring pengaman, bukan fitur premium) — PRD §9.4                                                                                                                                                                                                                                                           |
+| PAY-13 | Kuitansi digital dapat diakses penyewa via link bertoken untuk setiap pelunasan (otomatis Xendit maupun manual). Kuitansi disusun saat tautannya dibuka, langsung dari data tagihan dan pembayaran yang tersimpan — tidak ada file gambar atau PDF yang disimpan, jadi tidak perlu aturan lama penyimpanan berkas, dan kuitansi ikut hilang begitu datanya dihapus (PRD §6.7, §7.3)                                                                                                                                                                                                                                |
+| PAY-14 | Pencatatan pembayaran terpisah dari pemrosesan pembayaran (sumber: webhook Xendit / penandaan manual), sehingga sumber pembayaran baru kelak dapat ditambah tanpa mengubah modul tagihan (PRD §13)                                                                                                                                                                         |
+| PAY-15 | Tidak ada markup/surcharge atas MDR Xendit yang dibebankan ke penyewa (kepatuhan PBI 23/6/PBI/2021) — PRD §7.5, §16                                                                                                                                                                                                                                                        |
+| PAY-16 | Link pembayaran yang kedaluwarsa dapat dibuat ulang untuk tagihan yang sama; hanya satu link yang berlaku pada satu waktu, dan link lama ditandai tidak berlaku lagi — bukan dibiarkan hidup berdampingan |
+
+### 3.6 Notifikasi WhatsApp (NTF)
+
+Bagian ini mengimplementasikan PRD §6.5, §6.8, dan §11. Pada akun berlangganan, seluruh pengiriman ke penyewa dan pemilik berjalan otomatis — pemilik tidak pernah menekan tombol kirim.
+
+| ID     | Kebutuhan                                                                                                                                                                                                                                                    |
+|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NTF-01 | Pengiriman via WhatsApp Cloud API dari SATU nomor bisnis Semang terverifikasi Meta, atas nama semua kost; pemilik baru tidak menunggu verifikasi apa pun (PRD §6.5)                                                                                          |
+| NTF-02 | Template tagihan dan reminder terdaftar kategori utility (transaksional); isi pesan bebas unsur promosi; kategori diuji sebelum peluncuran. Salah kategori menaikkan biaya per pesan dari Rp356,65 ke Rp586,33 (+64%) (PRD §11, §15.1, §16) |
+| NTF-03 | Isi pesan tagihan: nama kost, kamar, periode, nominal, dan — sesuai status KYC — nomor rekening pemilik ATAU link pembayaran Xendit (PRD §11, §9.4)                                                                                                          |
+| NTF-04 | Jadwal pengiriman mengikuti unit sewa dan **sama untuk semua paket berbayar** (PRD §8.7): bulanan — tagihan H-3, lalu reminder H+3 dan H+7 (paling banyak 3 pesan per tagihan); mingguan — tagihan H-1, lalu reminder H+2; harian — tagihan hari-H tanpa reminder. Tidak ada reminder di hari-H untuk sewa bulanan, karena tagihan H-3 sudah jadi peringatan pertamanya |
+| NTF-05 | Reminder hanya terkirim untuk tagihan yang belum lunas                                                                                                                                                                                                       |
+| NTF-06 | Begitu tagihan lunas atau dibatalkan, seluruh reminder yang masih terjadwal untuk tagihan itu otomatis dibatalkan (PRD §8.4)                                                                                                                                 |
+| NTF-07 | Update berkala kondisi kost ke pemilik via WA dikirim **sebulan sekali + saat ada kejadian** (penyewa telat, menunggak, atau berubah status); tidak dikirim kalau tidak ada yang perlu diketahui. Serinci apa isinya mengikuti paket (Starter: ringkas; Pro: rincian tiap kamar; Bisnis: dipisah per properti; tidak berlangganan: tidak ada). Selalu disertai tautan "Lihat selengkapnya di sini" ke dashboard (PRD §6.8, §10.4, §11, §12.2) |
+| NTF-08 | Kategori template untuk update berkala ke pemilik diuji ke Meta sebelum peluncuran; bila tidak lolos sebagai utility, update berkala dijadikan opt-in dan tarifnya diperhitungkan ulang di margin paket (PRD §11, §19.1)                                                                                                   |
+| NTF-09 | Status pengiriman tiap pesan (terkirim/gagal, dari webhook status Cloud API) tercatat; kegagalan kirim dapat diulang tanpa duplikasi                                                                                                                         |
+| NTF-10 | Lapisan notifikasi di balik interface `NotificationSender` — implementasi Cloud API dapat ditukar/diperluas tanpa mengubah modul lain (PRD §13)                                                                                                              |
+| NTF-11 | Objek `pricing` dari webhook status Cloud API (`billable`, `category`, `type`) disimpan bersama status pengiriman, sehingga biaya WABA nyata terukur per kost per bulan dan dapat dibandingkan dengan pendapatan langganan kost itu (PRD §16, NFR-07) |
+| NTF-12 | Biaya dihitung dari jumlah pesan yang **benar-benar sampai**, bukan dari jumlah pesan yang masuk antrean kirim; pesan yang gagal kirim tidak dihitung (PRD §16)                                                                                                  |
+| NTF-13 | Penjadwal pengiriman melewati penyewa yang sudah menarik persetujuan dikirimi pesan (PDP-07); tagihannya tetap dibuat, hanya pesannya yang tidak dikirim |
+| NTF-14 | Setiap pesan mencatat versi template yang dipakai saat dikirim, sehingga isi pesan yang diterima penyewa tetap dapat direkonstruksi setelah templatenya direvisi |
 
 ### 3.7 Laporan & Ekspor (LAP)
 
-| ID     | Kebutuhan                                                                                    | Prioritas |
-|--------|----------------------------------------------------------------------------------------------|-----------|
-| LAP-01 | Dashboard ringkas: total uang masuk bulan berjalan, jumlah kamar lunas/telat/menunggak       | Wajib     |
-| LAP-02 | Daftar tagihan terfilter per status, per bulan, per kamar                                    | Wajib     |
-| LAP-03 | Ekspor CSV dan Excel untuk rentang tanggal pilihan                                           | Wajib     |
-| LAP-04 | Ringkasan bulanan otomatis dikirim ke pemilik via email ("bulan ini Rp X tercatat otomatis") | Wajib     |
+| ID     | Kebutuhan                                                                                                                                                                                                           |
+|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| LAP-01 | Dashboard ringkas: total uang masuk bulan berjalan, jumlah kamar lunas/telat/menunggak, kartu "Tagihan berikutnya terkirim otomatis tanggal …" (PRD §10.2 langkah 8)                                                |
+| LAP-02 | Daftar tagihan terfilter per status, per periode, per kamar                                                                                                                                                         |
+| LAP-03 | Ekspor CSV dan Excel untuk rentang tanggal pilihan; tersedia tanpa syarat paket — tidak berbiaya per pemakaian (SUB-04)                                                                                                                                  |
+| LAP-04 | Laporan mencakup rincian cicilan, diskon multi-periode (sebagai baris tersendiri), dan piutang penyewa yang sudah keluar (PRD §6.9)                                                                                 |
+| LAP-05 | Laporan kas memisahkan pembayaran terverifikasi otomatis Xendit dari penandaan manual (dengan metode tunai/transfer) — data inilah yang mengisi KPI perbandingan otomatis vs manual dan keputusan Tahap 1 (PRD §9.4, §14) |
+| LAP-06 | Grafik tren sederhana uang masuk per bulan                                                                                                                                                                          |
 
 ### 3.8 Onboarding (ONB)
 
-| ID     | Kebutuhan                                                                                                                     | Prioritas |
-|--------|-------------------------------------------------------------------------------------------------------------------------------|-----------|
-| ONB-01 | Wizard 3 layar: (1) nama kost + kota + jumlah kamar, (2) harga default + jatuh tempo, (3) cara isi penghuni                   | Wajib     |
-| ONB-02 | Momen wow: preview pesan tagihan atas nama kost pemilik + tombol "Kirim contoh ke WhatsApp saya" (via wa.me ke nomor sendiri) | Wajib     |
-| ONB-03 | Waktu penyelesaian wizard ≤10 menit diukur dari pendaftaran sampai contoh tagihan terbuka di WA                               | Wajib     |
-| ONB-04 | Dashboard pertama menampilkan checklist progres hidup, bukan layar kosong                                                     | Wajib     |
-| ONB-05 | Event funnel onboarding tercatat (daftar → layar 1 → layar 2 → momen wow → selesai) untuk mengukur KPI aktivasi ≥70%          | Wajib     |
+Bagian ini mengimplementasikan wizard PRD §10.1–10.2 beserta empat prinsip desainnya (minim langkah sebelum wow; nilai produk terlihat utuh; jalur kembali yang jelas; ucapan selamat singkat).
 
-### 3.9 Entitlement & Feature Flag (ENT)
+| ID     | Kebutuhan                                                                                                                                                                                                                                                                         |
+|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ONB-01 | Registrasi (AUTH-01) langsung disusul SATU layar berisi tepat tiga isian: nama kost, jumlah kamar (slider), harga sewa bawaan — tepat yang dibutuhkan untuk menyusun tagihan pertama, dan tidak lebih. Tidak ada wilayah, tipe kamar, mode jatuh tempo, maupun layar kode verifikasi tambahan sebelum momen wow — jalur Google mencapai momen wow tanpa satu pun pesan authentication                                                                               |
+| ONB-02 | Momen wow bagian 1: pratinjau pesan tagihan WhatsApp disusun dari data sesungguhnya pemilik (nama kost & harga nyata, bukan contoh isian), plus tombol "Kirim contoh ke WhatsApp saya" yang mengirim via WABA Semang ke nomor pemilik dalam hitungan detik — tanpa memerlukan KYC |
+| ONB-03 | Momen wow bagian 2: tepat di bawah pratinjau, contoh tampilan notifikasi saat penyewa membayar ("Kamar 1 — Rp1.500.000 diterima, tercatat otomatis" bercentang) — memperlihatkan nilai produk secara utuh                                                                                       |
+| ONB-04 | Jalur kembali: setelah pemilik berpindah ke WhatsApp, layar Semang segera menampilkan kartu "Sudah cek WhatsApp Anda?" dengan tombol besar "Lanjutkan"                                                                                                                            |
+| ONB-05 | Ucapan selamat singkat: saat tap "Lanjutkan", tampil pengakuan singkat ("[Nama Kost] sudah bisa menagih otomatis!" dengan aksen visual ringan) sebelum setup lanjutan                                                                                                                  |
+| ONB-06 | Setup lanjutan setelah wow: wilayah kost (KOST-08 — **satu-satunya yang tidak bisa dilewati**, karena zona waktu berasal dari situ), tipe kamar (opsional), mode jatuh tempo (bawaannya "dari tanggal masuk" — tanpa keputusan wajib), cara isi data penyewa (link isi mandiri / manual). Selain wilayah, semuanya boleh dilewati dan diisi kapan saja dari Pengaturan                                                                                                     |
+| ONB-07 | Dashboard pertama: daftar langkah yang tercentang sendiri saat pemilik maju, plus kartu tagihan berikutnya — bukan layar kosong; ajakan aktivasi KYC ("Daftarkan verifikasi identitas & rekening untuk mengaktifkan pembayaran online otomatis via Xendit") tampil sebagai ajakan, bukan penghalang                    |
+| ONB-08 | Tiap tahap onboarding tercatat sebagai kejadian (daftar → layar tiga-isian → wow terkirim → lanjutkan → setup selesai → KYC selesai) untuk KPI aktivasi ≥70% dan KPI KYC (PRD §3, §14)                                                                                                           |
+| ONB-09 | Target waktu: <5 menit dari pendaftaran sampai momen wow (contoh tagihan diterima di WA pemilik) — PRD §10.2                                                                                                                                                                      |
 
-| ID     | Kebutuhan                                                                                         | Prioritas |
-|--------|---------------------------------------------------------------------------------------------------|-----------|
-| ENT-01 | Setiap fitur ber-gate flag yang dicek terhadap langganan pemilik di setiap request                | Wajib     |
-| ENT-02 | Tahap 0: semua flag aktif (free); struktur tier Gratis/Starter/Pro/Bisnis sudah ada di skema data | Wajib     |
-| ENT-03 | Downgrade tidak pernah menghapus data; fitur non-entitled menjadi read-only, bukan hilang         | Wajib     |
+### 3.9 Langganan, Paket & Hak Akses Fitur (SUB)
+
+Bagian ini mengimplementasikan PRD §8.10 dan §12. Harga aktif sejak hari pertama peluncuran.
+
+| ID     | Kebutuhan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| SUB-01 | Tiga paket berbayar sesuai PRD §12.1, **ditentukan ukuran kost dan bukan dipilih bebas**: Starter (Rp2.000/kamar terisi/bln, min Rp20.000/bln, ≤15 kamar, 1 properti), Pro (Rp3.500, ≤50 kamar, ≤3 properti), Bisnis (Rp5.000, min Rp250.000/bln, tak terbatas). Gratis bukan paket melainkan keadaan tidak berlangganan (SUB-09), tanpa batas kamar |
+| SUB-02 | Tagihan langganan dihitung dari jumlah penyewa aktif pada snapshot tanggal penagihan — basis yang disebut "kamar terisi" ke pemilik (BR-23); perubahan okupansi tengah bulan berlaku pada penagihan bulan berikutnya, tanpa prorata (PRD §8.10)                                                                                                                                                                                                                                                                                                                                  |
+| SUB-03 | Trial 60 hari kalender dengan fitur Pro terbuka, tanpa kartu kredit; diukur hari kalender tetap (bukan siklus per-penyewa). Berakhir masuk ke keadaan tidak berlangganan untuk kost berapa pun ukurannya (SUB-09, PRD §12.3)                                                                                                                                                                                                                                                                                                               |
+| SUB-04 | Pembagian fitur per paket sesuai PRD §12.2 (bertingkat — paket di atas memuat semua isi paket di bawahnya), dikunci lewat feature-flag, dengan satu aturan: fitur yang tidak mengeluarkan uang dibagi menurut kebutuhan, fitur yang mengeluarkan biaya pesan diberikan sama rata di semua paket berbayar. Tidak berlangganan (seluruh fitur nol-biaya: manajemen kamar, tipe kamar, logika penagihan §8, Xendit, kuitansi, laporan, ekspor — tanpa pengiriman otomatis); Starter (+pengiriman otomatis penuh §8.7, update berkala, 1 properti); Pro (+3 properti, update rinci, 2 staf*, portal penyewa*, tiket maintenance*); Bisnis (+tak terbatas, update per properti, laba-rugi per properti, dukungan prioritas). *Item bertanda hadir pada fase berikutnya — flag dan skema data disiapkan sekarang, implementasi menyusul (PRD §12.2, §17) |
+| SUB-05 | Setiap fitur berbayar punya penanda hak akses yang diperiksa terhadap langganan pemilik pada setiap permintaan                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| SUB-06 | Berhenti berlangganan tidak pernah menghapus, mematikan, atau mengunci satu pun kamar, penyewa, atau riwayat — berapa pun ukuran kost. Batas kamar tidak berlaku ke belakang (PRD Filosofi Inti #5, §7.5, §12.4)                                                                                                                                                                                                                                                                                                                 |
+| SUB-07 | Opsi bayar tahunan dengan diskon ±2 bulan (PRD §12.3)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| SUB-08 | Dorongan berlangganan di akhir trial menampilkan angka pemilik sendiri (jumlah tagihan terkirim otomatis, total tercatat), bukan diskon generik (PRD §12.3)                                                                                                                                                                                                                                                                                                                                                                                      |
+| SUB-09 | Saat tidak berlangganan: tagihan tetap dibuat tiap siklus lengkap dengan nominalnya, dan teks pesannya siap disalin, tapi Semang tidak mengirim pesan apa pun — baik ke penyewa maupun ke pemilik. Tidak ada batas kamar dan properti (PRD §12.4)                                                                                                                                                                                                                                                                                                      |
+| SUB-10 | Semang tidak menyediakan alat bantu kirim manual (salin-massal, tombol langsung ke WhatsApp per kamar) — ini soal prioritas. Tapi juga tidak boleh ada hambatan yang dibuat-buat: teks pesan ditampilkan utuh dan bisa langsung disalin, tanpa jeda atau langkah tambahan (PRD §12.4)                                                                                                                                                                                                                                                     |
+| SUB-11 | Gagal bayar karena hal teknis (kartu kedaluwarsa, saldo kurang) tidak sama dengan berhenti sengaja: pesan tetap terkirim selama tenggang 7 hari kalender sejak percobaan pertama gagal, dan pemilik diperingatkan via WA (PRD §12.4, TRD §10)                                                                                                                                                                                                                                                                                                       |
+| SUB-12 | Berhenti berlangganan mulai berlaku siklus berikutnya; tagihan yang sudah dijadwalkan untuk siklus yang sedang jalan tetap dikirim, supaya tagihan penyewa tidak berhenti di tengah periode (PRD §12.4)                                                                                                                                                                                                                                                                                                                                     |
+| SUB-13 | Tidak ada pindah paket ke samping atau ke bawah; paket mengikuti ukuran kost. Rentang kamar hanya bisa terlewat karena pemilik menambah kamar, dan itu memunculkan tawaran naik paket beserta pratinjau harga yang harus disetujui pemilik dulu (PRD §12.1)                                                                                                                                                                                                                                                                                      |
+| SUB-14 | Setiap penagihan langganan yang gagal mencatat alasan, jumlah percobaan, dan waktu percobaan terakhir. Inilah yang memicu masa tenggang SUB-11 — tanpa catatan kegagalan, "gagal bayar" tidak bisa dibedakan dari "belum dibayar" |
+| SUB-15 | Kamar berstatus sedang dibangun tidak dihitung dalam batas kamar paket; kamar sedang direnovasi tetap dihitung, karena kamar itu sudah ada dan pernah menghasilkan — tanpa pembedaan ini, menandai kamar sebagai direnovasi menjadi cara menghindari batas paket (PRD §12.1) |
+| SUB-16 | Selama ada kamar dalam pembangunan yang akan melewati batas paket setelah selesai, pemilik diberi peringatan yang menyebut jumlah kamar setelah selesai, paket yang akan berlaku, dan biayanya per bulan |
+| SUB-17 | Saat pembangunan ditandai selesai dan batas paket terlewati, Semang menawarkan naik paket dengan pratinjau harga. Bila pemilik belum menyetujui, kamar dan penyewa yang sudah ada tetap berjalan penuh; hanya kamar baru itu yang belum dapat diisi penyewa (PRD §12.1) |
 
 ### 3.10 Privasi & Perlindungan Data (PDP)
 
-Semang menyimpan data pribadi pihak ketiga (penghuni), sebagian diinput pemilik tanpa kehadiran penghuni. Kepatuhan UU 27/2022 (PDP) ditegakkan sejak Tahap 0.
+Semang menyimpan data pribadi pihak ketiga (penyewa), sebagian diinput pemilik tanpa kehadiran penyewa. Aturan UU 27/2022 dipenuhi sejak MVP (PRD §7.3).
 
-| ID     | Kebutuhan                                                                                                                  | Prioritas |
-|--------|----------------------------------------------------------------------------------------------------------------------------|-----------|
-| PDP-01 | Privacy policy publik yang ringkas dan berbahasa Indonesia tersedia sebelum pengguna di luar lingkaran terdekat onboarding | Wajib     |
-| PDP-02 | Form isi-mandiri penghuni memuat consent ringkas ("data ini dipakai untuk tagihan kost Anda") sebelum submit               | Wajib     |
-| PDP-03 | Penghuni dapat meminta penghapusan datanya; pemilik difasilitasi menghapus data penghuni tertentu                          | Wajib     |
-| PDP-04 | Pemilik dapat menghapus akunnya sendiri beserta seluruh data propertinya (hak penghapusan), dengan masa tenggang           | Wajib     |
-| PDP-05 | Tujuan pengumpulan setiap data pribadi terbatas dan dinyatakan; tidak ada pemakaian sekunder (iklan, penjualan data)       | Wajib     |
+| ID     | Kebutuhan                                                                                                                                           |
+|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| PDP-01 | Kebijakan privasi ringkas berbahasa Indonesia sudah bisa dibaca publik sebelum ada pengguna dari luar lingkaran terdekat                                   |
+| PDP-02 | Form isi-mandiri penyewa memuat persetujuan ringkas ("data ini dipakai untuk tagihan kost Anda") sebelum dikirim                                         |
+| PDP-03 | Penyewa dapat meminta penghapusan datanya, baik lewat pemilik kost maupun langsung ke Semang; pemilik difasilitasi menjalankan permintaan itu (mekanismenya di PDP-06)                                                     |
+| PDP-04 | Pemilik dapat menghapus akunnya sendiri beserta seluruh data propertinya, dengan masa tenggang 30 hari sebelum data dimusnahkan permanen (PRD §7.3) |
+| PDP-05 | Tujuan pengumpulan tiap data pribadi terbatas dan dinyatakan; tidak ada pemakaian sekunder (iklan, penjualan/pembagian komersial data)              |
+| PDP-06 | Permintaan penghapusan data penyewa dijalankan dengan mengosongkan nama dan nomornya, sementara baris penyewa tetap ada agar tagihan lama tidak rusak. Yang memungkinkannya adalah salinan nama dan nomor di tagihan (TGH-18) |
+| PDP-07 | Penyewa dapat menarik persetujuan dikirimi pesan tanpa keluar dari kost; setelah itu Semang berhenti mengirim ke nomornya, sementara tagihannya tetap dibuat dan tetap terlihat pemilik (PRD §7.3) |
 
 ## 4. Kebutuhan Non-Fungsional
 
-| ID     | Kategori      | Kebutuhan                                                                                                                                                     |
-|--------|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| NFR-01 | Biaya         | Seluruh sistem berjalan pada free tier; tidak ada komponen berbiaya bulanan pada Tahap 0                                                                      |
-| NFR-02 | Keamanan      | Isolasi multi-tenant via Row Level Security di level database; pemilik hanya dapat membaca/menulis datanya sendiri                                            |
-| NFR-03 | Keamanan      | Halaman publik (isi-mandiri, upload bukti, kuitansi) memakai token acak tak-tertebak; tidak ada enumerasi ID                                                  |
-| NFR-04 | Privasi       | Data penghuni tidak dibagikan ke pihak ketiga; EXIF dihapus dari semua unggahan; ekspor data tersedia bagi pemilik kapan pun                                  |
-| NFR-05 | Kinerja       | Halaman upload bukti <200KB; dashboard memuat <3 detik pada koneksi 4G                                                                                        |
-| NFR-06 | Keandalan     | Cron idempoten; kegagalan job dapat diulang tanpa efek samping; tidak ada single point yang menghentikan generate tagihan                                     |
-| NFR-07 | Kapasitas     | Mendukung ≥50 properti × 50 kamar dalam batas Supabase Free (500MB DB, 1GB storage) dengan kompresi bukti ≤200KB                                              |
-| NFR-08 | Bahasa        | Seluruh antarmuka Bahasa Indonesia non-teknis ("catatan kost", bukan "dashboard rekonsiliasi")                                                                |
-| NFR-09 | Upgrade path  | Notifikasi dan pencatatan pembayaran berupa interface yang implementasinya dapat diganti (wa.me → WABA; manual → QRIS webhook) tanpa menulis ulang modul lain |
-| NFR-10 | Auditabilitas | Semua aksi finansial (konfirmasi, tolak, edit tagihan) memiliki audit trail dengan timestamp dan aktor                                                        |
+| ID     | Kategori      | Kebutuhan                                                                                                                                                                                                                                                                      |
+|--------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NFR-01 | Keamanan      | Data antar pemilik dipisah lewat Row Level Security (Supabase) di tingkat database; pemilik hanya dapat membaca/menulis datanya sendiri (PRD §7.2)                                                                                                                                       |
+| NFR-02 | Keamanan      | Halaman yang dibuka tanpa akun memakai token acak tak-tertebak (≥128 bit entropi): per kamar untuk link isi-mandiri, per tagihan untuk kuitansi dan halaman pembayaran; tidak ada enumerasi ID (PRD §7.2)                                                                                                                     |
+| NFR-03 | Keamanan      | Kredensial & webhook pihak ketiga (Meta, Xendit) terverifikasi: signature dicek, secret tidak pernah sampai ke client                                                                                                                                                          |
+| NFR-04 | Keandalan     | Cron idempoten; kegagalan job dapat diulang tanpa efek samping; tidak ada satu titik yang bila gagal menghentikan pembuatan atau pengiriman tagihan (PRD §13)                                                                                                                                      |
+| NFR-05 | Keandalan     | Webhook Xendit dan status Cloud API diproses idempoten dan dapat dicoba ulang otomatis; kegagalan sementara pihak ketiga tidak menghilangkan pembayaran atau pesan (masuk antrean ulang, bukan hilang)                                                                                          |
+| NFR-06 | Kinerja       | Halaman publik penyewa ringan dan berfungsi pada koneksi 3G dan perangkat berspesifikasi rendah; dashboard memuat <3 detik pada 4G                                                                                                                                                               |
+| NFR-07 | Biaya         | Pengendalian biaya pesan: template kategori utility, reminder hanya untuk yang belum lunas, pembatalan otomatis saat lunas, dan monitoring volume/biaya pesan per bulan (PRD §15.1, §16). Basis perhitungan: Rp356,65 per pesan terkirim. Anggaran per kamar terisi/bulan: 1,2 pesan (Rp427,98) dalam keadaan normal, paling banyak 3 pesan (Rp1.069,95) kalau menunggak sampai H+7. Update berkala ke pemilik dihitung terpisah **per kost** (±2 pesan ≈ Rp713,30/bulan). Akun yang tidak berlangganan tidak mengeluarkan biaya sama sekali (SUB-09) |
+| NFR-08 | Bahasa        | Seluruh antarmuka Bahasa Indonesia non-teknis ("catatan kost", bukan "dashboard rekonsiliasi"); persona utama pemilik 45–60 tahun non-teknis (PRD §4)                                                                                                                          |
+| NFR-09 | Jejak aksi  | Semua aksi finansial (pelunasan otomatis, penandaan manual, pembatalan, edit tagihan, perubahan harga/mode) memiliki jejak aksi berisi waktu, pelaku, dan pemicunya                                                                                                           |
+| NFR-10 | Keterbukaan | Notifikasi (NTF-10) dan pencatatan pembayaran (PAY-14) berupa interface yang implementasinya dapat ditukar/diperluas tanpa menulis ulang modul lain (PRD §13)                                                                                                                  |
+| NFR-11 | Kepatuhan     | Arsitektur tidak pernah menampung dana pengguna (bebas lisensi PJP); tanpa surcharge ke penyewa (PBI 23/6/PBI/2021); UU PDP 27/2022 (§3.10)                                                                                                                                    |
+| NFR-12 | Kapasitas     | Mendukung skala kost awal (2–3 kost pilot, masing-masing 5–20 kamar) dengan ruang tumbuh hingga puluhan properti tanpa perubahan arsitektur; pertumbuhan penyimpanan hanya berupa baris data (tagihan/pembayaran), bukan file — kuitansi dibuat saat dibuka dan MVP tidak memakai penyimpanan berkas sama sekali (PRD §6.7, §13) |
+| NFR-13 | Biaya         | Tarif WABA disimpan sebagai data beserta tanggal berlakunya (bukan konstanta tersebar di kode), agar perubahan rate card kuartalan Meta (1 Jan / 1 Apr / 1 Jul / 1 Okt) cukup diubah di satu tempat dan laporan biaya historis tetap akurat |
+| NFR-14 | Biaya         | Sistem memberi peringatan ke founder bila biaya pesan bulanan sebuah kost melewati 50% pendapatan langganan kost itu — tepat di bawah skenario terburuk 56% yang sudah diperhitungkan (PRD §16, TRD §16) |
 
 ## 5. Aturan Bisnis
 
-| ID    | Aturan                                                                                                                                                |
-|-------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| BR-01 | Pencocokan pembayaran via token halaman upload (unik per tagihan), bukan via nominal — tahan terhadap harga beragam & pembayaran multi-bulan |
-| BR-02 | Kamar bernomor >999 tidak didukung (di luar lingkup; batas kamar MVP = 50)                                                                            |
-| BR-03 | Tagihan hanya ter-generate untuk kamar berstatus terisi pada tanggal siklus                                                                           |
-| BR-04 | Timeout state: menunggu_konfirmasi 72 jam → pengingat ke pemilik; terkirim lewat jatuh tempo → telat; telat H+30 → menunggak                          |
-| BR-05 | Reminder bertingkat: H-3, hari-H, H+3, H+7 — hanya untuk tagihan belum lunas, masuk antrean siap-kirim (tidak terkirim otomatis di Tahap 0)           |
-| BR-06 | Uang tidak pernah melewati platform; Semang tidak menyimpan nomor rekening penghuni, hanya rekening tujuan milik pemilik                              |
-| BR-07 | Satu kamar maksimal satu penghuni aktif; pergantian penghuni melalui checkout → isi-mandiri baru                                                      |
-| BR-08 | Penghapusan properti bersifat soft-delete dengan masa tenggang 30 hari sebelum data dimusnahkan                                                       |
-| BR-09 | Penghuni masuk tengah bulan: tagihan pertama dibuat manual oleh pemilik (nominal bebas); siklus otomatis dimulai bulan berikutnya                     |
-| BR-10 | Jatuh tempo tanggal 29–31: bila melebihi hari terakhir bulan, jatuh tempo dipindah ke hari terakhir bulan tersebut                                    |
-| BR-11 | Pembayaran sebagian tidak didukung di MVP: satu bukti melunasi satu tagihan penuh; jumlah kurang ditolak dengan catatan                               |
-| BR-12 | Bayar beberapa bulan sekaligus didukung: satu bukti, pemilik konfirmasi beberapa tagihan terkait (pencocokan via token menjamin tanpa ambiguitas)    |
-| BR-13 | Perubahan harga sewa hanya berlaku untuk tagihan yang belum ter-generate; tagihan yang sudah ada tidak berubah surut                                  |
-| BR-14 | Checkout dengan tunggakan: tagihan menunggak tetap hidup, tertaut ke penghuni yang sudah keluar, muncul di laporan piutang                            |
-| BR-15 | Deposit/uang jaminan dikecualikan dari MVP (keputusan sadar, bukan kelalaian) — lihat §8                                                              |
-| BR-16 | Bila kode unik opsional (TGH-09) aktif: nominal dasar dibulatkan ke ribuan terdekat ke bawah sebelum kode kamar ditambahkan; pemilik diberi tahu nominal final |
+| ID    | Aturan                                                                                                                                                                                                        |
+|-------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| BR-01 | Nominal tagihan selalu bulat; pembayaran dikenali dari link pembayaran unik per tagihan/cicilan                                                          |
+| BR-02 | Tagihan dibuat untuk setiap penyewa aktif pada tanggal siklusnya; kamar yang tercantum diambil dari penempatan yang berlaku saat itu                                                                                                                              |
+| BR-03 | Satu kamar maksimal satu penempatan berlaku pada satu waktu, dan satu penyewa maksimal satu penempatan berlaku; pergantian penyewa melalui checkout                                                                                                                                           |
+| BR-04 | Transisi waktu: lewat jatuh tempo tanpa lunas → telat; telat H+30 → menunggak; pelunasan (otomatis/manual) diterima kapan pun dan langsung melunaskan, berapa pun lamanya menunggak                           |
+| BR-05 | Jadwal pengiriman per unit sewa, sama untuk semua paket berbayar (bulanan: tagihan H-3 + reminder H+3, H+7; mingguan: tagihan H-1 + reminder H+2; harian: tagihan hari-H saja); paling banyak 3 pesan per tagihan; reminder hanya untuk tagihan belum lunas; otomatis batal saat lunas/dibatalkan |
+| BR-06 | Uang tidak pernah melewati/ditahan Semang; Semang menyimpan rekening tujuan milik pemilik (untuk isi pesan pra-KYC dan KYC sub-akun), tidak pernah rekening penyewa                                           |
+| BR-07 | Mode jatuh tempo "dari tanggal masuk" adalah default properti; mode "tanggal tetap" opsional                                                                                                                  |
+| BR-08 | Jatuh tempo 29–31 pada bulan pendek dipindah ke hari terakhir bulan tersebut (kedua mode)                                                                                                                     |
+| BR-09 | Tagihan pertama penyewa baru (mode tanggal tetap) mengikuti pilihan pemilik: prorata / gabung ke depan / penuh bulan ini, dengan default cerdas dari sistem — tidak ada tagihan pertama bernominal bebas      |
+| BR-10 | "Gabung ke depan" menghasilkan SATU tagihan (prorata + periode penuh berikut), bukan penggratisan prorata                                                                                                     |
+| BR-11 | Cicilan hanya tercipta lewat persetujuan/pencatatan pemilik dengan nominal terkunci per link; status sebagian dapat berulang sampai sisa nol                                                                  |
+| BR-12 | Diskon multi-periode ditentukan manual oleh pemilik (nominal/persen) dan tercatat sebagai baris tersendiri; tidak ada formula diskon yang dipaksakan sistem                                                   |
+| BR-13 | Perubahan harga dan perubahan mode jatuh tempo hanya berlaku ke depan — tagihan yang sudah dibuat tidak pernah berubah; celah hari belum tertagih ditutup satu tagihan tambahan dengan pratinjau                 |
+| BR-14 | Checkout dengan tunggakan: tagihan menunggak tetap hidup, tertaut ke penyewa yang sudah keluar, muncul di laporan piutang                                                                                     |
+| BR-15 | Pembatalan dari status sebagian hanya menghapus sisa; pembayaran yang sudah masuk tetap tercatat                                                                                                              |
+| BR-16 | Penandaan lunas manual: hanya pelunasan penuh sisa tagihan; wajib pilih metode (tunai/transfer langsung); wajib konfirmasi sadar dengan peringatan sesuai metode; tersedia baik saat berlangganan maupun tidak |
+| BR-17 | Refund checkout lebih awal adalah urusan langsung pemilik–penyewa; Semang hanya mencatat pembatalan periode belum berjalan (alasan "refund — checkout lebih awal") dan menghitung nominal referensi           |
+| BR-18 | Langganan Semang ditagih atas basis "kamar terisi" (dihitung menurut BR-23) berdasarkan snapshot tanggal penagihan; penyesuaian okupansi berlaku bulan berikutnya, tanpa prorata langganan                                                      |
+| BR-19 | Trial = 60 hari kalender tetap (bukan hitungan siklus per-penyewa); berakhir masuk keadaan tidak berlangganan dengan seluruh data utuh dan bisa diubah, tanpa batas kamar berlaku ke belakang                      |
+| BR-20 | Tidak ada markup/surcharge atas MDR Xendit ke penyewa; tidak ada elemen promosi dalam pesan transaksional                                                                                                     |
+| BR-21 | Penghapusan properti/akun bersifat soft-delete dengan masa tenggang 30 hari sebelum pemusnahan permanen                                                                                                       |
+| BR-22 | Paket berbayar mengikuti jumlah kamar dan properti, bukan dipilih pemilik; saat tidak berlangganan, ukuran kost tidak dibatasi                                                                             |
+| BR-23 | "Kamar terisi" adalah nama yang dipakai ke pemilik; yang dihitung untuk penagihan langganan adalah jumlah penyewa aktif, bukan jumlah kamar berstatus terisi — penyewa yang sedang dipindah sementara terkait dua kamar dan tidak boleh membuat pemilik tertagih dua kali (PRD §8.10) |
+| BR-24 | Pindah kamar di tengah periode tidak mengubah tagihan yang sudah dibuat: tagihan itu tetap menunjuk kamar yang ditagihkan saat itu dan nominalnya tetap, termasuk pada pindah tetap yang menaikkan sewa. Kamar dan nominal baru berlaku mulai tagihan siklus berikutnya (PRD §8.5) |
 
 ## 6. Batasan (Constraints)
 
-- Tidak ada integrasi payment gateway, WABA, atau layanan berbayar apa pun pada Tahap 0.
-- Pengiriman pesan WA selalu melalui aksi manual pemilik (tap wa.me); sistem tidak pernah mengirim WA otomatis di Tahap 0.
-- Penghuni tidak memiliki akun; semua interaksi penghuni stateless via link bertoken.
-- Penyimpanan bukti dibatasi kuota Supabase Free; kebijakan retensi ditentukan di Open Questions.
+- Peluncuran bergantung pada prasyarat eksternal: verifikasi bisnis Meta (WABA), entitas usaha/NIB, KYC platform + service agreement Xendit — dikerjakan paralel dengan pengembangan (PRD §15.1).
+- Biaya operasional per pesan WhatsApp ada sejak hari pertama, dihitung per pesan yang sampai ke penerima; seluruh desain pesan tunduk pada NFR-07 (kategori utility, minim pesan sia-sia).
+- Tidak ada pesan gratis: setiap pesan tambahan langsung menambah biaya Rp356,65, jadi setiap rencana menambah pesan harus dicek dulu: apakah margin paketnya masih cukup (PRD §16).
+- Semang tidak pernah menampung dana; tidak ada fitur yang boleh menciptakan saldo mengendap di platform (menjaga bebas lisensi PJP).
+- Penyewa tidak memiliki akun; seluruh interaksi penyewa berjalan tanpa sesi tersimpan — lewat pesan WhatsApp dan link bertoken.
+- MVP tidak memakai penyimpanan berkas sama sekali; unggahan berkas pertama baru muncul bersama foto meteran listrik di Tahap 2.
+- Pada akun berlangganan, pengiriman pesan sepenuhnya otomatis oleh sistem; tidak ada antrean kirim yang perlu disetujui pemilik per pesan.
 
 ## 7. Kebutuhan Antarmuka
 
-- **Dashboard pemilik (web, mobile-first):** wizard onboarding, antrean siap-kirim, daftar tagihan, konfirmasi bukti, laporan, pengaturan properti.
-- **Halaman publik penghuni:** form isi-mandiri, halaman upload bukti, halaman kuitansi — semuanya tanpa login, ringan, bertoken.
-- **Deep link wa.me:** `https://wa.me/<nomor>?text=<pesan ter-encode>` — dihasilkan `NotificationSender` implementasi Tahap 0.
-- **Email (Resend):** notifikasi bukti masuk, pengingat konfirmasi 72 jam, ringkasan bulanan.
+- **Dashboard pemilik (web, mobile-first):** wizard onboarding (ONB), manajemen kost/tipe kamar/kamar/penyewa, alur KYC sub-akun yang tampil di dalam Semang (compliance API Xendit), daftar & detail tagihan (termasuk aksi cicilan, multi-periode, pembatalan, tandai lunas manual), laporan & ekspor, pengaturan properti & langganan.
+- **Halaman publik penyewa (tanpa login, ringan, bertoken):** form isi-mandiri, halaman pembayaran (link Xendit — menampilkan nama kost, periode, nominal), halaman kuitansi.
+- **WhatsApp Cloud API:** pengiriman template utility (tagihan, reminder, contoh tagihan onboarding, update berkala) + webhook status pengiriman; dihasilkan implementasi `NotificationSender` v2.
+- **Xendit XenPlatform:** pembuatan sub-akun & KYC (compliance API), pembuatan link pembayaran bernominal terkunci, webhook konfirmasi pembayaran (idempoten, terverifikasi).
+- **Penjadwalan:** Vercel Cron + GitHub Actions (idempoten) untuk membuat tagihan, menjalankan transisi waktu, mengirim pesan terjadwal, dan menagih langganan.
 
 ## 8. Lingkup yang Dikecualikan
 
-QRIS/payment gateway, pengiriman WA otomatis (WABA), portal penghuni ber-akun, peran staf/penjaga kost, listing & booking publik, kontrak digital, screening/KYC, meter listrik, laporan pajak, aplikasi mobile native, multi-properti per akun, smart lock/IoT. Semua berada di roadmap PRD §15.
+Sesuai PRD §5 dan §17 — di luar MVP v2.0: portal penyewa ber-akun (riwayat tagihan & kuitansi — Tahap 2), akun staf/penjaga kost penuh (Tahap 2; flag & skema disiapkan via SUB-04), listing publik, meter listrik (Tahap 2), laporan pajak, aplikasi mobile native, deposit/uang jaminan, pencatatan pembayaran sebagian secara manual (hanya pelunasan penuh manual yang didukung — evaluasi di Tahap 1), smart lock/IoT, kontrak digital.
 
-## 9. Kriteria Penerimaan (selaras KPI PRD)
+## 9. Kriteria Penerimaan (selaras KPI PRD §14)
 
-| Kebutuhan terkait | Kriteria lulus                                                                |
-|-------------------|-------------------------------------------------------------------------------|
-| ONB-01…05         | ≥70% pendaftar mencapai momen wow (contoh tagihan terbuka di WA)              |
-| PHN-01            | ≥60% kamar terisi datanya via isi-mandiri tanpa input pemilik pada kost pilot |
-| TGH, BKT          | ≥1 pembayaran tercatat via alur bukti + konfirmasi per kost pilot per bulan   |
-| Keseluruhan       | 2–3 kost pilot bertahan ≥2 siklus tanpa intervensi founder                    |
-| NFR-06            | Tidak ada tagihan duplikat atau hilang selama masa pilot                      |
+| Kebutuhan terkait | Kriteria lulus                                                                                                                        |
+|-------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| ONB-01…09         | ≥70% pendaftar mencapai momen wow (contoh tagihan diterima di WA sendiri) — terukur tanpa KYC sejak hari pertama                      |
+| PNY-01…02         | ≥60% kamar terisi datanya via isi-mandiri tanpa input pemilik pada kost awal                                                          |
+| TGH, NTF          | 2–3 kost awal Denpasar menjalankan ≥2 siklus tagihan otomatis penuh ke penyewa sungguhan, terlepas status KYC                         |
+| PAY-01…07         | ≥1 pembayaran online tercatat otomatis (Xendit) per kost awal per bulan; mayoritas kost awal menyelesaikan KYC dalam 2 siklus pertama |
+| PAY-08…12, LAP-05 | Proporsi lunas via Xendit vs tandai manual (pasca-KYC) terukur di laporan; otomatis mendominasi dan meningkat tiap siklus             |
+| TGH-02, NFR-04…05 | Tidak ada tagihan duplikat/hilang dan tidak ada pembayaran ganda/hilang selama masa kost awal                                         |
+| NTF-02, NFR-07    | Seluruh template lolos kategori utility; rata-rata pesan ditagih per kamar terisi/bulan ≤1,2 (PRD §16), terukur dari objek `pricing` webhook (NTF-11), bukan diperkirakan |
+| NFR-13, NFR-14    | Biaya WA nyata per kost awal terukur dari data pengiriman dan dibandingkan dengan proyeksi PRD §16 (Rp427,98/kamar terisi/bulan normal, maksimum Rp1.069,95); selisih besar memicu peninjauan harga paket sebelum peluncuran berbayar |
+| KOST-08…11        | Kost di Denpasar (WITA) dan kost di Jakarta (WIB) sama-sama menerima tagihan pada hari kalender yang benar menurut waktu setempat |
+| PDP-06, TGH-18    | Setelah data penyewa dikosongkan atas permintaannya, seluruh tagihan dan kuitansi lama tetap menampilkan nama yang benar |
+| PDP-07, NTF-13    | Penyewa yang menarik persetujuan berhenti menerima pesan, sementara tagihannya tetap dibuat dan terlihat pemilik |
+| SUB-15…17        | Kamar dalam pembangunan tidak memaksa naik paket; peringatan muncul sejak pembangunan dan menyebut angkanya; setelah selesai, penolakan naik paket tidak merusak kamar maupun penyewa yang sudah ada |
+| PNY-08…13, KOST-12, BR-23 | Penyewa yang dipindah sementara karena renovasi tetap satu penyewa dengan sewa yang sama, kamar asalnya tidak bisa diisi orang lain, dan pemilik hanya tertagih untuk satu kamar. Setelah pemindahan itu diubah menjadi tetap, kamar asal kembali tersedia dan sewa boleh disesuaikan tanpa memecah riwayat penyewanya |
+| SUB-06, SUB-09    | Kost 12 kamar yang berhenti berlangganan tetap menampilkan 12 kamar aktif yang bisa diubah, tagihannya tetap dibuat, dan tidak ada satu pun pesan terkirim — diuji langsung, jangan cuma diandaikan dari feature-flag |
+| Keseluruhan       | 2–3 kost awal bertahan ≥2 siklus tanpa intervensi founder; tidak ada insiden kebocoran data / bug kritis data keuangan (PRD §18)      |
 
 ## 10. Open Questions
 
-- Kebijakan retensi foto bukti pada kuota 1GB: hapus setelah N bulan, atau kompres ulang bertahap?
-- Apakah link isi-mandiri perlu PIN tambahan untuk kost yang QR-nya tertempel di area publik?
-- Format nomor kamar non-numerik (mis. "A1", "B2") — `room_number` numerik untuk logika + `label` bebas untuk tampilan; konfirmasi cukup untuk semua kasus pilot?
-- Masa tenggang penghapusan akun pemilik (PDP-04): berapa lama sebelum data benar-benar dimusnahkan?
+- **Detail compliance API Xendit untuk KYC sub-akun di dalam Semang** (PAY-02): field wajib, format dokumen, SLA verifikasi — dikonfirmasi ke dokumentasi atau account manager Xendit sebelum integrasi pertama.
+- **Kategori template Meta untuk update berkala ke pemilik** (NTF-08): utility atau kategori lain; menentukan biaya dan kebutuhan opt-in.
+- **PPN atas tagihan Meta** — tidak dinyatakan di rate card; bila ditambahkan di atas tarif, seluruh perhitungan margin PRD §16 bergeser.
+- **Rata-rata pesan sebenarnya per kamar terisi** — angka 1,2 pesan masih asumsi (perkiraan ±15% belum lunas di H+3 dan ±5% di H+7). Diganti hasil ukuran dari NTF-11 setelah dua siklus di kost awal; berpengaruh ke NFR-07 dan keputusan harga PRD §12.1.
+- **Syarat KYC Xendit terkini** — wajib diverifikasi ke sumber resmi sebelum peluncuran berbayar penuh (PRD §19.1).
+- **Format nomor kamar non-numerik** (mis. "A1", "B2"): `room_number` numerik untuk logika + `label` bebas untuk tampilan — konfirmasi cukup untuk semua kasus kost awal.

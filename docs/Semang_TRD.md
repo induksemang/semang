@@ -1,254 +1,366 @@
 # SEMANG — Technical Requirements Document (TRD)
 
-**Versi:** 1.0 (MVP) · **Status:** Draft · **Bahasa:** Indonesia
-**Acuan:** Semang PRD v1.0, Semang SRD v1.0, Semang ERD (semang_erd.puml)
-
-> **Tagline:** Kost-mu ditagih otomatis, uang masuk tercatat sendiri, tanpa kamu menagih siapa-siapa.
-> **Fokus:** desain teknis Tahap 0 — arsitektur free-tier, state machine idempoten, upgrade path bersih
+**Versi:** 2.0 (MVP) · **Status:** Draft · **Bahasa:** Indonesia
+**Acuan:** Semang PRD v2.0, SRD v2.0, ERD v2.0, Kebijakan Privasi v2.0
+**Fokus:** cara membangun apa yang sudah ditetapkan dokumen di atas. Setiap keputusan di sini menunjuk kebutuhan yang memintanya.
 
 ## 1. Ringkasan Teknis
 
-Semang Tahap 0 adalah aplikasi web Next.js monolitik di Vercel dengan Supabase sebagai database, auth, dan storage. Tidak ada server yang dikelola sendiri, tidak ada layanan berbayar, tidak ada uang yang melewati sistem. Dua keputusan teknis menjiwai seluruh desain: (1) setiap lapisan yang kelak berbayar (notifikasi, pembayaran) dibungkus interface agar implementasi gratis hari ini dapat ditukar tanpa refactor, dan (2) seluruh proses berjalan idempoten karena cron pada free tier tidak menjamin eksekusi tepat-sekali.
+Semang adalah aplikasi web Next.js di Vercel dengan Postgres dan Auth dari Supabase. Tiga integrasi luar menjalankan inti produknya: WhatsApp Cloud API mengirim tagihan, Xendit XenPlatform menerima pembayaran langsung ke rekening pemilik, dan Google OAuth menjadi salah satu jalan masuk.
+
+Empat sifat teknis membentuk hampir semua keputusan di dokumen ini:
+
+1. **Uang tidak melewati Semang.** Tidak ada penampungan dana, jadi tidak ada rekonsiliasi saldo dan tidak ada kewajiban lisensi penyelenggara jasa pembayaran.
+2. **Tidak ada penyimpanan berkas.** Kuitansi disusun saat tautannya dibuka. Akibatnya tidak ada layanan penyimpanan, tidak ada pemindaian berkas, dan tidak ada masa simpan berkas yang perlu diatur.
+3. **Setiap pesan berbiaya.** Rp356,65 per pesan terkirim membuat penjadwalan pengiriman menjadi urusan biaya, bukan sekadar urusan waktu.
+4. **Zona waktu per properti.** Kost di Denpasar dan Jakarta harus ditagih pada hari kalender yang benar menurut waktunya masing-masing, jadi tidak ada satu jam cron yang berlaku untuk semua.
 
 ## 2. Arsitektur Sistem
 
 ```
-Pemilik (browser)                      Penghuni (browser, tanpa akun)
-      │                                        │
-      │ HTTPS                                  │ HTTPS (link bertoken)
-      ▼                                        ▼
-┌──────────────────────────────────────────────────────────┐
-│              Next.js App (Vercel Hobby)                  │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐   │
-│  │ Dashboard   │  │ Halaman      │  │ API Routes     │   │
-│  │ pemilik     │  │ publik       │  │ + Server       │   │
-│  │ (App Router)│  │ (isi/upload/ │  │   Actions      │   │
-│  │             │  │  kuitansi)   │  │                │   │
-│  └─────────────┘  └──────────────┘  └────────┬───────┘   │
-│         Vercel Cron (harian) ────────────────┤           │
-└──────────────────────────────────────────────┼───────────┘
-                                               │
-              ┌────────────────────────────────┼─────────────────┐
-              ▼                                ▼                 ▼
-      ┌──────────────┐                ┌──────────────┐   ┌──────────────┐
-      │ Supabase     │                │ Supabase     │   │ Resend       │
-      │ Postgres+RLS │                │ Storage      │   │ (email)      │
-      │ (data inti)  │                │ (foto bukti) │   │              │
-      └──────────────┘                └──────────────┘   └──────────────┘
-
-Keluar sistem (tanpa API): wa.me deep link → aplikasi WhatsApp pemilik
-                           transfer bank → langsung rekening pemilik
+Pemilik (browser)                Penyewa (WhatsApp + browser)
+      |                                    |
+      v                                    v
++-------------------------------------------------------+
+|  Next.js (Vercel)                                     |
+|  - Halaman pemilik (butuh sesi)                       |
+|  - Halaman bertoken (tanpa akun)                      |
+|  - Route handler API                                  |
+|  - Cron endpoint                                      |
++---------+--------------------+------------------------+
+          |                    |
+          v                    v
+   Supabase Postgres      Integrasi luar
+   - Row Level Security   - WhatsApp Cloud API (kirim + webhook status)
+   - Supabase Auth        - Xendit XenPlatform (link bayar + webhook)
+                          - Google OAuth (jalan masuk)
 ```
 
-Tidak ada komponen lain. Pengiriman WA dan perpindahan uang terjadi sepenuhnya di luar sistem — Semang hanya menyusun pesan dan mencatat hasil.
+**Batas tanggung jawab.** Seluruh penulisan data terjadi di route handler di sisi peladen. Browser tidak pernah memegang kunci layanan, dan tidak pernah memanggil Xendit atau WhatsApp langsung. Halaman bertoken juga dilayani dari sisi peladen: token diperiksa lebih dulu, lalu data dibaca dengan hak terbatas.
+
+**Kenapa cron di Vercel dan GitHub Actions sekaligus.** Vercel Cron menjalankan tugas rutin. GitHub Actions menjadi pemicu cadangan yang memanggil endpoint yang sama, karena satu titik yang bila gagal menghentikan seluruh penagihan adalah risiko yang tidak sebanding dengan biaya menambahkan pemicu kedua (SRD NFR-04).
 
 ## 3. Tech Stack
 
-| Lapisan         | Pilihan                                         | Alasan                                                                                      |
-|-----------------|-------------------------------------------------|---------------------------------------------------------------------------------------------|
-| Framework       | Next.js 14+ (App Router) di Vercel Hobby        | Satu codebase untuk dashboard, halaman publik, API; cron bawaan; free tier memadai (NFR-01) |
-| Bahasa          | TypeScript                                      | Type safety untuk state machine dan entitlement; mengurangi bug solo developer              |
-| Database        | Supabase Postgres + RLS                         | Isolasi multi-tenant di level database (NFR-02); free 500MB cukup untuk ratusan properti    |
-| Auth            | Supabase Auth (email+password, verifikasi email dimatikan) | AUTH-01/02 friksi rendah; hashing password ditangani Supabase; login via email atau nomor WA (lookup nomor→email di tabel users) |
-| Storage         | Supabase Storage (bucket privat)                | Foto bukti dengan signed URL; 1GB free + kompresi client ≤200KB (NFR-07)                    |
-| Email           | Resend free tier                                | NTF-05; 3.000 email/bulan cukup untuk notifikasi pemilik                                    |
-| Kompresi gambar | browser-image-compression (client-side)         | BKT-03 — kompres + strip EXIF sebelum upload, hemat kuota storage                           |
-| Penjadwalan     | Vercel Cron (utama) + GitHub Actions (cadangan) | TGH-01; dua pemicu yang sama-sama memanggil endpoint idempoten                              |
-| Styling         | Tailwind CSS                                    | Cepat untuk solo developer; mobile-first                                                    |
-| Validasi        | Zod                                             | Skema input tunggal dipakai client + server                                                 |
+| Lapisan | Pilihan | Catatan |
+|---|---|---|
+| Frontend & API | Next.js di Vercel | Halaman, route handler, dan cron dalam satu penyebaran |
+| Database | Supabase Postgres | Row Level Security menegakkan pemisahan data antar pemilik |
+| Autentikasi | Supabase Auth | Penyedia Google, ditambah alur kode sekali pakai yang dikirim lewat WhatsApp |
+| Pesan | WhatsApp Cloud API | Satu nomor bisnis Semang untuk semua kost |
+| Pembayaran | Xendit XenPlatform | Sub-akun per pemilik, dana langsung ke rekeningnya |
+| Penjadwalan | Vercel Cron + GitHub Actions | Idempoten, dapat dijalankan berkali-kali tanpa efek ganda |
+| Domain | Domain sendiri sebelum disebar ke luar lingkaran terdekat | |
+
+Tidak ada layanan penyimpanan berkas dan tidak ada penyedia email dalam lingkup ini.
 
 ## 4. Model Data
 
-Delapan belas entitas sesuai Semang ERD (semang_erd.puml). Semua tabel ber-RLS dengan kebijakan kepemilikan via `users.id = auth.uid()` (langsung atau melalui join ke properties), kecuali yang diakses publik via token. Prinsip skala: perubahan masa depan bersifat aditif (tabel/baris baru), bukan restrukturisasi tabel berisi data.
+Skema mengikuti ERD v2.0 (31 tabel) tanpa penyimpangan. Bagian ini hanya menetapkan cara menerapkannya.
 
-### 4.1 Identitas & akses
+### 4.1 Konvensi
 
-| Entitas        | Kolom kunci                                                         | Catatan                                                                                               |
-|----------------|---------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
-| users          | id (=auth.uid), name, email <<UK>>, phone_wa <<UK>>, locale         | Generik — pemilik hari ini; staf & akun penghuni kelak memakai tabel yang sama tanpa migrasi identity |
-| bank_accounts  | id, user_id, bank_code, account_number, account_holder, is_default  | Rekening tujuan transfer milik pemilik (BR-06); terpisah dari users agar mendukung multi-rekening     |
-| property_staff | id, property_id, user_id, role, invited_at, accepted_at, revoked_at | Kosong di Tahap 0; jalur masuk staf/penjaga kost Tahap 2 (sudah siap, tinggal diisi)                  |
+| Hal | Ketetapan |
+|---|---|
+| Kunci utama | `uuid` berisi UUID versi 7 yang dibuat aplikasi, supaya baris baru masuk ke ujung indeks |
+| Waktu | `timestamptz` tanpa kecuali; tanggal murni memakai `date` |
+| Teks | `text`; batas panjang lewat `CHECK` hanya bila domainnya memang berbatas |
+| Uang | `numeric(14,2)` dalam rupiah penuh; `1500000.00` berarti Rp1.500.000 |
+| Enum | `text` + `CHECK` berisi daftar nilai dari kamus ERD |
+| Migrasi | Berurut, maju saja, satu berkas per perubahan; data acuan wilayah masuk lewat migrasi |
 
-### 4.2 Properti & penghuni
+### 4.2 Row Level Security
 
-| Entitas    | Kolom kunci                                                                        | Catatan                                                                                             |
-|------------|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| properties | id, owner_id, name, city, default_rent, default_due_day, timezone, unique_code_enabled, status | Soft delete via deleted_at (BR-08); timezone per properti untuk cron yang benar; unique_code_enabled = toggle fitur kode unik opsional (TGH-09) |
-| rooms      | id, property_id, room_number (int), label, rent_override, due_day_override, status | room_number numerik 1–50 — dasar kode unik (BR-01, BR-02); label bebas ("A1") tanpa mengganggu kode |
-| tenants    | id, room_id, user_id (nullable), name, phone_wa, moved_in_at, moved_out_at         | moved_out_at NULL = aktif, satu aktif per kamar (BR-07); user_id menunggu portal penghuni Tahap 2   |
+Setiap tabel yang memuat data pemilik menyalakan Row Level Security. Pola kebijakannya satu bentuk saja:
 
-### 4.3 Tagihan & pembayaran
+```sql
+create policy owner_reads on invoices for select
+  using (owner_id = (select auth.uid()));
+```
 
-| Entitas        | Kolom kunci                                                                                                                                    | Catatan                                                                                                                                                                         |
-|----------------|------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| invoices       | id, room_id, tenant_id, period (char 7 "YYYY-MM"), base_amount, unique_code (smallint, nullable), total_amount, status, due_date, idempotency_key <<UK>> | Unik (room_id, period) → idempotensi TGH-05. Pencocokan via token (BR-01), bukan nominal. unique_code NULL bila fitur opsional mati; bila aktif total_amount = base + code (TGH-09, BR-16) |
-| invoice_items  | id, invoice_id, kind, description, amount, metadata jsonb                                                                                      | MVP: satu item "sewa"; listrik (Tahap 1) & denda (Tahap 2) hanya baris baru dengan kind berbeda — invoice tidak tersentuh                                                       |
-| proofs         | id, invoice_id, storage_key, mime_type, file_size, status, rejection_reason, decided_by, decided_at                                            | BKT-04…08; decided_by merujuk users                                                                                                                                             |
-| payments       | id, invoice_id, proof_id (nullable), source, amount, status, provider*, provider_payload jsonb, idempotency_key <<UK>>, confirmed_by           | Sumber kebenaran pembayaran. Tahap 0: source=manual_transfer + proof_id terisi. Tahap 3: webhook QRIS hanya menulis source=qris + kolom provider — dua jalur hidup berdampingan |
-| invoice_events | id, invoice_id, actor_id, event_type, from_status, to_status, metadata                                                                         | Audit trail TGH-07 / NFR-10                                                                                                                                                     |
+`auth.uid()` dibungkus subkueri agar dinilai sekali per kueri, bukan sekali per baris. Setiap kolom `owner_id` diberi indeks. Tabel anak yang hanya dibaca lewat induknya — `invoice_items` dan `payment_links` — memakai kebijakan yang menumpang tagihan induknya.
 
-### 4.4 Komunikasi & akses publik
+`owner_id` diisi trigger `before insert` dari induknya, bukan dari data yang dikirim klien. Kolom salinan yang bisa dikirim klien adalah lubang keamanan, bukan penghematan.
 
-| Entitas       | Kolom kunci                                                                                                                                    | Catatan                                                                                |
-|---------------|------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|
-| notifications | id, invoice_id, recipient_phone, kind (tagihan/H-3/H/H+3/H+7), channel (wa_link/waba/email), payload, status, provider_ref, opened_at, sent_at | Antrean siap-kirim NTF-02…03; kolom channel & provider_ref sudah menunggu WABA Tahap 2 |
-| public_tokens | id, kind (isi_mandiri/upload/kuitansi), target_id, token_hash <<UK>>, expires_at, used_at                                                      | Token acak ≥128 bit disimpan sebagai hash (NFR-03)                                     |
+### 4.3 Indeks
 
-### 4.5 Monetisasi (struktur aktif sejak hari pertama, harga Rp0 di Tahap 0)
-
-| Entitas             | Kolom kunci                                                                                                    | Catatan                                                                    |
-|---------------------|----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| plans               | id, code <<UK>> (gratis/starter/pro/bisnis), price_per_room, min_monthly, max_rooms, max_properties, is_active | Definisi tier PRD §10 sebagai data, bukan hardcode                         |
-| plan_features       | id, plan_id, feature_key, enabled, limit_value                                                                 | Gate fitur per tier ENT-01                                                 |
-| subscriptions       | id, owner_id, plan_id, status, billing_cycle (bulanan/tahunan), trial_invoices_left, current_period_start/end  | trial_invoices_left mengimplementasikan trial "2 siklus tagihan" PRD §10.2 |
-| subscription_addons | id, subscription_id, feature_key, price_monthly, status                                                        | Add-on à la carte (listing, kontrak digital, screening) PRD §10.3          |
-
-### 4.6 Integrasi masa depan
-
-| Entitas      | Kolom kunci                                                                                         | Catatan                                                                                                                           |
-|--------------|-----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| webhook_logs | id, source, event_type, idempotency_key <<UK>>, payload jsonb, processed, attempt_count, last_error | Kosong hingga Tahap 3 (QRIS); ada sejak awal agar pola idempoten webhook tidak ditambal belakangan (pola yang sama dengan Holdin) |
-
-Relasi utama: users → properties → rooms → (tenants, invoices); invoices → (invoice_items, proofs, payments, invoice_events, notifications); plans → subscriptions → subscription_addons. Detail kardinalitas lengkap di Semang ERD.
+| Tabel | Indeks | Untuk |
+|---|---|---|
+| `invoices` | `(owner_id)`, `(due_date, status)`, `(idempotency_key)` unik | Kebijakan akses, cron penanda telat, pencegah tagihan ganda |
+| `messages` | `(scheduled_at, status)`, `(invoice_id)`, `(owner_id, sent_at)` | Cron pengirim, pembatalan pengingat, rekap biaya |
+| `room_assignments` | `(room_id)` unik saat `ended_on` kosong, `(tenant_id)` unik saat `ended_on` kosong | Satu penempatan berlaku per kamar dan per penyewa |
+| `audit_events` | `(entity_type, entity_id, created_at)` | Riwayat per tagihan |
+| `regions` | Indeks pencarian teks pada `name` | Pencarian bertaip 514 wilayah |
+| Semua foreign key | Indeks tersendiri | Postgres tidak membuatnya otomatis |
 
 ## 5. State Machine & Aturan Transisi
 
-### 5.1 Tabel transisi
+### 5.1 Transisi tagihan
 
-| Dari                | Trigger                   | Ke                  | Aturan                                                                     |
-|---------------------|---------------------------|---------------------|----------------------------------------------------------------------------|
-| draft               | cron: tanggal siklus tiba | terjadwal           | Hanya kamar terisi (BR-03); upsert by (room_id, period)                    |
-| terjadwal           | sistem menyusun pesan     | terkirim*           | *Status logis "siap dikirim"; pesan masuk notifications                    |
-| terkirim            | penghuni unggah bukti     | menunggu_konfirmasi | Via token halaman upload; proof tercipta                                   |
-| menunggu_konfirmasi | pemilik Terima            | lunas               | Tulis payments (source=manual_transfer, proof_id) + kuitansi + event audit |
-| menunggu_konfirmasi | pemilik Tolak             | terkirim            | Wajib alasan (BKT-07); bukti berstatus ditolak                             |
-| menunggu_konfirmasi | timeout 72 jam            | (tetap)             | Kirim pengingat email ke pemilik (BR-04)                                   |
-| terkirim            | lewat due_date            | telat               | Reminder H+3/H+7 masuk antrean                                             |
-| telat               | H+30 tanpa lunas          | menunggak           | Badge + masuk laporan khusus (BR-04)                                       |
+Status dan pemicunya persis PRD §8.2 dan §8.3. Yang ditetapkan di sini adalah cara menjaganya:
 
-### 5.2 Aturan locking & konsistensi
+- **Semua transisi lewat satu fungsi.** Perubahan `status`, `amount_paid`, dan penanda waktu terjadi di satu tempat, di dalam satu transaksi, bersama penulisan `audit_events`. Tidak ada jalur lain yang boleh menyentuh `invoices.status`.
+- **Baris tagihan dikunci** dengan `select ... for update` sebelum pembayaran ditambahkan, supaya dua webhook yang datang bersamaan tidak menghasilkan `amount_paid` yang salah.
+- **`telat` dan `menunggak` ditetapkan cron**, bukan dihitung saat dibaca. Status yang dihitung saat dibaca membuat laporan berubah tanpa ada kejadian apa pun.
 
-- Transisi state dieksekusi dalam transaksi Postgres dengan `SELECT … FOR UPDATE` pada baris invoice — dua konfirmasi bersamaan tidak menghasilkan state ganda.
-- Konstraint unik `(room_id, period)` pada invoices menjadi pertahanan terakhir idempotensi generate (TGH-05).
-- Status invoice hanya boleh berubah melalui fungsi transisi tunggal (satu modul, satu pintu) yang sekaligus menulis invoice_events — tidak ada UPDATE status langsung dari tempat lain.
-- Penulisan payments terjadi di dalam transaksi yang sama dengan transisi ke lunas — invoice lunas tanpa payment record adalah state yang mustahil.
+### 5.2 Nomor tagihan
+
+Nomor berurut per pemilik (SRD TGH-17) diambil dari baris penghitung milik pemilik itu, dikunci dalam transaksi yang sama dengan pembuatan tagihan. Nilai tertinggi yang sudah ada **tidak** dipakai sebagai dasar, karena dua cron yang berjalan bersamaan akan membaca nilai yang sama dan menghasilkan nomor kembar.
+
+Bentuknya `YYYYMM-NNNN`, dengan `NNNN` dimulai dari 1 tiap bulan. Awalan tahun-bulan hanya masuk akal bila penghitungnya juga bulanan — awalan bulanan dengan penghitung yang berjalan terus akan menghasilkan nomor seperti `202608-0417` pada kost yang baru menagih empat kali di bulan itu.
 
 ## 6. Desain API
 
-Semua endpoint internal memakai Server Actions / API Routes Next.js dengan sesi Supabase. Endpoint publik bertoken tidak butuh sesi.
+Seluruh titik akhir berupa route handler Next.js.
 
-| Method & path                       | Auth          | Fungsi                              | SRD              |
-|-------------------------------------|---------------|-------------------------------------|------------------|
-| POST /api/properties                | sesi          | Buat properti + generate rooms      | KOST-01…02       |
-| PATCH /api/rooms/:id                | sesi          | Override harga, ubah status         | KOST-03…04       |
-| POST /api/rooms/:id/self-fill-token | sesi          | Generate link isi-mandiri           | PHN-01…02        |
-| GET/POST /p/isi/:token              | publik        | Form + simpan data penghuni         | PHN-01, PHN-04   |
-| POST /api/tenants/:id/checkout      | sesi          | Tandai penghuni keluar              | PHN-05           |
-| POST /api/cron/generate-invoices    | secret header | Generate tagihan harian (idempoten) | TGH-01, TGH-05   |
-| POST /api/cron/run-timeouts         | secret header | Jalankan timeout & susun reminder   | TGH-04, BR-04…05 |
-| GET /api/queue                      | sesi          | Antrean siap-kirim                  | NTF-02           |
-| POST /api/queue/:id/opened          | sesi          | Tandai pesan dibuka                 | NTF-03           |
-| GET/POST /p/bukti/:token            | publik        | Halaman upload bukti + simpan       | BKT-01…04        |
-| POST /api/proofs/:id/decide         | sesi          | Terima/Tolak satu-tap               | BKT-05…07        |
-| GET /p/kuitansi/:token              | publik        | Kuitansi digital                    | BKT-06           |
-| GET /api/reports/export             | sesi          | CSV/Excel rentang tanggal           | LAP-03           |
+| Kelompok | Titik akhir | Akses |
+|---|---|---|
+| Autentikasi | mulai masuk Google, minta kode, tukar kode, keluar | Publik, berbatas jumlah permintaan |
+| Kost & kamar | buat, ubah, atur status kamar | Sesi pemilik |
+| Penyewa | tambah, ubah, checkout, pindah kamar, ubah penempatan sementara jadi tetap | Sesi pemilik |
+| Tagihan | lihat, batalkan, tandai lunas, catat cicilan, pratinjau perubahan mode | Sesi pemilik |
+| Langganan | lihat, naik paket, berhenti | Sesi pemilik |
+| Halaman bertoken | isi mandiri, kuitansi, halaman pembayaran | Token, tanpa akun |
+| Webhook | Xendit, WhatsApp status | Diverifikasi tanda tangan pengirim |
+| Cron | penagihan, pengiriman, transisi status, langganan | Rahasia bersama di header |
 
-Konvensi: respons error berbahasa Indonesia sederhana (NFR-08); semua endpoint cron memverifikasi `CRON_SECRET` di header.
+**Aturan yang berlaku di semua titik akhir:** validasi bentuk masukan sebelum apa pun dijalankan, nominal uang tidak pernah datang dari klien untuk hal yang dihitung sistem, dan setiap penulisan yang bisa terulang membawa `idempotency_key`.
 
-## 7. Lapisan Notifikasi (NotificationSender)
+## 7. Lapisan Pengiriman Pesan
 
-```
-interface NotificationSender {
-  compose(invoice, jenis) → { url_atau_payload, preview }
-  channel() → "wa_link" | "waba" | "email"
-}
+Semua pesan keluar melewati satu interface `NotificationSender` (SRD NFR-10), dan semua tercatat di `messages` sebelum dikirim.
 
-Tahap 0: WaLinkSender  → susun https://wa.me/<no>?text=<encoded>, simpan ke notifications (channel=wa_link)
-Tahap 2: WabaSender    → kirim via WhatsApp Business API, status webhook delivery
-Selalu : EmailSender   → Resend, untuk notifikasi pemilik (NTF-05)
-```
+### 7.1 Alur kirim
 
-Aturan desain: tidak ada modul lain yang tahu pesan dikirim lewat apa — modul tagihan hanya memanggil `NotificationSender` (NFR-09). Penambahan WABA kelak adalah implementasi baru + konfigurasi, bukan perubahan alur.
+1. Penjadwal membuat baris `messages` berstatus `scheduled` beserta `idempotency_key`.
+2. Cron pengirim mengambil baris yang `scheduled_at`-nya sudah lewat, melewati penyewa yang menarik persetujuan (SRD NTF-13), lalu memanggil Cloud API.
+3. Balasan pengiriman menyimpan `whatsapp_message_id`; status berubah `sent`.
+4. Webhook status mengisi `delivered_at` atau `failed_at`, beserta objek `pricing`: `is_billable`, `pricing_category`, `pricing_type`, `charged_amount`, dan `message_rate_id` yang berlaku.
 
-## 8. Background Jobs
+Biaya dihitung dari pesan yang **sampai**, bukan yang masuk antrean. Pesan gagal tidak dihitung.
 
-| Job               | Pemicu                 | Jadwal               | Sifat                                                                         |
-|-------------------|------------------------|----------------------|-------------------------------------------------------------------------------|
-| generate-invoices | Vercel Cron → endpoint | Harian 02.00 WIB     | Idempoten via upsert (room_id, period)                                        |
-| run-timeouts      | Vercel Cron → endpoint | Harian 03.00 WIB     | Scan state + due_date; susun reminder H-3/H/H+3/H+7; eskalasi telat/menunggak |
-| monthly-summary   | Vercel Cron → endpoint | Tanggal 1, 06.00 WIB | Email ringkasan bulanan per pemilik (LAP-04)                                  |
-| cleanup-tokens    | Vercel Cron → endpoint | Mingguan             | Hapus public_tokens kedaluwarsa                                               |
+### 7.2 Penjadwalan dan pembatalan
 
-GitHub Actions schedule memanggil endpoint yang sama sebagai cadangan bila cron Vercel terlewat — aman karena semua endpoint idempoten (NFR-06).
+Jadwal mengikuti PRD §8.7: bulanan tagihan H-3 lalu pengingat H+3 dan H+7; mingguan tagihan H-1 lalu H+2; harian hanya hari-H. Seluruh perhitungan hari memakai zona waktu propertinya.
 
-## 9. Keamanan
+Pengingat dijadwalkan sekaligus saat tagihan dibuat, lalu **dibatalkan** dengan mengisi `cancelled_at` begitu tagihan lunas atau dibatalkan. Menjadwalkan lebih dulu lalu membatalkan lebih murah dan lebih mudah diperiksa daripada memutuskan setiap hari apakah pengingat perlu dikirim.
 
-- **RLS:** setiap tabel ber-policy kepemilikan `users.id = auth.uid()` — langsung pada properties/bank_accounts/subscriptions, dan via join ke properties untuk tabel turunan (rooms → invoices → payments dst.). Saat property_staff terisi (Tahap 2), policy diperluas menjadi `owner OR staff aktif` tanpa mengubah struktur. Halaman publik tidak menyentuh tabel langsung melainkan melalui RPC ter-batasi yang memverifikasi token hash.
-- **Token publik:** 32 byte random → base64url, disimpan sebagai SHA-256 hash; pembanding constant-time; kedaluwarsa sesuai jenis (PHN-02).
-- **Storage:** bucket privat; akses bukti hanya via signed URL berumur pendek yang diminta dari sesi pemilik.
-- **Rate limiting:** endpoint publik dibatasi per-IP (token bucket di edge middleware) untuk menahan brute force token.
-- **EXIF:** dihapus di client sebelum upload (BKT-03); server menolak file >1MB atau non-image sebagai pertahanan kedua.
-- **Secrets:** CRON_SECRET, kunci Supabase service-role hanya di environment Vercel; tidak pernah di client bundle.
+### 7.3 Template
 
-## 10. Idempotency & Konsistensi
+Template didaftarkan ke Meta sebagai `utility` untuk penagihan dan `authentication` untuk kode masuk. `messages.template_version` menyimpan versi yang benar-benar dipakai, supaya isi pesan bulan lalu tetap bisa disusun ulang setelah templatenya direvisi.
 
-Tiga lapis pertahanan terhadap eksekusi ganda:
+## 8. Autentikasi & Sesi
 
-1. **Konstraint database** — unik (room_id, period) dan idempotency_key di invoices; idempotency_key dan provider_ref di payments; token_hash di public_tokens; idempotency_key di webhook_logs.
-2. **Upsert, bukan insert** — semua job cron menulis dengan `ON CONFLICT DO NOTHING/UPDATE`.
-3. **Transisi satu pintu** — fungsi transisi state memegang row lock dan memvalidasi state asal sebelum menulis; transisi dari state yang salah ditolak dan dicatat.
+### 8.1 Dua jalan masuk
 
-Konsekuensi: cron boleh dipicu dua kali, webhook (kelak) boleh datang dua kali, pemilik boleh double-tap — hasil akhir selalu sama.
+**Google** memakai penyedia OAuth Supabase Auth. **Nomor WhatsApp** memakai alur kode sekali pakai yang pengirimannya dialihkan ke nomor bisnis Semang sendiri, bukan penyedia SMS.
 
-## 11. Infrastruktur & Deployment
+Keduanya menghasilkan satu baris `auth_identities`. Akun tanpa satu pun baris di tabel itu tidak bisa dimasuki, dan itulah penjaga sebenarnya — bukan kolom `email` atau `whatsapp_number` yang boleh kosong.
 
-- **Lingkungan:** production tunggal di Vercel + satu proyek Supabase; preview deployment Vercel memakai branch database Supabase (fitur free) untuk uji aman.
-- **Konfigurasi:** seluruh kredensial via environment variables; file `.env.example` terdokumentasi di repo.
-- **Migrasi skema:** SQL migration files di repo, dijalankan via Supabase CLI — riwayat skema ikut version control.
-- **Observabilitas (gratis):** Vercel logs + Supabase logs; error tracking via console terstruktur; alarm sederhana = email harian hasil cron (sukses/gagal + jumlah tagihan dibuat).
-- **Backup:** ekspor SQL mingguan otomatis via GitHub Actions ke artifact privat (mitigasi batas backup free tier Supabase).
+### 8.2 Kode sekali pakai
 
-## 12. Strategi Pengujian
+| Hal | Ketetapan |
+|---|---|
+| Panjang | 6 angka |
+| Masa berlaku | 5 menit |
+| Percobaan | Maksimal 5, lalu kode mati |
+| Penyimpanan | Hash, dibandingkan dengan cara yang tidak membocorkan hasil dari lama waktu pembandingan |
+| Kode baru | Mematikan kode sebelumnya |
 
-Pengujian difokuskan pada area berisiko tinggi, bukan cakupan menyeluruh — sesuai kapasitas solo developer.
+### 8.3 Batas jumlah permintaan
 
-- **State machine:** setiap baris tabel transisi §5.1 menjadi satu test case; transisi ilegal (mis. lunas → terkirim) harus ditolak dan tercatat.
-- **Idempotensi cron:** test memanggil generate-invoices dua kali untuk periode sama → tepat satu tagihan per kamar.
-- **Isolasi RLS lintas-tenant:** test membuktikan pemilik A tidak dapat membaca/menulis data pemilik B di SETIAP tabel ber-RLS; dijalankan sebagai bagian CI.
-- **Aturan jatuh tempo:** test TGH-08 untuk Februari, bulan 30 hari, dan 31 hari.
-- **Pencocokan token:** test bahwa bukti hanya tertaut ke tagihan pemilik token, dan token kedaluwarsa/terpakai ditolak.
-- **Kompresi & EXIF:** test bahwa unggahan >1MB atau non-image ditolak server, dan EXIF hilang setelah kompresi client.
+Satu kode berbiaya Rp356,65, dan endpoint ini adalah cara termudah bagi orang lain menghabiskan saldo WhatsApp Business Semang (SRD AUTH-09).
 
-## 13. Template Pesan & Kuitansi
+| Sasaran | Batas | Jeda setelah terlampaui |
+|---|---|---|
+| Nomor WhatsApp | 3 per jam, 10 per hari | 1 jam, lalu naik ke 6 jam |
+| Akun | 10 per hari | 6 jam |
+| Alamat IP | 20 per jam | 1 jam |
 
-Teks pesan adalah produk yang dilihat penghuni; template dikelola terpusat (satu sumber, mudah diiterasi) dan diisi `NotificationSender`.
+Sama diberlakukan pada pengiriman contoh tagihan, memakai tabel `request_limits` yang sama.
 
-- **Tagihan:** sapaan + nama kost + kamar + periode + nominal + rekening tujuan + link upload bukti.
-- **Reminder H-3 / hari-H / H+3 / H+7:** nada menanjak dari ramah ke tegas, elemen wajib sama dengan tagihan.
-- **Kuitansi:** nomor kuitansi berformat `<KODE_KOST>-<YYYYMM>-<NOMOR_KAMAR>` (mis. MELATI-202606-03), tanggal bayar, jumlah, status lunas.
-- Elemen wajib (nominal, rekening, link) tidak dapat dihapus pemilik; hanya sapaan dan catatan kaki yang dapat dikustomisasi (NTF-06).
+### 8.4 Sesi
 
-## 14. Analytics & Funnel
+Sesi Supabase Auth berlaku 30 hari dan diperpanjang saat dipakai. Kode hanya diminta saat sesi habis atau perangkat baru — bukan setiap kali membuka Semang (SRD AUTH-04).
 
-- **Funnel onboarding (ONB-05):** dicatat sebagai baris event di tabel sendiri (daftar → layar 1 → layar 2 → momen wow → selesai), bukan layanan pihak ketiga berbayar — menjaga Rp0 dan kepemilikan data.
-- Agregasi funnel dihitung lewat query SQL sederhana; tidak perlu tooling eksternal di Tahap 0.
-- Bila kelak butuh analitik produk lebih kaya, PostHog free tier dapat ditambahkan tanpa mengubah skema event yang sudah ada.
+## 9. Pembayaran
 
-## 15. Upgrade Path Teknis (Tahap 1–3)
+### 9.1 Sub-akun Xendit
 
-| Perubahan                          | Yang ditambah                                                                                   | Yang TIDAK berubah                                                                                                |
-|------------------------------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| wa.me → WABA (Tahap 2)             | WabaSender; kolom channel & provider_ref di notifications mulai terpakai                        | Modul tagihan, state machine, struktur notifications                                                              |
-| Konfirmasi manual → QRIS (Tahap 3) | Webhook gateway menulis payments dengan source=qris + kolom provider; webhook_logs mulai terisi | Tabel payments & webhook_logs (sudah ada sejak hari pertama); alur konfirmasi manual tetap hidup sebagai fallback |
-| Single → multi-properti (Tahap 2)  | Hapus batas 1 properti di ENT/UI                                                                | Skema data (sudah one-to-many sejak awal)                                                                         |
-| Portal penghuni (Tahap 2)          | Auth penghuni; tenants.user_id mulai terisi                                                     | Tabel tenants/invoices (sudah memuat semua data)                                                                  |
-| Staf/penjaga kost (Tahap 2)        | Baris di property_staff + perluasan policy RLS                                                  | Struktur identitas users (staf memakai tabel yang sama)                                                           |
-| Reset password (pasca-MVP)         | Supabase Auth reset flow + Resend sebagai SMTP                                                  | Skema users (password sudah dikelola Supabase Auth)                                                               |
+Setiap pemilik menjadi sub-akun XenPlatform. Formulir verifikasi identitas tampil di dalam Semang dan isinya diteruskan langsung ke Xendit; yang disimpan hanya `verification_status`. Tidak ada kolom data identitas di skema, dan itu janji yang tertulis di Kebijakan Privasi §2.
 
-## 16. Open Technical Questions
+### 9.2 Link pembayaran
 
-- Verifikasi perilaku Vercel Cron pada Hobby plan (jaminan eksekusi, jitter) — bila tidak andal, GitHub Actions jadi pemicu utama.
-- Batas praktis signed URL Supabase Storage untuk kuitansi yang dibagikan penghuni — perlu umur panjang atau regenerasi per akses?
-- Strategi kompresi lanjutan saat mendekati 1GB: kompres ulang bukti lama ke kualitas lebih rendah, atau arsip-hapus setelah N bulan (tergantung jawaban Open Question SRD)?
-- Login via nomor WA: lookup nomor→email lalu auth ke Supabase, atau simpan nomor sebagai identitas terpisah — mana yang lebih bersih untuk migrasi OTP WA kelak?
-- Apakah Server Actions cukup atau perlu API Routes eksplisit untuk endpoint publik demi rate limiting yang lebih terkontrol di edge middleware?
+Link dibuat per tagihan atau per cicilan dengan nominal terkunci. Bila link kedaluwarsa dan dibuat ulang, link lama diisi `superseded_at`; indeks unik sebagian menjamin hanya satu link berlaku per tagihan.
+
+### 9.3 Webhook
+
+Webhook Xendit diverifikasi dengan token panggilan balik, dicatat ke `webhook_events` lebih dulu, lalu diproses. `external_id` unik membuat pengiriman ulang aman diterima berkali-kali. Pemrosesan membuat baris `payments` dengan `is_auto_verified` bernilai benar, lalu memanggil fungsi transisi tagihan.
+
+### 9.4 Penandaan lunas manual
+
+Pemilik memilih metode `cash` atau `direct_transfer`, dengan catatan singkat opsional, dan menekan konfirmasi secara sadar. Baris `payments` tercatat dengan `is_auto_verified` bernilai salah, `recorded_by` berisi pemiliknya. Kolom itulah yang mengisi perbandingan pelunasan otomatis versus manual di laporan dan KPI.
+
+## 10. Langganan Platform
+
+Cron bulanan membuat `subscription_invoices` untuk tiap langganan aktif:
+
+1. Ambil snapshot **jumlah penyewa aktif** pada tanggal penagihan — bukan jumlah kamar berstatus terisi, supaya penyewa yang sedang dipindah sementara tidak membuat pemilik tertagih dua kali (SRD BR-23).
+2. Hitung `computed_amount` dari `price_per_room` saat itu; bila di bawah minimum bulanan, pakai minimum dan tandai `minimum_monthly_applied`.
+3. Untuk siklus tahunan, isi `discount_amount` sebesar potongan yang berlaku.
+4. Simpan `plan_id` yang berlaku, supaya tagihan lama tetap bisa dijelaskan setelah pemilik naik paket.
+
+**Gagal bayar** mengisi `failure_reason`, `attempt_count`, dan `last_attempt_at`, lalu menyetel `grace_period_ends_at` = **7 hari kalender** sejak percobaan pertama gagal. Selama masa itu pengiriman tetap berjalan dan pemilik menerima pesan `subscription_payment_failed`. Tujuh hari dipilih karena cukup untuk melewati satu akhir pekan dan satu tanggal gajian, tanpa membuat pemilik memakai layanan sebulan penuh tanpa membayar.
+
+**Akhir trial** diperiksa cron harian: langganan yang `trial_ends_at`-nya sudah lewat berpindah ke keadaan tidak berlangganan. Diukur dalam hari kalender tetap, bukan dari siklus tiap penyewa, karena satu kost bisa punya penyewa bulanan, mingguan, dan harian sekaligus. Tidak ada kamar yang dinonaktifkan dan tidak ada data yang menjadi hanya-baca; yang berhenti hanya pengiriman (§11).
+
+**Berhenti berlangganan** menyetel `cancellation_effective_at` ke akhir siklus berjalan. Tagihan penyewa yang sudah terjadwal untuk siklus itu tetap dikirim.
+
+## 11. Keadaan Tidak Berlangganan
+
+Akun yang tidak berlangganan tetap membuat tagihan lengkap dengan nominal dan teks pesannya, tetapi tidak satu pun pesan dikirim. Penerapannya:
+
+- Penjadwal **tidak membuat** baris `messages` untuk akun ini. Membuat lalu membatalkan akan membuat rekap biaya sulit dibaca dan membuka risiko terkirim karena salah kondisi.
+- Teks pesan disusun saat halaman dibuka, dari template yang sama, dan ditampilkan utuh agar bisa langsung disalin.
+- Tidak ada alat bantu salin-massal maupun tautan langsung ke WhatsApp per kamar, dan tidak ada jeda atau langkah tambahan yang dibuat-buat (SRD SUB-10).
+- Tidak ada batas jumlah kamar maupun properti.
+
+## 12. Laporan, Ekspor & Kuitansi
+
+### 12.1 Laporan kas
+
+Laporan dihitung saat dibaca, bukan disimpan sebagai ringkasan. Pada skala MVP jumlah barisnya kecil, dan ringkasan tersimpan yang bisa melenceng dari sumbernya lebih merepotkan daripada kueri yang sedikit lebih lambat.
+
+Isinya mengikuti SRD LAP: uang masuk per bulan, daftar lunas/telat/menunggak per kamar, rincian cicilan dan diskon multi-periode, serta piutang penyewa yang sudah keluar. Pembayaran yang dipastikan sistem Xendit dan yang diklaim pemilik dipisah berdasarkan `payments.is_auto_verified`.
+
+### 12.2 Ekspor
+
+Ekspor CSV dan Excel dibuat di sisi peladen dan dialirkan langsung ke unduhan, tanpa berkas perantara — konsisten dengan tidak adanya penyimpanan berkas. Rentang tanggal dibatasi agar satu permintaan tidak menarik seluruh riwayat kost sekaligus.
+
+### 12.3 Kuitansi
+
+Kuitansi disusun saat tautannya dibuka, dari `invoices` dan `payments`. Nama dan nomor penyewa diambil dari salinan pada tagihan, bukan dari data penyewa terkini — itulah yang membuat kuitansi lama tetap benar setelah nama diperbaiki atau data penyewa dianonimkan.
+
+Halaman kuitansi dan halaman pembayaran selalu menampilkan nama kost, periode, dan nominal, supaya penyewa dapat membedakan tautan sah dari penipuan.
+
+## 13. Penjadwalan
+
+Semua cron idempoten dan aman dijalankan berkali-kali.
+
+| Tugas | Irama | Isi |
+|---|---|---|
+| Pembuatan tagihan | Tiap jam | Proses properti yang waktu setempatnya baru melewati 01.00; lewati properti tanpa zona waktu dan catat sebagai perlu ditindak |
+| Pengiriman pesan | Tiap 15 menit | Kirim `messages` yang `scheduled_at`-nya sudah lewat |
+| Transisi waktu | Tiap jam | Tandai `telat` dan `menunggak` menurut waktu setempat propertinya |
+| Update berkala | Bulanan + saat ada kejadian | Ringkasan ke pemilik; tidak dikirim bila tidak ada yang perlu diketahui |
+| Penagihan langganan | Harian | Buat tagihan langganan yang jatuh tempo hari itu, proses masa tenggang, dan pindahkan trial yang sudah lewat ke keadaan tidak berlangganan |
+| Peninjauan tarif | Kuartalan, sebagai pengingat | Baca ulang rate card Meta pada 1 Jan / 1 Apr / 1 Jul / 1 Okt |
+| Pembersihan | Harian | Lihat §14 |
+
+**Kenapa cron tiap jam, bukan sekali sehari.** Zona waktu berbeda per properti, jadi tidak ada satu jam yang benar untuk semua. Cron tiap jam memproses properti yang baru melewati jam yang ditentukan menurut waktunya sendiri.
+
+## 14. Masa Simpan & Pembersihan
+
+Empat tabel tumbuh tanpa pernah dibaca lagi setelah beberapa waktu. Ketetapannya:
+
+| Tabel | Masa simpan | Alasan |
+|---|---|---|
+| `login_codes` | 24 jam setelah dipakai atau kedaluwarsa | Sudah tidak berguna, dan memuat data pribadi |
+| `request_limits` | 7 hari sejak jendelanya berakhir | Cukup untuk menelusuri penyalahgunaan |
+| `webhook_events` | 90 hari setelah diproses | Cukup untuk menelusuri sengketa pembayaran |
+| `messages` | Rinci 24 bulan, lalu diringkas per kost per bulan | Biaya historis tetap bisa dilaporkan tanpa menyimpan tiap baris |
+
+Masa simpan `login_codes` dan `request_limits` sudah dijanjikan ke pengguna di Kebijakan Privasi §8, jadi keduanya kewajiban, bukan pilihan penyetelan.
+
+## 15. Keamanan & Kepatuhan
+
+### 15.1 Halaman tanpa akun
+
+Token acak minimal 128 bit disimpan sebagai hash: satu token per kamar untuk isi mandiri, satu per tagihan untuk kuitansi dan halaman pembayaran. Token isi mandiri mati setelah dipakai atau setelah 30 hari.
+
+Halaman ini dilayani dari sisi peladen. Token diperiksa lebih dulu, lalu data dibaca dengan hak yang hanya mencakup baris yang ditunjuk token itu — bukan dengan mematikan Row Level Security.
+
+### 15.2 Hak penghapusan dan penarikan persetujuan
+
+| Permintaan | Penerapan |
+|---|---|
+| Penyewa minta datanya dihapus | Kosongkan `name` dan `whatsapp_number`, isi `anonymized_at`. Tagihan tetap utuh karena nama dan nomor sudah disalin ke tiap tagihan saat diterbitkan |
+| Penyewa minta berhenti menerima pesan | Isi `messaging_opted_out_at`; penjadwal melewatinya, tagihan tetap dibuat |
+| Pemilik minta akunnya dihapus | Isi `deletion_requested_at`; setelah 30 hari, hapus permanen seluruh data propertinya |
+
+Penghapusan permanen dijalankan cron harian, bukan tugas manual, karena tenggang yang bergantung pada ingatan orang bukan tenggang.
+
+### 15.3 Data yang tidak disimpan
+
+Tidak ada kolom untuk data identitas verifikasi Xendit, dan tidak ada penyimpanan berkas. Keduanya janji yang tertulis di Kebijakan Privasi.
+
+## 16. Observabilitas
+
+**Jejak aksi** ditulis ke `audit_events` di dalam transaksi yang sama dengan perubahannya. Mencakup tagihan, pembayaran, akun, langganan, penyewa, properti, tipe kamar, kamar, dan penempatan kamar.
+
+**Alarm biaya pesan** (SRD NFR-14): peringatan ke founder bila biaya pesan sebuah kost dalam satu bulan melewati **50% pendapatan langganan kost itu**. Ambang 50% dipilih karena skenario terburuk yang dimungkinkan jadwal pengiriman adalah 56% pada Starter — jadi ambang ini menyala tepat sebelum keadaan terburuk yang sudah diperhitungkan, dan menyala keras bila ada yang di luar perhitungan.
+
+**Tahap onboarding** dicatat sebagai kejadian di `audit_events` dengan `entity_type` bernilai `user`: pendaftaran, tiga isian terisi, contoh tagihan terkirim, kembali dari WhatsApp, dan setup lanjutan selesai. Inilah yang mengisi KPI aktivasi PRD §14 — tanpa pencatatan per tahap, yang bisa dijawab hanya "berapa yang selesai", bukan "berhenti di langkah mana".
+
+**Yang dipantau selain itu:** proporsi pesan gagal kirim, umur baris `messages` yang tertahan `scheduled`, jumlah webhook belum terproses, dan jumlah properti tanpa zona waktu.
+
+## 17. Strategi Pengujian
+
+Uji otomatis diprioritaskan pada hal yang salahnya paling mahal, bukan pada cakupan baris.
+
+| Yang diuji | Kenapa |
+|---|---|
+| Penentuan jatuh tempo, termasuk tanggal 29–31 dan pergantian tahun | Salah satu hari berarti tagihan salah kirim |
+| Prorata, gabung ke depan, dan penuh bulan ini | Tiga cabang dengan hasil uang yang berbeda |
+| Harga turunan harian dan mingguan beserta pembulatannya | Menentukan nominal yang dibayar penyewa |
+| Idempotensi pembuatan tagihan dan pemrosesan webhook | Dua kali jalan tidak boleh menghasilkan dua tagihan atau dua pembayaran |
+| Pembatalan pengingat saat lunas | Pesan terkirim ke tagihan yang sudah dibayar memalukan pemilik dan membuang biaya |
+| Kebijakan Row Level Security | Satu kebocoran membatalkan seluruh janji produk |
+| Kost dua zona waktu ditagih di hari yang benar | Sasaran pasar mencakup WIB dan WITA |
+| Anonimisasi penyewa tanpa merusak kuitansi lama | Kewajiban UU PDP dan pembukuan pemilik sekaligus |
+| Pindah kamar sementara: sewa tetap, kamar asal tidak bisa diisi, tertagih satu kali | Tiga akibat yang harus jalan bersamaan |
+
+## 18. Kinerja & Kapasitas
+
+Sasaran kinerja ditetapkan pada halaman yang dibuka penyewa, bukan pada dashboard pemilik. Penyewa membuka tautan dari WhatsApp, sering di koneksi lambat, dan tidak punya alasan menunggu.
+
+| Sasaran | Ketetapan |
+|---|---|
+| Halaman isi mandiri, kuitansi, dan pembayaran | Tampil di bawah 3 detik pada koneksi 3G dan perangkat berspesifikasi rendah |
+| Halaman bertoken | Dirender di sisi peladen, tanpa menunggu pemanggilan data dari browser |
+| Kapasitas awal | 50 kost dan 1.000 kamar tanpa perubahan arsitektur |
+| Pertumbuhan terbesar | `messages`, di bawah 30.000 baris per bulan pada 1.000 pemilik |
+
+`messages` dan `audit_events` adalah kandidat partisi bulanan bila tumbuh melampaui perkiraan. Yang perlu dijaga sejak awal hanya satu hal: `created_at` dan `sent_at` tidak dipakai sebagai bagian kunci utama, supaya partisi bisa ditambahkan tanpa memindahkan data.
+
+## 19. Lingkungan & Penyebaran
+
+| Lingkungan | Isi |
+|---|---|
+| Pengembangan | Proyek Supabase terpisah, sub-akun Xendit uji, nomor WhatsApp uji |
+| Produksi | Proyek Supabase sendiri, WhatsApp Business dan Xendit yang sudah terverifikasi |
+
+**Kredensial** disimpan sebagai variabel lingkungan di Vercel dan tidak pernah masuk ke repositori. Kunci layanan Supabase, token Cloud API, dan kunci Xendit hanya dipakai di sisi peladen. Rahasia produksi tidak dipakai di lingkungan pengembangan, termasuk saat menelusuri masalah.
+
+**Migrasi** berjalan maju saja, satu berkas per perubahan, dan dijalankan sebagai bagian dari penyebaran. Migrasi yang menghapus kolom dipisah dari migrasi yang menambahnya, supaya penyebaran yang gagal bisa dibatalkan tanpa kehilangan data.
+
+**Webhook** dari Xendit dan Meta menunjuk lingkungan produksi. Lingkungan pengembangan memakai titik akhir sendiri, sehingga kejadian uji tidak pernah masuk ke data nyata.
+
+## 20. Jalur Perluasan Tahap 1–3
+
+| Fitur | Yang perlu ditambahkan |
+|---|---|
+| Portal penyewa | Pakai `tenants.user_id` yang sudah ada; tambahkan jalan masuk untuk penyewa |
+| Meter listrik per kamar | **Penyimpanan berkas** untuk foto meteran; `invoice_items.kind` bertambah `electricity` |
+| Akun penjaga kost | Peran di `property_staff` dan penyesuaian kebijakan Row Level Security |
+| Tiket maintenance | Alur status di `maintenance_tickets` |
+| Laporan laba-rugi per properti | Dihitung dari data yang sudah tersimpan |
+
+Meter listrik adalah satu-satunya yang mengembalikan kebutuhan penyimpanan berkas. Komponennya ditambahkan saat fitur itu dibangun.
+
+## 21. Yang Masih Terbuka
+
+- **Apakah Xendit mengembalikan biaya MDR per transaksi pada model sub-akun.** Kolom `payments.provider_fee` sudah ada; yang belum jelas apakah nilainya tersedia. Dicek saat integrasi pertama.
+- **Kanal peringatan pembangunan kamar** (SRD SUB-16). Rekomendasi: di dalam aplikasi, karena lewat WhatsApp berbiaya Rp356,65 per peringatan sementara pemilik memang sedang membuka Semang saat menandai kamar. Bila diputuskan lewat WhatsApp, ERD butuh satu nilai `messages.kind` lagi.
+- **Bentuk pratinjau harga saat naik paket.** Sudah ditetapkan harus ada (SRD SUB-17); rinciannya menunggu rancangan antarmuka.
+- **Tarif utility Indonesia dan syarat KYC Xendit** dibaca ulang dari sumber resmi sebelum peluncuran berbayar, mengikuti PRD §19.1.
