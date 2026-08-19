@@ -4,7 +4,7 @@
 **Acuan:** Riset pain point pemilik kost Indonesia (Juni 2026); diskusi desain produk Semang; revisi feedback pemilik (Juni 2026)
 **Acuan tarif WABA:** rate card IDR resmi Meta berlaku 1 Juli 2026 — tarif dan tautan sumber di §16
 
-> **Tagline:** Kost-mu ditagih otomatis, uang masuk tercatat sendiri, tanpa kamu menagih siapa-siapa.
+> **Tagline:** Kostmu ditagih otomatis, uang masuk tercatat sendiri, tanpa kamu menagih siapa-siapa.
 > **Fokus:** menghapus beban menagih sepenuhnya · pembayaran online tepercaya · merapikan pencatatan
 
 ## 1. Product Overview
@@ -83,14 +83,14 @@ Satu kost punya nama, jumlah kamar, harga sewa bawaan, dan wilayah — kota atau
 
 **Status kamar** membedakan sebab kamar tidak bisa ditempati, karena akibatnya berbeda:
 
-| Status | Arti |
-|---|---|
-| Kosong | Siap disewakan |
-| Terisi | Ada penyewa yang menempati |
-| Dipesan | Ditahan untuk penyewa yang sedang dipindah sementara |
-| Sedang dibangun | Kamar belum pernah bisa disewakan |
-| Sedang direnovasi | Kamar sudah ada tapi sementara tidak bisa ditempati |
-| Tidak tersedia | Sebab lain, dicatat alasannya |
+| Status            | Arti                                                 |
+|-------------------|------------------------------------------------------|
+| Kosong            | Siap disewakan                                       |
+| Terisi            | Ada penyewa yang menempati                           |
+| Dipesan           | Ditahan untuk penyewa yang sedang dipindah sementara |
+| Sedang dibangun   | Kamar belum pernah bisa disewakan                    |
+| Sedang direnovasi | Kamar sudah ada tapi sementara tidak bisa ditempati  |
+| Tidak tersedia    | Sebab lain, dicatat alasannya                        |
 
 Kamar berstatus sedang dibangun atau direnovasi tidak terhitung sebagai kamar kosong yang menunggu penyewa, sehingga angka okupansi pemilik tidak terlihat buruk hanya karena ada kamar yang belum jadi.
 
@@ -173,38 +173,38 @@ Setiap tagihan selalu bisa berubah status menuju penyelesaian — tidak ada stat
 
 ### 8.2 Status tagihan
 
-| Status | Arti |
-|---|---|
-| draft | Tagihan dibuat oleh sistem (siklus otomatis) atau pemilik (multi-periode/cicilan), belum diproses pengiriman |
-| terkirim | Pesan WhatsApp terkirim ke penyewa — berisi nomor rekening pemilik (sebelum KYC) atau link pembayaran Xendit (setelah KYC); lihat §9.4 |
-| sebagian | Sebagian nominal sudah dibayar (cicilan); sisa masih terbuka |
-| lunas | Lunas penuh — via pembayaran otomatis Xendit atau ditandai manual oleh pemilik (§9.4) — status akhir |
-| telat | Lewat jatuh tempo, belum lunas (dari terkirim atau sebagian) |
-| menunggak | Telat lebih dari 30 hari tanpa pelunasan |
-| dibatalkan | Tagihan (atau sisa tagihan) dibatalkan pemilik — status akhir |
+| Status     | Arti                                                                                                                                   |
+|------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| draft      | Tagihan dibuat oleh sistem (siklus otomatis) atau pemilik (multi-periode/cicilan), belum diproses pengiriman                           |
+| terkirim   | Pesan WhatsApp terkirim ke penyewa — berisi nomor rekening pemilik (sebelum KYC) atau link pembayaran Xendit (setelah KYC); lihat §9.4 |
+| sebagian   | Sebagian nominal sudah dibayar (cicilan); sisa masih terbuka                                                                           |
+| lunas      | Lunas penuh — via pembayaran otomatis Xendit atau ditandai manual oleh pemilik (§9.4) — status akhir                                   |
+| telat      | Lewat jatuh tempo, belum lunas (dari terkirim atau sebagian)                                                                           |
+| menunggak  | Telat lebih dari 30 hari tanpa pelunasan                                                                                               |
+| dibatalkan | Tagihan (atau sisa tagihan) dibatalkan pemilik — status akhir                                                                          |
 
 ### 8.3 Tabel transisi
 
-| Dari | Pemicu | Ke |
-|---|---|---|
-| draft | siklus tiba | terkirim (pesan otomatis, isi menyesuaikan status KYC — §9.4) |
-| terkirim | bayar penuh, otomatis oleh Xendit | lunas |
-| terkirim | ditandai lunas manual oleh pemilik (§9.4) | lunas |
-| terkirim | bayar sebagian (cicilan disetujui pemilik) | sebagian |
-| terkirim | pemilik batalkan | dibatalkan |
-| terkirim | lewat jatuh tempo, belum lunas | telat |
-| sebagian | sisa dilunasi, otomatis oleh Xendit | lunas |
-| sebagian | sisa ditandai lunas manual oleh pemilik | lunas |
-| sebagian | dibayar sebagian lagi, sisa masih ada | sebagian (berulang sampai sisa nol) |
-| sebagian | pemilik hapuskan sisa | dibatalkan* |
-| sebagian | lewat jatuh tempo, sisa belum lunas | telat |
-| telat | dilunasi, otomatis oleh Xendit, kapan saja | lunas |
-| telat | ditandai lunas manual oleh pemilik, kapan saja | lunas |
-| telat | pemilik batalkan | dibatalkan |
-| telat | H+30 tanpa pelunasan | menunggak |
-| menunggak | dilunasi, otomatis oleh Xendit, kapan saja | lunas |
-| menunggak | ditandai lunas manual oleh pemilik, kapan saja | lunas |
-| menunggak | pemilik batalkan | dibatalkan |
+| Dari      | Pemicu                                         | Ke                                                            |
+|-----------|------------------------------------------------|---------------------------------------------------------------|
+| draft     | siklus tiba                                    | terkirim (pesan otomatis, isi menyesuaikan status KYC — §9.4) |
+| terkirim  | bayar penuh, otomatis oleh Xendit              | lunas                                                         |
+| terkirim  | ditandai lunas manual oleh pemilik (§9.4)      | lunas                                                         |
+| terkirim  | bayar sebagian (cicilan disetujui pemilik)     | sebagian                                                      |
+| terkirim  | pemilik batalkan                               | dibatalkan                                                    |
+| terkirim  | lewat jatuh tempo, belum lunas                 | telat                                                         |
+| sebagian  | sisa dilunasi, otomatis oleh Xendit            | lunas                                                         |
+| sebagian  | sisa ditandai lunas manual oleh pemilik        | lunas                                                         |
+| sebagian  | dibayar sebagian lagi, sisa masih ada          | sebagian (berulang sampai sisa nol)                           |
+| sebagian  | pemilik hapuskan sisa                          | dibatalkan*                                                   |
+| sebagian  | lewat jatuh tempo, sisa belum lunas            | telat                                                         |
+| telat     | dilunasi, otomatis oleh Xendit, kapan saja     | lunas                                                         |
+| telat     | ditandai lunas manual oleh pemilik, kapan saja | lunas                                                         |
+| telat     | pemilik batalkan                               | dibatalkan                                                    |
+| telat     | H+30 tanpa pelunasan                           | menunggak                                                     |
+| menunggak | dilunasi, otomatis oleh Xendit, kapan saja     | lunas                                                         |
+| menunggak | ditandai lunas manual oleh pemilik, kapan saja | lunas                                                         |
+| menunggak | pemilik batalkan                               | dibatalkan                                                    |
 
 **Catatan tentang penandaan lunas manual:** ini satu-satunya jalur menuju lunas yang tidak melalui verifikasi otomatis Xendit — jalur utama sebelum KYC selesai, dan jalan darurat setelahnya untuk penyewa yang tetap bayar tunai/transfer. Detail mekanismenya (pilihan metode, peringatan konfirmasi) ada di §9.4.
 
@@ -288,7 +288,7 @@ Langganan pemilik ke Semang dihitung per **kamar terisi**, bukan total kamar —
 
 ### 9.1 Arsitektur: Xendit XenPlatform (sub-akun)
 
-Semang memakai XenPlatform Xendit. Semang adalah platform utama; setiap pemilik kost menjadi sub-akun. Pembayaran penyewa **langsung masuk ke rekening pemilik** melalui sub-akun-nya — Semang tidak pernah menampung dana. Ini menjaga Semang sebagai software murni, bukan penampung uang (bebas lisensi PJP).
+Semang memakai XenPlatform Xendit. Semang adalah platform utama; setiap pemilik kost menjadi sub-akun. Pembayaran penyewa **langsung masuk ke rekening pemilik** melalui sub-akunnya — Semang tidak pernah menampung dana. Ini menjaga Semang sebagai software murni, bukan penampung uang (bebas lisensi PJP).
 
 ### 9.2 KYC & aktivasi pelunasan otomatis
 
@@ -300,13 +300,13 @@ Semang memakai XenPlatform Xendit. Semang adalah platform utama; setiap pemilik 
 
 Prinsip: **penyewa tidak pernah menghitung apa pun.** Setiap link pembayaran datang dengan nominal pasti. Yang berbeda antar-kasus hanya siapa/kapan nominal ditetapkan:
 
-| Kasus                | Nominal ditentukan oleh          | Tampilan bagi penyewa                                   |
-|----------------------|----------------------------------|--------------------------------------------------------|
-| Bulanan normal       | sistem (otomatis)                | 1 link, sewa 1 bulan                                    |
-| Gabung ke depan      | sistem (prorata + bulan berikut) | 1 link, 1 nominal gabungan — tampak seperti biasa      |
-| Multi-periode        | pemilik (diskon manual)          | 1 link, rincian periode + diskon + total               |
-| Cicilan/sebagian     | pemilik (besaran cicilan)        | 1 link per cicilan, nominal terkunci; sisa menyusul    |
-| Harian/mingguan      | sistem (harga turunan/override)  | 1 link sesuai durasi                                    |
+| Kasus            | Nominal ditentukan oleh          | Tampilan bagi penyewa                               |
+|------------------|----------------------------------|-----------------------------------------------------|
+| Bulanan normal   | sistem (otomatis)                | 1 link, sewa 1 bulan                                |
+| Gabung ke depan  | sistem (prorata + bulan berikut) | 1 link, 1 nominal gabungan — tampak seperti biasa   |
+| Multi-periode    | pemilik (diskon manual)          | 1 link, rincian periode + diskon + total            |
+| Cicilan/sebagian | pemilik (besaran cicilan)        | 1 link per cicilan, nominal terkunci; sisa menyusul |
+| Harian/mingguan  | sistem (harga turunan/override)  | 1 link sesuai durasi                                |
 
 Halaman pembayaran selalu menampilkan **nama kost, periode, dan nominal** agar penyewa yakin tagihan sah (pembeda dari penipuan link). Penyewa tidak pernah mengetik nominal.
 
@@ -388,13 +388,13 @@ Ringkasan berkala ke pemilik via WhatsApp (kamar lunas/menunggak, kelak keluhan 
 
 ### 12.1 Struktur paket (harga per kamar terisi)
 
-| | **Gratis** | **Starter** | **Pro** | **Bisnis** |
-|---|---|---|---|---|
-| Target | Belum/berhenti berlangganan | Kost rumahan serius | Kost menengah–eksklusif | Multi-properti/operator |
-| Harga | Rp0 | Rp2.000/kamar terisi/bln | Rp3.500/kamar terisi/bln | Rp5.000/kamar terisi/bln |
-| Minimum | — | Rp20.000/bln | — | Rp250.000/bln |
-| Rentang kamar | — | ≤15 | ≤50 | Tak terbatas |
-| Properti | Tak terbatas | 1 | 3 | Tak terbatas |
+|               | **Gratis**                  | **Starter**              | **Pro**                  | **Bisnis**               |
+|---------------|-----------------------------|--------------------------|--------------------------|--------------------------|
+| Target        | Belum/berhenti berlangganan | Kost rumahan serius      | Kost menengah–eksklusif  | Multi-properti/operator  |
+| Harga         | Rp0                         | Rp2.000/kamar terisi/bln | Rp3.500/kamar terisi/bln | Rp5.000/kamar terisi/bln |
+| Minimum       | —                           | Rp20.000/bln             | —                        | Rp250.000/bln            |
+| Rentang kamar | —                           | ≤15                      | ≤50                      | Tak terbatas             |
+| Properti      | Tak terbatas                | 1                        | 3                        | Tak terbatas             |
 
 **Paket mengikuti ukuran kost, bukan dipilih sendiri.** Rentang kamar di atas bukan batas yang bisa ditukar dengan harga lebih murah: kost 30 kamar masuk Pro, dan Starter bukan versi murahnya — Starter memang bukan untuk kost sebesar itu. Karena itu tidak ada pindah paket ke samping atau ke bawah; pemilik cuma berlangganan atau tidak (§12.4). Satu-satunya cara melewati rentang adalah menambah kamar, dan Semang menanggapinya dengan menawarkan paket di atasnya lengkap dengan pratinjau harga. 
 
@@ -461,15 +461,15 @@ Rentang kamar di §12.1 dipakai untuk mencocokkan paket dengan ukuran kost, buka
 
 Berhenti berlangganan tidak mengubah apa pun di kost. Semua kamar, penyewa, tagihan, dan riwayat tetap ada dan tetap bisa diubah. Yang berhenti cuma satu: Semang tidak lagi mengirim pesan untuk pemilik.
 
-| Hal | Berlangganan | Tidak berlangganan |
-|---|---|---|
-| Jumlah kamar & properti | Sesuai paket (§12.1) | Tak terbatas — tidak ada yang dimatikan |
-| Tagihan otomatis dibuat tiap siklus | Ya | Ya |
-| Seluruh logika penagihan (§8) | Ya | Ya |
-| Pengiriman ke penyewa | Oleh Semang, otomatis | Oleh pemilik, manual |
-| Link pembayaran Xendit & kuitansi | Ya | Ya |
-| Laporan & ekspor | Ya | Ya |
-| Update berkala ke pemilik | Ya | Tidak |
+| Hal                                 | Berlangganan          | Tidak berlangganan                      |
+|-------------------------------------|-----------------------|-----------------------------------------|
+| Jumlah kamar & properti             | Sesuai paket (§12.1)  | Tak terbatas — tidak ada yang dimatikan |
+| Tagihan otomatis dibuat tiap siklus | Ya                    | Ya                                      |
+| Seluruh logika penagihan (§8)       | Ya                    | Ya                                      |
+| Pengiriman ke penyewa               | Oleh Semang, otomatis | Oleh pemilik, manual                    |
+| Link pembayaran Xendit & kuitansi   | Ya                    | Ya                                      |
+| Laporan & ekspor                    | Ya                    | Ya                                      |
+| Update berkala ke pemilik           | Ya                    | Tidak                                   |
 
 **Kenapa cara ini menagih sendiri:** makin besar kostnya, makin terasa capeknya — tanpa perlu satu pun batas buatan. Pemilik 4 kamar cukup menyalin dan mengirim 4 pesan sebulan, dan itu ringan — kost sekecil itu memang bukan sumber pendapatan yang perlu dikejar. Pemilik 30 kamar harus melakukannya 30 kali, dan biasanya sudah berlangganan setelah satu siklus. Alasan naik paket jadi persis kalimat inti produknya: bayar supaya tidak perlu kirim sendiri.
 
@@ -499,44 +499,44 @@ Keputusan arsitektur yang penting:
 
 ## 14. KPIs
 
-| Metrik | Target | Mengukur |
-|---|---|---|
-| Aktivasi wizard sampai contoh tagihan terkirim | ≥70% pendaftar | Beratnya onboarding |
-| Penyewa isi-mandiri per kost awal | ≥60% kamar tanpa input pemilik | Efektivitas link isi mandiri |
-| Pembayaran online tercatat otomatis | ≥1/kost/bulan, naik tiap siklus | Nilai inti terasa |
-| Proporsi lunas via Xendit otomatis vs tandai manual (setelah KYC selesai) | Otomatis mendominasi dan meningkat tiap siklus | Seberapa besar ketergantungan pada jalan darurat manual (§9.4) |
-| Aktivasi pembayaran Xendit | Mayoritas kost awal menyelesaikan KYC dalam 2 siklus pertama | Apakah penandaan manual hanya jembatan sementara atau jadi permanen |
-| Biaya pesan per kamar terisi | ≤1,2 pesan/bulan rata-rata (§16) | Apakah asumsi biaya yang menopang harga paket benar |
-| Retensi kost awal | 2–3 kost bertahan ≥2 siklus | Kelayakan lanjut fase |
-| Sinyal bayar dari wawancara | ≥3 dari 10–15 minat konkret | Kelayakan monetisasi |
+| Metrik                                                                    | Target                                                       | Mengukur                                                            |
+|---------------------------------------------------------------------------|--------------------------------------------------------------|---------------------------------------------------------------------|
+| Aktivasi wizard sampai contoh tagihan terkirim                            | ≥70% pendaftar                                               | Beratnya onboarding                                                 |
+| Penyewa isi-mandiri per kost awal                                         | ≥60% kamar tanpa input pemilik                               | Efektivitas link isi mandiri                                        |
+| Pembayaran online tercatat otomatis                                       | ≥1/kost/bulan, naik tiap siklus                              | Nilai inti terasa                                                   |
+| Proporsi lunas via Xendit otomatis vs tandai manual (setelah KYC selesai) | Otomatis mendominasi dan meningkat tiap siklus               | Seberapa besar ketergantungan pada jalan darurat manual (§9.4)      |
+| Aktivasi pembayaran Xendit                                                | Mayoritas kost awal menyelesaikan KYC dalam 2 siklus pertama | Apakah penandaan manual hanya jembatan sementara atau jadi permanen |
+| Biaya pesan per kamar terisi                                              | ≤1,2 pesan/bulan rata-rata (§16)                             | Apakah asumsi biaya yang menopang harga paket benar                 |
+| Retensi kost awal                                                         | 2–3 kost bertahan ≥2 siklus                                  | Kelayakan lanjut fase                                               |
+| Sinyal bayar dari wawancara                                               | ≥3 dari 10–15 minat konkret                                  | Kelayakan monetisasi                                                |
 
 ## 15. Risks
 
 ### 15.1 Risiko operasional
 
-| Risiko | Dampak | Mitigasi |
-|---|---|---|
-| **Kirim manual ternyata sudah cukup bagi pemilik** | Pemilik kost kecil rela menyalin dan mengirim sendiri 4–8 pesan sebulan, lalu tidak pernah berlangganan; Semang jadi gratis selamanya untuk sebagian besar target pasarnya | Makin besar kost makin berat kirim manual, jadi risiko ini paling besar justru di kost kecil yang memang bukan sumber pendapatan utama; pantau berapa banyak akun tidak berlangganan yang tetap aktif menagih manual — kalau banyak di kost menengah, batas keadaan Gratis perlu ditinjau |
-| Margin Starter tipis karena tarif WABA | Pada Rp2.000/kamar terisi, biaya pesan memakan 22–24% pendapatan dalam keadaan normal, dan 49–56% kalau seluruh penyewa menunggak sampai H+7 | Batas 3 pesan per tagihan (§8.7) menahan keadaan terburuk jauh di bawah titik impas 5,6 pesan; ukur dulu rata-rata sebenarnya dari data pengiriman (§16) sebelum harga diubah |
-| Biaya WhatsApp Cloud API memakan margin | Rugi di tiap pelanggan kalau tidak dijaga | Reminder hanya untuk yang belum bayar; sisa reminder otomatis batal begitu lunas (§8.4); pantau biaya sebenarnya per kost dari data pengiriman, bukan dari asumsi (§16) |
-| Template salah masuk kategori marketing | Tarif naik dari Rp356,65 ke Rp586,33 per pesan (+64%), dan margin Starter langsung tergerus | Jangan ada unsur promosi di pesan tagihan; uji kategorinya sebelum peluncuran |
-| Endpoint pengirim kode disalahgunakan | Sekali klik menghabiskan Rp356,65 dari saldo WABA Semang, dan orang lain menerima kode yang tidak pernah dimintanya | Batasi jumlah permintaan per nomor, per akun, dan per alamat IP; jedanya makin panjang setiap kali gagal; kode cepat kedaluwarsa dan hanya bisa dipakai sekali |
-| Nomor WhatsApp pemilik salah ketik saat daftar lewat Google | Contoh tagihan dan update berkala nyasar ke orang lain — dan karena nomor itu juga dipakai untuk masuk, pemegangnya bisa ikut membuka akun pemilik | Contoh tagihan terkirim beberapa detik setelah nomor diisi, jadi salah nomor langsung ketahuan di layar itu juga, sebelum terpakai untuk apa pun; nomor bisa diperbaiki dari Pengaturan dengan kode ke nomor baru; batasi jumlah pengiriman contoh per akun |
-| Tarif Meta berubah | Margin per kamar bergeser tanpa banyak peringatan | Meta hanya mengubah tarif tiap 1 Januari, 1 April, 1 Juli, atau 1 Oktober, dan mengabari paling lambat sebulan sebelumnya; baca ulang rate card tiap kuartal (§16), tinjau harga kalau tarifnya naik |
-| Waktu sampai peluncuran panjang (verifikasi Meta, NIB, KYC Xendit) | Peluncuran tertunda berminggu-minggu | Mulai proses verifikasi lebih awal, paralel dengan pengembangan |
-| Pemilik terus memakai penandaan lunas manual meski Xendit sudah aktif, mengurangi otomasi yang jadi nilai jual utama | Pembayaran tidak tercatat otomatis, sungkan menagih kembali muncul di balik layar | Sebut tegas sebagai jalan darurat setelah KYC; pisahkan labelnya di laporan (otomatis vs manual); pantau proporsinya sebagai bagian dari peninjauan Tahap 1 |
-| Belum ada validasi pengguna nyata | Membangun yang tidak dibutuhkan | Wawancara 10–15 pemilik Denpasar; uji coba di kost nyata |
-| Data pribadi penyewa bocor | Hukum & kepercayaan | RLS ketat, token tak tertebak, EXIF dihapus |
+| Risiko                                                                                                               | Dampak                                                                                                                                                                     | Mitigasi                                                                                                                                                                                                                                                                                  |
+|----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Kirim manual ternyata sudah cukup bagi pemilik**                                                                   | Pemilik kost kecil rela menyalin dan mengirim sendiri 4–8 pesan sebulan, lalu tidak pernah berlangganan; Semang jadi gratis selamanya untuk sebagian besar target pasarnya | Makin besar kost makin berat kirim manual, jadi risiko ini paling besar justru di kost kecil yang memang bukan sumber pendapatan utama; pantau berapa banyak akun tidak berlangganan yang tetap aktif menagih manual — kalau banyak di kost menengah, batas keadaan Gratis perlu ditinjau |
+| Margin Starter tipis karena tarif WABA                                                                               | Pada Rp2.000/kamar terisi, biaya pesan memakan 22–24% pendapatan dalam keadaan normal, dan 49–56% kalau seluruh penyewa menunggak sampai H+7                               | Batas 3 pesan per tagihan (§8.7) menahan keadaan terburuk jauh di bawah titik impas 5,6 pesan; ukur dulu rata-rata sebenarnya dari data pengiriman (§16) sebelum harga diubah                                                                                                             |
+| Biaya WhatsApp Cloud API memakan margin                                                                              | Rugi di tiap pelanggan kalau tidak dijaga                                                                                                                                  | Reminder hanya untuk yang belum bayar; sisa reminder otomatis batal begitu lunas (§8.4); pantau biaya sebenarnya per kost dari data pengiriman, bukan dari asumsi (§16)                                                                                                                   |
+| Template salah masuk kategori marketing                                                                              | Tarif naik dari Rp356,65 ke Rp586,33 per pesan (+64%), dan margin Starter langsung tergerus                                                                                | Jangan ada unsur promosi di pesan tagihan; uji kategorinya sebelum peluncuran                                                                                                                                                                                                             |
+| Endpoint pengirim kode disalahgunakan                                                                                | Sekali klik menghabiskan Rp356,65 dari saldo WABA Semang, dan orang lain menerima kode yang tidak pernah dimintanya                                                        | Batasi jumlah permintaan per nomor, per akun, dan per alamat IP; jedanya makin panjang setiap kali gagal; kode cepat kedaluwarsa dan hanya bisa dipakai sekali                                                                                                                            |
+| Nomor WhatsApp pemilik salah ketik saat daftar lewat Google                                                          | Contoh tagihan dan update berkala nyasar ke orang lain — dan karena nomor itu juga dipakai untuk masuk, pemegangnya bisa ikut membuka akun pemilik                         | Contoh tagihan terkirim beberapa detik setelah nomor diisi, jadi salah nomor langsung ketahuan di layar itu juga, sebelum terpakai untuk apa pun; nomor bisa diperbaiki dari Pengaturan dengan kode ke nomor baru; batasi jumlah pengiriman contoh per akun                               |
+| Tarif Meta berubah                                                                                                   | Margin per kamar bergeser tanpa banyak peringatan                                                                                                                          | Meta hanya mengubah tarif tiap 1 Januari, 1 April, 1 Juli, atau 1 Oktober, dan mengabari paling lambat sebulan sebelumnya; baca ulang rate card tiap kuartal (§16), tinjau harga kalau tarifnya naik                                                                                      |
+| Waktu sampai peluncuran panjang (verifikasi Meta, NIB, KYC Xendit)                                                   | Peluncuran tertunda berminggu-minggu                                                                                                                                       | Mulai proses verifikasi lebih awal, paralel dengan pengembangan                                                                                                                                                                                                                           |
+| Pemilik terus memakai penandaan lunas manual meski Xendit sudah aktif, mengurangi otomasi yang jadi nilai jual utama | Pembayaran tidak tercatat otomatis, sungkan menagih kembali muncul di balik layar                                                                                          | Sebut tegas sebagai jalan darurat setelah KYC; pisahkan labelnya di laporan (otomatis vs manual); pantau proporsinya sebagai bagian dari peninjauan Tahap 1                                                                                                                               |
+| Belum ada validasi pengguna nyata                                                                                    | Membangun yang tidak dibutuhkan                                                                                                                                            | Wawancara 10–15 pemilik Denpasar; uji coba di kost nyata                                                                                                                                                                                                                                  |
+| Data pribadi penyewa bocor                                                                                           | Hukum & kepercayaan                                                                                                                                                        | RLS ketat, token tak tertebak, EXIF dihapus                                                                                                                                                                                                                                               |
 
 ### 15.2 Risiko bisnis
 
-| Risiko | Dampak | Mitigasi |
-|---|---|---|
-| MVP membengkak (Cloud API + Xendit sejak awal) | Peluncuran lambat, fokus pecah | Lingkup dijaga ketat; fitur baru hanya lewat revisi dokumen |
-| Tanggung jawab kepatuhan proses verifikasi (KYC) di pihak platform | Beban hukum & operasional | Pakai opsi "Xendit fully KYC"; perjanjian dengan tiap pemilik selaras T&C Xendit |
-| Fitur mudah ditiru pesaing | Kalah bersaing setelah mulai punya traksi | Menang di distribusi (komunitas, konten, referral) & kecepatan iterasi |
-| Waktu solo developer (kuliah + kerja) | Proyek mangkrak | Blok waktu tetap; lingkup MVP ketat |
-| Biaya tetap sebelum ada pendapatan | Modal pribadi tergerus | Luncur dengan harga sejak awal; kendalikan volume pesan |
+| Risiko                                                             | Dampak                                    | Mitigasi                                                                         |
+|--------------------------------------------------------------------|-------------------------------------------|----------------------------------------------------------------------------------|
+| MVP membengkak (Cloud API + Xendit sejak awal)                     | Peluncuran lambat, fokus pecah            | Lingkup dijaga ketat; fitur baru hanya lewat revisi dokumen                      |
+| Tanggung jawab kepatuhan proses verifikasi (KYC) di pihak platform | Beban hukum & operasional                 | Pakai opsi "Xendit fully KYC"; perjanjian dengan tiap pemilik selaras T&C Xendit |
+| Fitur mudah ditiru pesaing                                         | Kalah bersaing setelah mulai punya traksi | Menang di distribusi (komunitas, konten, referral) & kecepatan iterasi           |
+| Waktu solo developer (kuliah + kerja)                              | Proyek mangkrak                           | Blok waktu tetap; lingkup MVP ketat                                              |
+| Biaya tetap sebelum ada pendapatan                                 | Modal pribadi tergerus                    | Luncur dengan harga sejak awal; kendalikan volume pesan                          |
 
 ## 16. Revenue Model
 
@@ -555,39 +555,39 @@ Angka di bawah ini diambil dari rate card IDR resmi Meta yang **berlaku 1 Juli 2
 
 **Tarif Indonesia per pesan (rate card IDR, berlaku 1 Juli 2026):**
 
-| Kategori | Tarif per pesan | Dipakai Semang |
-|---|---|---|
-| Utility | Rp356,65 | Ya — seluruh tagihan, reminder, dan update berkala |
-| Marketing | Rp586,33 | Tidak |
-| Authentication | Rp356,65 | Ya — kode verifikasi masuk (§10.2) |
-| Authentication-International | Rp1.940,13 | Tidak — hanya berlaku bila WABA pengirim berada di luar Indonesia |
+| Kategori                     | Tarif per pesan | Dipakai Semang                                                    |
+|------------------------------|-----------------|-------------------------------------------------------------------|
+| Utility                      | Rp356,65        | Ya — seluruh tagihan, reminder, dan update berkala                |
+| Marketing                    | Rp586,33        | Tidak                                                             |
+| Authentication               | Rp356,65        | Ya — kode verifikasi masuk (§10.2)                                |
+| Authentication-International | Rp1.940,13      | Tidak — hanya berlaku bila WABA pengirim berada di luar Indonesia |
 
 **Dasar penagihan yang berlaku:**
 
-| Hal | Ketentuan |
-|---|---|
-| Yang dihitung | Tiap pesan, bukan tiap percakapan 24 jam — berlaku sejak 1 Juli 2025 |
-| Kapan ditagih | Saat pesan sampai ke penerima, bukan saat dikirim |
-| Penentu tarif | Kombinasi pasar dan kategori pesan; pasarnya ikut kode negara penerima. Nomor +62 memakai rate card Indonesia sendiri, bukan tarif regional "Rest of Asia Pacific" (Rp161,27) |
-| Pesan gratis | **Tidak ada.** Semua hitungan di bawah menganggap tiap pesan kena tarif penuh |
-| Diskon volume | Tarif utility Indonesia baru turun ke Rp338,82 (−5%) setelah lewat 750.000 pesan sebulan, dan seterusnya sampai Rp267,49 (−25%) di atas 150 juta pesan. Ambang pertamanya saja setara ±300.000 kamar terisi — **jauh di luar jangkauan Semang, jadi tarifnya selalu Rp356,65** |
-| Kapan tarif bisa berubah | Cuma tiap 1 Januari, 1 April, 1 Juli, atau 1 Oktober, dan Meta mengabari paling lambat sebulan sebelumnya |
+| Hal                      | Ketentuan                                                                                                                                                                                                                                                                      |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Yang dihitung            | Tiap pesan, bukan tiap percakapan 24 jam — berlaku sejak 1 Juli 2025                                                                                                                                                                                                           |
+| Kapan ditagih            | Saat pesan sampai ke penerima, bukan saat dikirim                                                                                                                                                                                                                              |
+| Penentu tarif            | Kombinasi pasar dan kategori pesan; pasarnya ikut kode negara penerima. Nomor +62 memakai rate card Indonesia sendiri, bukan tarif regional "Rest of Asia Pacific" (Rp161,27)                                                                                                  |
+| Pesan gratis             | **Tidak ada.** Semua hitungan di bawah menganggap tiap pesan kena tarif penuh                                                                                                                                                                                                  |
+| Diskon volume            | Tarif utility Indonesia baru turun ke Rp338,82 (−5%) setelah lewat 750.000 pesan sebulan, dan seterusnya sampai Rp267,49 (−25%) di atas 150 juta pesan. Ambang pertamanya saja setara ±300.000 kamar terisi — **jauh di luar jangkauan Semang, jadi tarifnya selalu Rp356,65** |
+| Kapan tarif bisa berubah | Cuma tiap 1 Januari, 1 April, 1 Juli, atau 1 Oktober, dan Meta mengabari paling lambat sebulan sebelumnya                                                                                                                                                                      |
 
 **Jumlah pesan utility yang ditagih** (dari jadwal reminder §8.7 dan alokasi paket §12.2):
 
-| Sumber pesan | Satuan | Jumlah | Biaya |
-|---|---|---|---|
-| Tagihan siklus (dikirim H-3, sekaligus pemberitahuan pertama) | per kamar terisi/bulan | 1 | Rp356,65 |
-| Reminder H+3 dan H+7, asumsi perencanaan | per kamar terisi/bulan | 0,2 | Rp71,33 |
-| Reminder, kamar menunggak sampai H+7 | per kamar terisi/bulan | 2 (paling banyak) | Rp713,30 |
-| Update berkala (bulanan + saat ada kejadian) | per kost/bulan | ±2 | Rp713,30 |
-| Update berkala per properti (Bisnis) | per properti/bulan | ±2 | Rp713,30 |
-| Akun tidak berlangganan | per kamar/bulan | 0 | Rp0 |
-| Contoh tagihan saat onboarding | sekali per pendaftar | 1 | Rp356,65 |
-| Kode verifikasi, jalur daftar WhatsApp | sekali per pendaftar | 1 | Rp356,65 |
-| Kode verifikasi, jalur daftar Google | sekali per pendaftar | 0 | Rp0 |
-| Kode verifikasi, masuk ulang saat sesi habis | per pemilik/tahun | ±1–2 | ±Rp357–713 |
-| Kode verifikasi, ganti nomor dari Pengaturan | jarang | 1 per penggantian | Rp356,65 |
+| Sumber pesan                                                  | Satuan                 | Jumlah            | Biaya      |
+|---------------------------------------------------------------|------------------------|-------------------|------------|
+| Tagihan siklus (dikirim H-3, sekaligus pemberitahuan pertama) | per kamar terisi/bulan | 1                 | Rp356,65   |
+| Reminder H+3 dan H+7, asumsi perencanaan                      | per kamar terisi/bulan | 0,2               | Rp71,33    |
+| Reminder, kamar menunggak sampai H+7                          | per kamar terisi/bulan | 2 (paling banyak) | Rp713,30   |
+| Update berkala (bulanan + saat ada kejadian)                  | per kost/bulan         | ±2                | Rp713,30   |
+| Update berkala per properti (Bisnis)                          | per properti/bulan     | ±2                | Rp713,30   |
+| Akun tidak berlangganan                                       | per kamar/bulan        | 0                 | Rp0        |
+| Contoh tagihan saat onboarding                                | sekali per pendaftar   | 1                 | Rp356,65   |
+| Kode verifikasi, jalur daftar WhatsApp                        | sekali per pendaftar   | 1                 | Rp356,65   |
+| Kode verifikasi, jalur daftar Google                          | sekali per pendaftar   | 0                 | Rp0        |
+| Kode verifikasi, masuk ulang saat sesi habis                  | per pemilik/tahun      | ±1–2              | ±Rp357–713 |
+| Kode verifikasi, ganti nomor dari Pengaturan                  | jarang                 | 1 per penggantian | Rp356,65   |
 
 **Paling banyak 3 pesan per tagihan.** Jadwal bulanan §8.7 tidak bisa mengirim lebih dari tagihan + H+3 + H+7 untuk satu tagihan, di paket mana pun. Jadi biaya terburuknya sudah pasti dan ada batasnya, bukan perkiraan yang bisa membengkak tanpa henti. Angka 0,2 reminder itu berasal dari perkiraan berapa tagihan yang masih belum lunas di H+3 (±15%) dan H+7 (±5%) — harus diganti hasil ukuran sebenarnya setelah dua siklus di kost awal (NTF-11).
 
@@ -595,12 +595,12 @@ Catatan: update berkala ke pemilik dihitung **per kost**, bukan per kamar — ja
 
 **Biaya per kamar terisi per bulan terhadap harga paket:**
 
-| Paket | Harga/kamar terisi | Biaya @1,2 pesan | Porsi biaya | Biaya @3 pesan (maksimum) | Porsi biaya |
-|---|---|---|---|---|---|
-| Gratis | Rp0 | Rp0 | — | Rp0 | — |
-| Starter | Rp2.000 | Rp427,98 | 21% | Rp1.069,95 | 53% |
-| Pro | Rp3.500 | Rp427,98 | 12% | Rp1.069,95 | 31% |
-| Bisnis | Rp5.000 | Rp427,98 | 9% | Rp1.069,95 | 21% |
+| Paket   | Harga/kamar terisi | Biaya @1,2 pesan | Porsi biaya | Biaya @3 pesan (maksimum) | Porsi biaya |
+|---------|--------------------|------------------|-------------|---------------------------|-------------|
+| Gratis  | Rp0                | Rp0              | —           | Rp0                       | —           |
+| Starter | Rp2.000            | Rp427,98         | 21%         | Rp1.069,95                | 53%         |
+| Pro     | Rp3.500            | Rp427,98         | 12%         | Rp1.069,95                | 31%         |
+| Bisnis  | Rp5.000            | Rp427,98         | 9%          | Rp1.069,95                | 21%         |
 
 **Titik impas** — berapa pesan per kamar terisi yang membuat biaya WA menghabiskan seluruh pendapatan langganan: Starter **5,6 pesan**, Pro **9,8 pesan**, Bisnis **14,0 pesan**. Karena jadwal bulanan paling banyak 3 pesan (§8.7), kost yang seluruh penyewanya menunggak sampai H+7 pun masih berjarak 2,6 pesan dari titik impas Starter.
 
@@ -608,14 +608,14 @@ Catatan: update berkala ke pemilik dihitung **per kost**, bukan per kamar — ja
 
 Hitungan di bawah memakai okupansi 85% sebagai keadaan normal. Hunian di bawah 70% biasanya tanda ada masalah lokasi atau harga, bukan kondisi sehari-hari.
 
-| Skenario | Pendapatan/bulan | Biaya WA/bulan | Porsi biaya |
-|---|---|---|---|
-| Tidak berlangganan, kamar berapa pun | Rp0 | Rp0 | — |
-| Starter, kost 10 kamar (8,5 terisi), normal | Rp20.000 (kena minimum) | Rp4.351 | 22% |
-| Starter, kost 15 kamar (12,75 terisi), normal | Rp25.500 | Rp6.170 | 24% |
-| Starter, kost 15 kamar, semua menunggak sampai H+7 | Rp25.500 | Rp14.355 | 56% |
-| Pro, kost 30 kamar (25,5 terisi), normal | Rp89.250 | Rp11.627 | 13% |
-| Bisnis, 70 kamar / 3 properti (59,5 terisi), normal | Rp297.500 | Rp27.605 | 9% |
+| Skenario                                            | Pendapatan/bulan        | Biaya WA/bulan | Porsi biaya |
+|-----------------------------------------------------|-------------------------|----------------|-------------|
+| Tidak berlangganan, kamar berapa pun                | Rp0                     | Rp0            | —           |
+| Starter, kost 10 kamar (8,5 terisi), normal         | Rp20.000 (kena minimum) | Rp4.351        | 22%         |
+| Starter, kost 15 kamar (12,75 terisi), normal       | Rp25.500                | Rp6.170        | 24%         |
+| Starter, kost 15 kamar, semua menunggak sampai H+7  | Rp25.500                | Rp14.355       | 56%         |
+| Pro, kost 30 kamar (25,5 terisi), normal            | Rp89.250                | Rp11.627       | 13%         |
+| Bisnis, 70 kamar / 3 properti (59,5 terisi), normal | Rp297.500               | Rp27.605       | 9%          |
 
 **Soal harga:** harga di §12.1 masih aman dengan tarif ini — tidak ada satu pun baris di tabel atas yang merugi, dan yang terburuk (56%) masih menyisakan margin kotor 44%.
 

@@ -34,19 +34,19 @@ Semang adalah platform manajemen kost berbasis web. Dokumen ini menjelaskan data
 
 ## 3. Untuk Apa Data Digunakan
 
-| Data | Tujuan |
-|---|---|
-| Akun Google atau nomor WA pemilik | Mengenali akun mana yang sedang dibuka saat pemilik masuk |
-| Nama dan email pemilik | Menyapa pemilik dan menghubunginya soal akunnya |
-| Kode sekali pakai ke nomor WA pemilik | Memastikan yang masuk ke akun benar pemegang nomor itu |
-| Rekening bank pemilik | Dicantumkan pada pesan tagihan agar penghuni dapat transfer langsung |
-| Data verifikasi identitas pemilik | Diteruskan ke Xendit untuk membuka pembayaran online ke rekening pemilik |
-| Nama & nomor WA penghuni | Menyusun dan mengirim pesan tagihan, pengingat, dan kuitansi kepada penghuni |
-| Catatan tagihan & pembayaran | Menyusun laporan kas pemilik dan riwayat setiap kamar |
-| Catatan pengiriman pesan | Memastikan tagihan terkirim, menelusuri pesan yang gagal, dan menghitung biaya layanan |
-| Alamat IP saat meminta kode masuk | Membatasi jumlah permintaan kode agar halaman masuk tidak disalahgunakan |
-| Riwayat kamar yang ditempati | Menjelaskan tagihan lama menunjuk kamar yang mana, termasuk saat penghuni berpindah kamar |
-| Jejak aksi di akun | Menelusuri kembali riwayat tagihan dan pembayaran bila ada yang dipertanyakan |
+| Data                                  | Tujuan                                                                                    |
+|---------------------------------------|-------------------------------------------------------------------------------------------|
+| Akun Google atau nomor WA pemilik     | Mengenali akun mana yang sedang dibuka saat pemilik masuk                                 |
+| Nama dan email pemilik                | Menyapa pemilik dan menghubunginya soal akunnya                                           |
+| Kode sekali pakai ke nomor WA pemilik | Memastikan yang masuk ke akun benar pemegang nomor itu                                    |
+| Rekening bank pemilik                 | Dicantumkan pada pesan tagihan agar penghuni dapat transfer langsung                      |
+| Data verifikasi identitas pemilik     | Diteruskan ke Xendit untuk membuka pembayaran online ke rekening pemilik                  |
+| Nama & nomor WA penghuni              | Menyusun dan mengirim pesan tagihan, pengingat, dan kuitansi kepada penghuni              |
+| Catatan tagihan & pembayaran          | Menyusun laporan kas pemilik dan riwayat setiap kamar                                     |
+| Catatan pengiriman pesan              | Memastikan tagihan terkirim, menelusuri pesan yang gagal, dan menghitung biaya layanan    |
+| Alamat IP saat meminta kode masuk     | Membatasi jumlah permintaan kode agar halaman masuk tidak disalahgunakan                  |
+| Riwayat kamar yang ditempati          | Menjelaskan tagihan lama menunjuk kamar yang mana, termasuk saat penghuni berpindah kamar |
+| Jejak aksi di akun                    | Menelusuri kembali riwayat tagihan dan pembayaran bila ada yang dipertanyakan             |
 
 Data hanya dipakai untuk hal-hal di atas. Kami tidak memakai data Anda untuk iklan, tidak menjualnya, dan tidak membaginya ke pihak lain untuk kepentingan komersial mereka.
 
@@ -61,12 +61,12 @@ Data hanya dipakai untuk hal-hal di atas. Kami tidak memakai data Anda untuk ikl
 
 Semang tidak dapat bekerja tanpa meneruskan sebagian data ke pihak-pihak berikut. Masing-masing hanya menerima data yang diperlukan untuk perannya, dan hanya boleh memakainya untuk memberikan layanan kepada kami.
 
-| Pihak | Data yang diterima | Untuk apa |
-|---|---|---|
-| Meta Platforms (WhatsApp Cloud API) | Nomor WhatsApp penghuni dan pemilik, beserta isi pesan tagihan dan pengingat untuk penghuni, serta contoh tagihan saat pendaftaran, ringkasan berkala, dan kode masuk untuk pemilik | Mengirimkan pesan; tanpa ini tagihan tidak dapat sampai ke penghuni |
-| Xendit | Data verifikasi identitas dan rekening pemilik; nominal serta rincian tagihan pada halaman pembayaran | Membuka dan menjalankan pembayaran online yang langsung masuk ke rekening pemilik |
-| Google | Data akun Google pemilik yang memilih masuk lewat Google | Memastikan yang masuk benar pemilik akun tersebut |
-| Supabase dan Vercel | Seluruh data yang tersimpan dan lalu lintas aplikasi | Menyimpan data dan menjalankan aplikasi |
+| Pihak                               | Data yang diterima                                                                                                                                                                  | Untuk apa                                                                         |
+|-------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| Meta Platforms (WhatsApp Cloud API) | Nomor WhatsApp penghuni dan pemilik, beserta isi pesan tagihan dan pengingat untuk penghuni, serta contoh tagihan saat pendaftaran, ringkasan berkala, dan kode masuk untuk pemilik | Mengirimkan pesan; tanpa ini tagihan tidak dapat sampai ke penghuni               |
+| Xendit                              | Data verifikasi identitas dan rekening pemilik; nominal serta rincian tagihan pada halaman pembayaran                                                                               | Membuka dan menjalankan pembayaran online yang langsung masuk ke rekening pemilik |
+| Google                              | Data akun Google pemilik yang memilih masuk lewat Google                                                                                                                            | Memastikan yang masuk benar pemilik akun tersebut                                 |
+| Supabase dan Vercel                 | Seluruh data yang tersimpan dan lalu lintas aplikasi                                                                                                                                | Menyimpan data dan menjalankan aplikasi                                           |
 
 Selain itu, kami hanya membuka data bila diwajibkan oleh hukum yang berlaku.
 
