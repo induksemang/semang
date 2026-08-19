@@ -55,7 +55,8 @@ refactor(ui): extract button component from dashboard
 
 - **Konfirmasi Sebelum Commit:** Setelah implementasi selesai dan tervalidasi, **SELALU** tanyakan konfirmasi ke user sebelum melakukan `git add` dan `git commit`. Jangan pernah commit tanpa persetujuan eksplisit dari user. Siapkan commit message yang sesuai Conventional Commits untuk ditinjau user sebelum dieksekusi.
 - **Jangan tambahkan Co-Authored-By:** Tidak perlu menambahkan footer `Co-Authored-By: Claude Sonnet ...` pada pesan commit.
-- Tidak perlu menambahkan _body/description_ pada commit message jika pesan utamanya (subject) sudah cukup jelas dan mewakili seluruh perubahan.
+- **Selalu berbahasa Inggris:** Pesan commit ditulis dalam bahasa Inggris, meskipun percakapan berlangsung dalam bahasa Indonesia.
+- **Tanpa body/description:** Cukup tulis baris subject saja. Buat subject yang jelas dan mewakili seluruh perubahan, sehingga _body_ tidak diperlukan. Tambahkan _body_ hanya jika user memintanya secara eksplisit.
 - Gunakan huruf kecil untuk type dan description
 - Description singkat, imperatif, tanpa titik di akhir
 - Scope opsional, gunakan nama modul/area kode (misal: `auth`, `dashboard`, `ui`)
