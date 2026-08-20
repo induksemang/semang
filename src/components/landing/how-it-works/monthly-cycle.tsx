@@ -1,82 +1,94 @@
 import { cn } from "@/lib/utils";
-import { SectionHeading } from "../shared/section-heading";
+import { LedgerSection } from "../shared/ledger";
 
 const stages = [
 	{
-		num: "1",
-		body: "Tagihan dibuat otomatis pada tanggal siklus.",
-		className: "border-border bg-card"
+		when: "H-3 · 2 JUNI",
+		title: "Tagihan dibuat & dikirim",
+		body: "Sistem menyusun tagihan periode berikutnya, lalu mengirimnya ke WhatsApp penyewa. Pesan ini sekaligus peringatan pertama."
 	},
 	{
-		num: "2",
-		body: "Terkirim otomatis via WhatsApp ke penyewa.",
-		className: "border-teal-100 bg-teal-50"
+		when: "H · 5 JUNI",
+		title: "Jatuh tempo",
+		body: "Yang sudah bayar berhenti di sini — tidak ada pesan lanjutan untuk mereka."
 	},
 	{
-		num: "3",
-		body: "Penyewa bayar via link — dana langsung ke rekeningmu.",
-		className: "border-teal-200/60 bg-teal-100/60"
+		when: "H+3 · 8 JUNI",
+		title: "Pengingat pertama",
+		body: "Hanya ke penyewa yang belum lunas. Statusnya menjadi telat."
 	},
 	{
-		num: "4",
-		body: "Terkonfirmasi otomatis, kuitansi terkirim, laporan ter-update.",
-		className: "border-teal-200 bg-teal-100"
+		when: "H+7 · 12 JUNI",
+		title: "Pengingat terakhir",
+		body: "Pesan ketiga, dan yang paling akhir untuk tagihan ini. Setelah itu Semang diam."
 	},
 	{
-		num: "✓",
-		body: "Reminder untuk yang belum lunas; batal otomatis begitu lunas.",
-		className: "bg-primary border-teal-600",
-		dark: true
+		when: "KAPAN PUN",
+		title: "Pembayaran masuk",
+		body: "Tagihan lunas, kuitansi terbit, dan pengingat yang belum jalan dibatalkan seketika.",
+		settled: true
 	}
 ];
 
 export function MonthlyCycle() {
 	return (
-		<section className="container space-y-8 py-10 md:space-y-10 md:py-14 lg:space-y-11 lg:py-18">
-			<SectionHeading
-				align="left"
-				eyebrow="Siklus bulanan"
-				title="Setelah setup, siklus berjalan sendiri setiap bulan."
-				description="Tanpa pemilik menekan tombol apa pun, dari tagihan sampai laporan ter-update."
-			/>
+		<LedgerSection
+			index="02"
+			label="Siklus bulanan"
+			tone="teal"
+			rhythm="section-sm"
+			className="border-t border-teal-200 bg-teal-50"
+		>
+			<h2 className="text-h2-sm mb-3.5 max-w-155 font-extrabold text-balance text-teal-900">
+				Yang berjalan tiap bulan tanpa kamu menyentuh apa pun
+			</h2>
+			<p className="mb-8.5 max-w-155 text-base leading-relaxed text-teal-700">
+				Contoh di bawah memakai jatuh tempo tanggal 5. Semua tanggal bergeser mengikuti
+				jatuh tempo tiap penyewa.
+			</p>
 
-			<div className="flex flex-col items-stretch md:flex-row">
-				{stages.map((stage, index) => (
-					<div key={stage.num} className="contents">
-						{index > 0 && (
-							<div
-								aria-hidden
-								className="text-primary flex flex-none items-center justify-center px-2 py-1 text-xl font-extrabold md:px-1 lg:px-2"
-							>
-								<span className="rotate-90 md:rotate-0">→</span>
-							</div>
+			<ol className="grid border border-teal-200 bg-white sm:grid-cols-2 lg:grid-cols-5">
+				{stages.map((stage) => (
+					<li
+						key={stage.when}
+						className={cn(
+							"border-teal-200 px-4.5 py-5.5 not-first:border-t sm:not-first:border-t-0 sm:not-first:border-l",
+							stage.settled && "bg-success-bg"
 						)}
-						<div
+					>
+						<p
 							className={cn(
-								"flex flex-1 items-start gap-3 rounded-md border px-4.5 py-4 md:block md:rounded-lg md:px-3.5 md:py-4.5 lg:px-5 lg:py-5.5",
-								stage.className
+								"mb-2.5 font-mono text-[11px] leading-snug font-bold tracking-widest",
+								stage.settled ? "text-success-fg" : "text-teal-400"
 							)}
 						>
-							<span
-								className={cn(
-									"flex size-6.5 flex-none items-center justify-center rounded-full text-xs font-extrabold text-white md:mb-2.5 md:size-7 lg:mb-3",
-									stage.dark ? "bg-white/25" : "bg-teal-700"
-								)}
-							>
-								{stage.num}
-							</span>
-							<p
-								className={cn(
-									"text-xs leading-relaxed font-semibold",
-									stage.dark ? "text-white" : "text-warm-700"
-								)}
-							>
-								{stage.body}
-							</p>
-						</div>
-					</div>
+							{stage.when}
+						</p>
+						<h3 className="mb-1.75 text-base font-extrabold text-teal-900">
+							{stage.title}
+						</h3>
+						<p
+							className={cn(
+								"text-sm leading-normal",
+								stage.settled ? "text-success-fg" : "text-warm-700"
+							)}
+						>
+							{stage.body}
+						</p>
+					</li>
 				))}
+			</ol>
+
+			<div className="mt-5 flex flex-col gap-1.75 lg:flex-row lg:items-baseline lg:gap-3.5">
+				<span className="font-mono text-[10.5px] leading-snug font-bold tracking-widest whitespace-nowrap text-teal-400">
+					BATAS TEGAS
+				</span>
+				<p className="max-w-180 text-sm leading-relaxed text-teal-700">
+					Satu tagihan bulanan tidak pernah menghasilkan lebih dari tiga pesan. Penyewa
+					tidak dibanjiri, dan kamu tidak perlu khawatir hubungan baik dengan mereka rusak
+					gara-gara aplikasi.
+				</p>
 			</div>
-		</section>
+		</LedgerSection>
 	);
 }

@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { MonthlyCycle } from "@/components/landing/how-it-works/monthly-cycle";
-import { PeriodicUpdates } from "@/components/landing/how-it-works/periodic-updates";
-import { WizardTimeline } from "@/components/landing/how-it-works/wizard-timeline";
 import { Cta } from "@/components/landing/shared/cta";
 import { Footer } from "@/components/landing/shared/footer";
+import { MonthlyCycle } from "@/components/landing/how-it-works/monthly-cycle";
 import { Nav } from "@/components/landing/shared/nav";
 import { PageHeader } from "@/components/landing/shared/page-header";
+import { PaymentActivation } from "@/components/landing/how-it-works/payment-activation";
+import { PeriodicUpdates } from "@/components/landing/how-it-works/periodic-updates";
+import { Wizard } from "@/components/landing/how-it-works/wizard";
 
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
 	title: "Cara kerja",
 	description:
-		"Dari daftar sampai tagihan pertama terkirim — di bawah 5 menit. Setelah setup, siklus penagihan berjalan sendiri setiap bulan."
+		"Kerja kerasnya di lima menit pertama. Setelah itu tagihan, pengingat, dan pencatatan pelunasan berjalan sendiri tiap bulan."
 };
 
 export default function CaraKerjaPage() {
@@ -20,21 +21,19 @@ export default function CaraKerjaPage() {
 		<main className="overflow-x-clip">
 			<Nav />
 			<PageHeader
-				align="center"
-				eyebrow="Cara kerja"
-				title="Dari daftar sampai tagihan pertama terkirim — di bawah 5 menit."
-				description={
-					<>
-						Begitu selesai daftar, kamu langsung melihat dua hal dengan mata sendiri:
-						tagihan terkirim <i>dan</i> pembayaran diterima. Tanpa menunggu penyewa
-						sungguhan.
-					</>
-				}
+				eyebrow="Cara kerja · dari daftar sampai bulan kesekian"
+				title="Kerja kerasnya di lima menit pertama. Sisanya bukan urusanmu lagi."
+				description="Halaman ini menjelaskan tiga hal berurutan: apa yang kamu lakukan saat pertama masuk, apa yang terjadi tiap bulan tanpa kamu, dan kapan pembayaran online mulai menyala."
 			/>
-			<WizardTimeline />
+			<Wizard />
 			<MonthlyCycle />
 			<PeriodicUpdates />
-			<Cta />
+			<PaymentActivation />
+			<Cta
+				title="Lima menitnya bisa kamu mulai sekarang"
+				description="Contoh tagihannya dikirim ke nomormu sendiri dulu, bukan ke penyewa."
+				action="Coba gratis 60 hari"
+			/>
 			<Footer />
 		</main>
 	);

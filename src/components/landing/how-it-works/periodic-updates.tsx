@@ -1,89 +1,64 @@
-const planUpdates = [
-	{
-		plan: "Gratis",
-		body: "Dashboard saja — cek kapan pun",
-		badgeClass: "bg-warm-100 text-warm-600",
-		bodyClass: "text-warm-600"
-	},
-	{
-		plan: "Starter",
-		body: "+ Ringkasan mingguan ke WhatsApp",
-		badgeClass: "bg-teal-100 text-teal-700",
-		bodyClass: "text-warm-700"
-	},
-	{
-		plan: "Pro+",
-		body: "+ Rinci per kamar & per properti",
-		badgeClass: "bg-primary text-white",
-		bodyClass: "text-warm-700"
-	}
+import { ArrowLink, LedgerSection } from "../shared/ledger";
+
+const summary = [
+	{ label: "Sudah bayar", value: "11 kamar", tone: "text-success-fg" },
+	{ label: "Telat", value: "1 kamar", tone: "text-warning-fg" },
+	{ label: "Menunggak", value: "0 kamar", tone: "text-danger-fg" }
 ];
 
 export function PeriodicUpdates() {
 	return (
-		<section className="bg-warm-canvas">
-			<div className="container flex flex-wrap items-center gap-x-8 gap-y-10 py-10 md:py-14 lg:gap-x-14 lg:py-18">
-				<div className="min-w-0 flex-1 basis-80 space-y-5 lg:basis-95">
-					<div className="space-y-2.5">
-						<p className="text-primary text-xs font-bold tracking-widest uppercase">
-							Update berkala
-						</p>
-						<h2 className="text-2xl font-extrabold tracking-tight text-balance text-teal-900">
-							Laporan yang datang sendiri — sebelum kamu bertanya.
-						</h2>
-						<p className="text-warm-600 text-sm leading-relaxed md:text-base">
-							Kamar yang sudah bayar, yang menunggak, dan kelak keluhan penyewa —
-							selalu disertai tautan ke dashboard.
-						</p>
-					</div>
-					<div className="flex flex-col gap-2.5">
-						{planUpdates.map((item) => (
-							<div key={item.plan} className="flex items-center gap-3">
-								<span
-									className={`w-19 flex-none rounded-full py-1 text-center text-[10px] font-extrabold tracking-wide uppercase ${item.badgeClass}`}
-								>
-									{item.plan}
-								</span>
-								<span
-									className={`text-xs font-semibold md:text-sm ${item.bodyClass}`}
-								>
-									{item.body}
-								</span>
-							</div>
-						))}
-					</div>
+		<LedgerSection
+			index="03"
+			label="Kabar untukmu"
+			rhythm="section-sm"
+			className="bg-warm-canvas border-t border-teal-200"
+			innerClassName="lg:grid-cols-[104px_minmax(0,1fr)]"
+		>
+			<div className="flex flex-col gap-7 lg:grid lg:grid-cols-[1.1fr_1fr] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-[clamp(28px,4vw,56px)] lg:gap-y-0">
+				<div className="lg:col-start-1 lg:row-start-1">
+					<h2 className="text-h2-sm mb-3.5 max-w-140 font-extrabold text-balance text-teal-900">
+						Kamu tahu kondisi kost tanpa membuka laptop
+					</h2>
+					<p className="text-warm-600 mb-4 max-w-140 text-base leading-relaxed">
+						Sebulan sekali ringkasannya datang ke WhatsApp-mu: siapa yang sudah bayar,
+						siapa yang menunggak. Di luar itu, pesan hanya dikirim kalau memang ada yang
+						perlu kamu tahu — penyewa telat atau statusnya berubah.
+					</p>
+					<p className="text-warm-600 max-w-140 text-sm leading-relaxed">
+						Kalau bulan itu semua lancar, tidak ada pesan sama sekali. Ringkasan yang
+						isinya &ldquo;tidak ada apa-apa&rdquo; cuma bikin pesan berikutnya ikut
+						diabaikan.
+					</p>
 				</div>
 
-				{/* Vignette ringkasan WA */}
-				<div className="relative max-w-110 min-w-0 flex-1 basis-72 pt-2.5 pb-6 lg:basis-85">
-					<div className="bg-warning-bg border-warning/20 text-warning-fg shadow-warm-sm absolute -top-3.5 right-2 z-2 rotate-2 rounded-lg border px-3 py-1.5 text-xs font-extrabold">
-						tanpa buka laptop 🙌
-					</div>
-					<div className="bg-whatsapp-canvas shadow-warm-lg -rotate-1 rounded-xl p-4.5">
-						<div className="bg-card shadow-chat space-y-1.5 self-start rounded-[4px_14px_14px_14px] px-4 py-3.5">
-							<div className="text-xs font-bold text-black">
-								Semang · ringkasan mingguan
+				<div className="border-warm-200 order-1 border bg-white p-[clamp(20px,2.5vw,28px)] lg:order-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+					<h3 className="text-muted-foreground mb-4 font-mono text-[10.5px] leading-snug font-bold tracking-widest uppercase">
+						Ringkasan bulanan · Kost Melati
+					</h3>
+					<dl className="flex flex-col">
+						{summary.map((row) => (
+							<div
+								key={row.label}
+								className="border-warm-200 flex items-baseline justify-between gap-4 border-b py-3 first:pt-0"
+							>
+								<dt className="text-warm-700 text-sm">{row.label}</dt>
+								<dd className={`text-base font-extrabold tabular-nums ${row.tone}`}>
+									{row.value}
+								</dd>
 							</div>
-							<div className="text-xs leading-relaxed text-black">
-								Kost Melati, minggu ini:
-								<br />
-								✅ 10 kamar lunas
-								<br />
-								⏳ 1 menunggu pembayaran
-								<br />
-								⚠️ 1 menunggak (Kamar 7)
-								<br />
-								<br />
-								Lihat selengkapnya di sini:{" "}
-								<span className="text-info font-semibold">semang.id/d/melati</span>
-							</div>
-						</div>
-					</div>
-					<div className="border-border bg-card shadow-warm-sm absolute bottom-0 left-3.5 -rotate-3 rounded-lg border px-3 py-1.5 text-xs font-bold text-teal-700">
-						📬 datang tiap Senin pagi
-					</div>
+						))}
+					</dl>
+					<ArrowLink href="/register" className="mt-4.5 block text-sm">
+						Lihat selengkapnya di sini
+					</ArrowLink>
 				</div>
+
+				<p className="border-warm-200 text-muted-foreground order-2 max-w-140 border-t pt-4 text-sm leading-relaxed lg:order-0 lg:col-start-1 lg:row-start-2 lg:mt-5">
+					Paket Pro menambah rincian per kamar; paket Bisnis memisahkan ringkasannya untuk
+					tiap properti yang kamu kelola.
+				</p>
 			</div>
-		</section>
+		</LedgerSection>
 	);
 }
