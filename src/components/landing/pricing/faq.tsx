@@ -1,120 +1,61 @@
-"use client";
-
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { SectionHeading } from "../shared/section-heading";
+import { LedgerSection } from "../shared/ledger";
 
 const faqs = [
 	{
-		q: "Apakah uang sewa lewat Semang dulu?",
-		a: "Tidak, tidak pernah. Pembayaran penyewa langsung masuk ke rekeningmu sendiri melalui jalur pembayaran resmi. Semang hanya mencatat dan mengonfirmasi — tidak menampung uang."
+		question: "Kalau bulan ini cuma 6 dari 12 kamar yang terisi?",
+		answer: "Kamu membayar untuk 6 kamar. Di paket Starter angkanya Rp12.000, tetapi minimum bulanan Rp20.000 tetap berlaku — jadi tagihanmu Rp20.000."
 	},
 	{
-		q: "Kenapa harga dihitung per kamar terisi, bukan total kamar?",
-		a: "Supaya kost yang belum penuh tidak membayar untuk kamar kosong. Hitungannya sederhana: berapa kamar yang terisi pada tanggal penagihan bulan itu."
+		question: "Apa yang terjadi setelah trial 60 hari selesai?",
+		answer: "Akunmu berpindah ke keadaan tidak berlangganan, bukan terkunci. Semua data tetap utuh dan tagihan tetap dibuat; yang berhenti hanya pengirimannya. Di akhir trial kami tunjukkan angkamu sendiri — berapa tagihan yang sudah terkirim otomatis dan berapa yang tercatat masuk."
 	},
 	{
-		q: "Penyewa saya masih suka bayar tunai. Bagaimana?",
-		a: "Bisa. Kamu tinggal menandai tagihan sebagai lunas dengan pilihan tunai atau transfer langsung — catatan tetap rapi, dan reminder untuk tagihan itu berhenti sendiri."
+		question: "Bisa pilih Starter untuk kost 30 kamar biar lebih murah?",
+		answer: "Tidak. Paket mengikuti ukuran kost — 30 kamar masuk Pro. Rentang kamar bukan batas yang bisa ditukar dengan harga lebih rendah."
 	},
 	{
-		q: "Apakah ada biaya tersembunyi atau markup pembayaran?",
-		a: "Tidak. Harga per kamar terisi tanpa komisi tersembunyi, dan tidak ada markup atas biaya pembayaran online yang dibebankan ke penyewa."
+		question: "Ada potongan dari uang sewa yang masuk?",
+		answer: "Tidak ada. Sewa masuk penuh ke rekeningmu, dan kami tidak menambahkan markup atas biaya transaksi Xendit ke penyewa — praktik itu memang dilarang aturan Bank Indonesia."
 	},
 	{
-		q: "Apakah penyewa harus install aplikasi?",
-		a: "Tidak. Penyewa hanya menerima pesan WhatsApp berisi tagihan dan link pembayaran — dibuka di browser, bayar, selesai. Kuitansi digital juga diakses lewat link."
+		question: "Kalau berhenti berlangganan, data saya hilang?",
+		answer: "Tidak. Kamar, penyewa, tagihan, dan riwayat tetap tersimpan dan tetap bisa diubah serta diekspor. Kost tidak mengecil hanya karena pemiliknya berhenti membayar, jadi batas kamar pun tidak tiba-tiba diberlakukan."
 	},
 	{
-		q: "Bagaimana kalau saya berhenti berlangganan?",
-		a: "Akunmu otomatis pindah ke paket Gratis — semua data tetap utuh dan tetap bisa diekspor kapan saja."
+		question: "Kamar yang sedang saya bangun ikut ditagih?",
+		answer: "Tidak, dan juga belum dihitung dalam batas kamar paket. Kamar baru mulai berbiaya setelah ada penyewa yang menempatinya."
+	},
+	{
+		question: "Perlu kartu kredit untuk mencoba?",
+		answer: "Tidak. Enam puluh hari dengan fitur Pro terbuka, tanpa kartu kredit dan tanpa tagihan yang menyusul diam-diam."
 	}
 ];
 
 export function Faq() {
-	/* Akordeon hanya di mobile; mulai md: semua jawaban tampil terbuka. */
-	const [openIndex, setOpenIndex] = useState(0);
-
 	return (
-		<section className="container max-w-3xl space-y-6 py-10 md:space-y-8 md:py-14 lg:py-18">
-			<SectionHeading
-				align="left"
-				eyebrow="Pertanyaan umum"
-				title="Yang sering ditanyakan pemilik kost"
-			/>
+		<LedgerSection
+			index="03"
+			label="Pertanyaan"
+			rhythm="section-sm"
+			className="bg-warm-canvas border-t border-teal-200"
+		>
+			<h2 className="text-h2-sm mb-7.5 max-w-140 font-extrabold text-balance text-teal-900">
+				Yang paling sering ditanyakan soal biaya
+			</h2>
 
-			<div className="flex flex-col gap-2.5 md:gap-3.5">
-				{faqs.map((faq, index) => {
-					const open = openIndex === index;
-					return (
-						<div
-							key={faq.q}
-							className={cn(
-								"md:border-border md:bg-card md:shadow-warm-sm rounded-lg border transition-colors duration-300",
-								open ? "border-teal-200 bg-teal-50" : "border-border bg-card"
-							)}
-						>
-							<button
-								type="button"
-								className="flex w-full items-center justify-between gap-3 py-3.5 pr-4 pl-4.5 text-left md:pointer-events-none md:px-6 md:pt-5.5 md:pb-0"
-								onClick={() => setOpenIndex(open ? -1 : index)}
-								aria-expanded={open}
-								aria-controls={`faq-panel-${index}`}
-							>
-								<h3 className="text-sm font-bold text-teal-900 md:text-base">
-									{faq.q}
-								</h3>
-								<span
-									aria-hidden
-									className={cn(
-										"flex size-6.5 flex-none items-center justify-center rounded-full transition-colors duration-300 md:hidden",
-										open ? "bg-primary text-white" : "text-primary bg-teal-50"
-									)}
-								>
-									<svg viewBox="0 0 12 12" fill="none" className="size-3">
-										<path
-											d="M1.5 6h9"
-											stroke="currentColor"
-											strokeWidth={2}
-											strokeLinecap="round"
-										/>
-										<path
-											d="M6 1.5v9"
-											stroke="currentColor"
-											strokeWidth={2}
-											strokeLinecap="round"
-											style={{
-												transformBox: "fill-box",
-												transformOrigin: "center"
-											}}
-											className={cn(
-												"transition-transform duration-300 ease-out",
-												open && "scale-y-0"
-											)}
-										/>
-									</svg>
-								</span>
-							</button>
-							<div
-								id={`faq-panel-${index}`}
-								className={cn(
-									"grid transition-[grid-template-rows] duration-300 ease-out md:grid-rows-[1fr]",
-									open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-								)}
-							>
-								<div className="overflow-hidden">
-									<div className="px-4.5 pb-4 md:px-6 md:pt-2 md:pb-5.5">
-										<div className="mb-3 h-px bg-teal-100 md:hidden" />
-										<p className="text-warm-600 text-sm leading-relaxed">
-											{faq.a}
-										</p>
-									</div>
-								</div>
-							</div>
-						</div>
-					);
-				})}
-			</div>
-		</section>
+			<dl>
+				{faqs.map((faq) => (
+					<div
+						key={faq.question}
+						className="border-warm-200 grid gap-2 border-t py-4 last:pb-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-[clamp(20px,3vw,44px)] lg:py-5"
+					>
+						<dt className="text-warm-900 text-base leading-snug font-extrabold">
+							{faq.question}
+						</dt>
+						<dd className="text-warm-600 text-sm leading-relaxed">{faq.answer}</dd>
+					</div>
+				))}
+			</dl>
+		</LedgerSection>
 	);
 }

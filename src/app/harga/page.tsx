@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { Comparison } from "@/components/landing/pricing/comparison";
 import { Cta } from "@/components/landing/shared/cta";
 import { Faq } from "@/components/landing/pricing/faq";
 import { Footer } from "@/components/landing/shared/footer";
-import { Comparison } from "@/components/landing/pricing/comparison";
 import { Nav } from "@/components/landing/shared/nav";
 import { PageHeader } from "@/components/landing/shared/page-header";
 import { Pricing } from "@/components/landing/pricing/pricing";
@@ -12,7 +12,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
 	title: "Harga",
 	description:
-		"Bayar hanya untuk kamar yang terisi. Empat paket dari Gratis selamanya sampai Bisnis multi-properti — tanpa markup biaya ke penyewa."
+		"Dihitung per kamar terisi, mulai Rp2.000. Kamar kosong, yang sedang dibangun, atau direnovasi tidak masuk hitungan."
 };
 
 export default function HargaPage() {
@@ -20,14 +20,19 @@ export default function HargaPage() {
 		<main className="overflow-x-clip">
 			<Nav />
 			<PageHeader
-				eyebrow="Harga"
-				title="Bayar hanya untuk kamar yang terisi."
-				description="Kamar kosong tidak ditagih. Semua paket termasuk pembayaran online tanpa markup biaya ke penyewa. Coba semua fitur Pro gratis 60 hari — tanpa kartu kredit."
+				eyebrow="Harga · dihitung per kamar terisi"
+				title="Kamar kosong tidak menagihmu"
+				description="Yang dihitung adalah jumlah penyewa aktif pada tanggal penagihan langganan. Kamar yang belum ada penghuninya, yang sedang dibangun, atau yang sedang direnovasi tidak masuk hitungan."
+				leadClassName="max-w-165"
 			/>
 			<Pricing />
 			<Comparison />
 			<Faq />
-			<Cta />
+			<Cta
+				title="Hitung sendiri dengan jumlah kamarmu"
+				description="Dua bulan pertama gratis. Setelah itu, kamu sudah punya angka nyata untuk memutuskan."
+				action="Mulai trial 60 hari"
+			/>
 			<Footer />
 		</main>
 	);

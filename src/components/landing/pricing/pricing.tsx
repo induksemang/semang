@@ -1,192 +1,152 @@
 import { cn } from "@/lib/utils";
-import { HashLink } from "../shared/hash-link";
+import { LedgerSection } from "../shared/ledger";
 
-type Tier = {
-	name: string;
-	sub: string;
-	price: string;
-	unit: string;
-	meta: string;
-	features: string[];
-	cta: string;
-	featured?: boolean;
-};
-
-const tiers: Tier[] = [
+const plans = [
 	{
 		name: "Gratis",
-		sub: "Kost kecil/rumahan",
 		price: "Rp0",
-		unit: "selamanya",
-		meta: "sampai 5 kamar · 1 properti",
-		features: [
-			"Tagihan otomatis via WhatsApp",
-			"Pembayaran online + kuitansi digital",
-			"Reminder dasar (hari-H)",
-			"Laporan kas ringkas"
+		meta: "Keadaan akun yang sedang tidak berlangganan",
+		items: [
+			"Kamar dan properti tak terbatas",
+			"Tagihan tetap dibuat lengkap dengan nominalnya",
+			"Link pembayaran, kuitansi, laporan, ekspor"
 		],
-		cta: "Mulai gratis"
+		caveat: "Pesannya kamu salin dan kirim sendiri"
 	},
 	{
 		name: "Starter",
-		sub: "Kost yang mulai berkembang",
 		price: "Rp2.000",
-		unit: "per kamar terisi, per bulan",
-		meta: "sampai 15 kamar · minimum Rp20.000 per bulan",
-		features: [
-			"Semua di Gratis, plus:",
-			"Reminder bertingkat penuh (H-3 s.d. H+7)",
-			"Tipe kamar dengan harga berbeda",
-			"Ringkasan mingguan ke WA-mu",
-			"Ekspor CSV / Excel"
-		],
-		cta: "Coba 60 hari gratis",
-		featured: true
+		meta: "per kamar terisi/bulan · minimum Rp20.000 · sampai 15 kamar",
+		featured: true,
+		lead: "Semua di Gratis, plus pengiriman otomatis",
+		items: [
+			"Tagihan dan pengingat berangkat sendiri via WhatsApp",
+			"Ringkasan berkala ke nomormu",
+			"1 properti"
+		]
 	},
 	{
 		name: "Pro",
-		sub: "Kost menengah–eksklusif",
 		price: "Rp3.500",
-		unit: "per kamar terisi, per bulan",
-		meta: "sampai 50 kamar · 3 properti",
-		features: [
-			"Semua di Starter, plus:",
-			"Ringkasan lebih sering & per kamar",
-			"2 akun penjaga kost (peran terbatas)",
-			"Laporan keuangan lengkap"
-		],
-		cta: "Coba 60 hari gratis"
+		meta: "per kamar terisi/bulan · sampai 50 kamar",
+		lead: "Semua di Starter, plus:",
+		items: [
+			"Hingga 3 properti",
+			"Ringkasan berkala dengan rincian tiap kamar",
+			"Tiket maintenance & portal penyewa (fase berikutnya)"
+		]
 	},
 	{
 		name: "Bisnis",
-		sub: "Multi-properti/operator",
 		price: "Rp5.000",
-		unit: "per kamar terisi, per bulan",
-		meta: "kamar tak terbatas · minimum Rp250.000 per bulan",
-		features: [
-			"Semua di Pro, plus:",
-			"Kamar, properti & staf tak terbatas",
-			"Laporan laba-rugi per properti",
-			"Dukungan prioritas"
-		],
-		cta: "Hubungi kami"
+		meta: "per kamar terisi/bulan · minimum Rp250.000 · tanpa batas kamar",
+		lead: "Semua di Pro, plus:",
+		items: [
+			"Kamar dan properti tak terbatas",
+			"Ringkasan berkala terpisah per properti",
+			"Staf dan peran tak terbatas, laba-rugi per properti"
+		]
 	}
 ];
 
 export function Pricing() {
 	return (
-		<section id="harga" className="container scroll-mt-16 space-y-6 pb-10 md:pb-14 lg:pb-18">
-			<div className="grid items-stretch gap-4.5 sm:grid-cols-2 lg:grid-cols-4">
-				{tiers.map((tier) => (
-					<PriceCard key={tier.name} tier={tier} />
-				))}
-			</div>
-			<p className="text-warm-500 max-w-180 text-sm leading-relaxed font-medium">
-				Coba gratis 60 hari dengan semua fitur Pro terbuka — tanpa kartu kredit. Setelahnya
-				akun pindah ke paket Gratis dan semua data tetap utuh. Bayar tahunan hemat ±2 bulan.
-			</p>
-		</section>
-	);
-}
-
-function PriceCard({ tier }: { tier: Tier }) {
-	const { featured } = tier;
-	return (
-		<div
-			className={cn(
-				"relative flex flex-col gap-6 rounded-xl border p-5.5 md:p-7",
-				featured
-					? "shadow-teal-card border-teal-700 bg-teal-700"
-					: "border-border bg-card shadow-warm-sm"
-			)}
+		<LedgerSection
+			index="01"
+			label="Paket"
+			rhythm="section-sm"
+			className="border-warm-200 bg-warm-25 border-t"
 		>
-			{featured && (
-				<span className="bg-primary absolute -top-2.75 left-7 rounded-full px-3 py-1.25 text-xs font-extrabold tracking-wide text-white uppercase">
-					Paling pas
-				</span>
-			)}
-			<div className="flex flex-1 flex-col gap-5">
-				<div className="flex flex-col gap-4.5">
-					<div className="flex flex-col gap-1">
-						<h3
-							className={cn(
-								"text-lg font-extrabold",
-								featured ? "text-white" : "text-warm-900"
-							)}
-						>
-							{tier.name}
-						</h3>
-						<p
-							className={cn(
-								"text-sm font-semibold",
-								featured ? "text-teal-300" : "text-warm-400"
-							)}
-						>
-							{tier.sub}
-						</p>
-					</div>
-					<div className="flex flex-col gap-2.5">
-						<div className="flex flex-col gap-0.5">
-							<div
+			<div className="border-warm-200 grid border bg-white sm:grid-cols-2 lg:grid-cols-4">
+				{plans.map((plan) => (
+					<div
+						key={plan.name}
+						className={cn(
+							"border-warm-200 p-[clamp(20px,2.4vw,28px)] not-first:border-t sm:even:border-l sm:nth-2:border-t-0 lg:not-first:border-l lg:nth-[n+3]:border-t-0",
+							plan.featured && "bg-teal-900"
+						)}
+					>
+						<div className="mb-3.5 flex h-5 items-center gap-2">
+							<h3
 								className={cn(
-									"text-[clamp(1.5625rem,2.4vw,2.125rem)] font-extrabold tracking-tight",
-									featured ? "text-white" : "text-warm-900"
+									"font-mono text-[10.5px] leading-snug font-bold tracking-widest uppercase",
+									plan.featured ? "text-teal-350" : "text-muted-foreground"
 								)}
 							>
-								{tier.price}
-							</div>
-							<p
-								className={cn(
-									"text-sm font-semibold",
-									featured ? "text-teal-200" : "text-warm-400"
-								)}
-							>
-								{tier.unit}
-							</p>
+								{plan.name}
+							</h3>
+							{plan.featured && (
+								<span className="bg-teal-350 px-1.75 py-0.75 font-mono text-[9.5px] leading-snug font-bold tracking-widest text-teal-900">
+									PALING UMUM
+								</span>
+							)}
 						</div>
 						<p
 							className={cn(
-								"text-sm font-semibold",
-								featured ? "text-teal-300" : "text-warm-400"
+								"text-3xl font-extrabold tracking-tight tabular-nums",
+								plan.featured ? "text-white" : "text-warm-900"
 							)}
 						>
-							{tier.meta}
+							{plan.price}
 						</p>
-					</div>
-				</div>
-				<ul className="flex flex-col gap-2.5">
-					{tier.features.map((feature) => (
-						<li
-							key={feature}
+						<p
 							className={cn(
-								"flex gap-2.25 text-sm",
-								featured ? "text-teal-100" : "text-warm-700"
+								"mt-1.5 mb-4.5 min-h-9 text-xs leading-normal",
+								plan.featured ? "text-teal-200" : "text-muted-foreground"
 							)}
 						>
-							<span
-								className={cn(
-									"font-extrabold",
-									featured ? "text-teal-300" : "text-success"
-								)}
-							>
-								✓
-							</span>
-							{feature}
-						</li>
-					))}
-				</ul>
+							{plan.meta}
+						</p>
+						<ul
+							className={cn(
+								"flex flex-col gap-2.25 border-t pt-3.5 text-sm leading-normal",
+								plan.featured
+									? "border-teal-600 text-teal-100"
+									: "border-warm-200 text-warm-700"
+							)}
+						>
+							{plan.lead && (
+								<li
+									className={cn(
+										"font-bold",
+										plan.featured ? "text-white" : "text-warm-900"
+									)}
+								>
+									{plan.lead}
+								</li>
+							)}
+							{plan.items.map((item) => (
+								<li key={item}>{item}</li>
+							))}
+							{plan.caveat && (
+								<li className="text-danger-fg font-semibold">{plan.caveat}</li>
+							)}
+						</ul>
+					</div>
+				))}
 			</div>
-			<HashLink
-				href="#daftar"
-				className={cn(
-					"rounded-md py-3.25 text-center text-base font-bold transition-colors",
-					featured
-						? "bg-white text-teal-900 hover:bg-teal-50"
-						: "border-2 border-teal-200 bg-white text-teal-700 hover:bg-teal-50"
-				)}
-			>
-				{tier.cta}
-			</HashLink>
-		</div>
+
+			{/* Jarak antar-kolom dipindah jadi padding di kedua sisi supaya garis
+			    pemisahnya jatuh di tengah, dan jarak atas dipikul tiap kolom supaya
+			    garis tegaknya mulai persis dari garis atas, bukan 20px di bawahnya. */}
+			<div className="border-warm-200 mt-5 grid border-t lg:grid-cols-2">
+				<p className="text-warm-600 py-5 text-sm leading-relaxed lg:pr-[clamp(20px,3vw,40px)] lg:pb-0">
+					<strong className="text-warm-900 font-extrabold">
+						Paket mengikuti ukuran kost, bukan dipilih sendiri.
+					</strong>{" "}
+					Kost 30 kamar masuk Pro, dan Starter bukan versi murahnya — Starter memang
+					dirancang untuk kost rumahan. Kamar yang masih dibangun belum ikut dihitung
+					dalam batas kamar, karena belum menghasilkan apa pun.
+				</p>
+				<p className="border-warm-200 text-warm-600 pt-3.5 text-sm leading-relaxed lg:border-l lg:pt-5 lg:pl-[clamp(20px,3vw,40px)]">
+					<strong className="text-warm-900 font-extrabold">
+						Jadwal pesan sama di semua paket.
+					</strong>{" "}
+					Yang naik seiring paket adalah cakupan properti dan kedalaman laporan, bukan
+					jumlah pengingat. Penyewa yang telat sama saja telatnya di kost 5 kamar maupun
+					50 kamar.
+				</p>
+			</div>
+		</LedgerSection>
 	);
 }
