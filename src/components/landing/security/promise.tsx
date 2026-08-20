@@ -1,67 +1,62 @@
-import { SectionHeading } from "../shared/section-heading";
+import { LedgerSection } from "../shared/ledger";
 
 const never = [
-	"Menjual atau membagikan data penyewamu",
-	"Memakai datamu untuk iklan",
-	"Menambah markup biaya ke tagihan penyewa",
-	"Menyandera datamu saat kamu turun paket"
+	"Menahan dana sewamu sebelum dicairkan",
+	"Memotong komisi dari uang sewa yang masuk",
+	"Menambahkan biaya transaksi ke tagihan penyewa",
+	"Menjual atau menyewakan data kost dan penyewa",
+	"Mengunci datamu saat kamu berhenti berlangganan",
+	"Mengirim pesan promosi ke nomor penyewamu"
 ];
 
 const always = [
-	"Harga dihitung per kamar terisi saja — tanpa komisi tersembunyi",
-	"Halaman pembayaran selalu menampilkan nama kost, periode, dan nominal — tagihan sah mudah dibedakan dari penipuan",
-	"Penyewa dan pemilik bisa minta datanya dihapus kapan saja — sesuai UU Perlindungan Data Pribadi",
-	"Datamu hanya bisa dibuka olehmu; alamat halaman pembayaran tidak bisa ditebak orang lain"
+	"Sewa masuk langsung ke rekeningmu",
+	"Data kostmu terpisah dari kost lain, dikunci di tingkat basis data",
+	"Halaman tanpa login dibuka lewat tautan bertoken acak yang ada masa berlakunya",
+	"Semua catatan bisa diekspor ke CSV atau Excel kapan saja",
+	"Akun bisa dihapus, dengan tenggang 30 hari sebelum permanen",
+	"Pesan ke penyewa hanya berisi tagihan dan pengingat"
 ];
+
+const kicker = "mb-4.5 font-mono text-[10.5px] leading-snug font-bold tracking-widest uppercase";
 
 export function PromiseSection() {
 	return (
-		<section className="container flex flex-wrap items-center gap-x-14 gap-y-10 py-10 md:py-14 lg:py-18">
-			<div className="min-w-0 flex-1 basis-80">
-				<SectionHeading
-					align="left"
-					eyebrow="Data & transparansi"
-					title="Janji kami — tertulis, bukan tersirat."
-					description="Data penyewa dilindungi, harga tidak menyembunyikan apa pun. Kami tulis hitam di atas putih — lengkap dengan coretannya."
-				/>
+		<LedgerSection
+			index="02"
+			label="Janji kami"
+			tone="teal"
+			rhythm="section-sm"
+			className="border-t border-teal-200 bg-teal-50"
+		>
+			<h2 className="text-h2-sm mb-7.5 max-w-155 font-extrabold text-balance text-teal-900">
+				Dua daftar yang sebaiknya kamu pegang
+			</h2>
+
+			<div className="grid border border-teal-200 bg-white lg:grid-cols-2">
+				<div className="p-[clamp(22px,3vw,32px)]">
+					<h3 className={`${kicker} text-danger-fg`}>Yang tidak akan kami lakukan</h3>
+					<ul className="text-muted-foreground flex flex-col gap-3.25 text-sm leading-normal line-through">
+						{never.map((item) => (
+							<li key={item}>{item}</li>
+						))}
+					</ul>
+				</div>
+				<div className="bg-warm-25 border-t border-teal-200 p-[clamp(22px,3vw,32px)] lg:border-t-0 lg:border-l">
+					<h3 className={`${kicker} text-success-fg`}>Yang selalu berlaku</h3>
+					<ul className="text-warm-900 flex flex-col gap-3.25 text-sm leading-normal">
+						{always.map((item) => (
+							<li key={item}>{item}</li>
+						))}
+					</ul>
+				</div>
 			</div>
 
-			<div className="flex min-w-0 flex-1 basis-140 flex-col gap-5">
-				<div className="space-y-3.5 rounded-lg border border-teal-600 bg-teal-900 p-5.5 lg:space-y-4.5 lg:rounded-xl lg:p-8">
-					<div className="font-mono text-xs font-bold tracking-widest text-red-300">
-						YANG TIDAK AKAN KAMI LAKUKAN
-					</div>
-					<div className="flex flex-col gap-2.5 lg:gap-3">
-						{never.map((item) => (
-							<div key={item} className="flex items-baseline gap-2.5 lg:gap-3">
-								<span className="flex-none text-sm font-extrabold text-red-300">
-									✕
-								</span>
-								<span className="text-sm font-bold text-white line-through decoration-red-300/75 decoration-2 lg:text-base">
-									{item}
-								</span>
-							</div>
-						))}
-					</div>
-				</div>
-				<div className="border-border bg-card space-y-3.5 rounded-lg border p-5.5 lg:space-y-4.5 lg:rounded-xl lg:p-8">
-					<div className="text-primary font-mono text-xs font-bold tracking-widest">
-						YANG SELALU BERLAKU — TERMASUK DI PAKET GRATIS
-					</div>
-					<div className="flex flex-col gap-3">
-						{always.map((item) => (
-							<div key={item} className="flex items-baseline gap-3">
-								<span className="text-primary flex-none text-sm font-extrabold">
-									✓
-								</span>
-								<span className="text-warm-700 text-sm leading-relaxed font-semibold">
-									{item}
-								</span>
-							</div>
-						))}
-					</div>
-				</div>
-			</div>
-		</section>
+			<p className="mt-4.5 max-w-180 text-sm leading-relaxed text-teal-700">
+				Semang juga tidak memakai kata sandi sama sekali: masuk lewat akun Google atau kode
+				sekali pakai ke nomor WhatsApp-mu. Kata sandi yang tidak pernah disimpan tidak bisa
+				ikut bocor.
+			</p>
+		</LedgerSection>
 	);
 }

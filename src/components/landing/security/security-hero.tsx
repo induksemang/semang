@@ -1,103 +1,76 @@
-const points = [
+import type { ReactNode } from "react";
+
+const pillars: { icon: ReactNode; title: string; body: string }[] = [
 	{
-		title: "Langsung ke rekeningmu",
-		body: "Diproses lewat jalur pembayaran resmi yang dipakai ribuan bisnis Indonesia. Dana mengalir ke rekeningmu, tanpa mampir ke mana pun.",
 		icon: (
-			<svg
-				width="22"
-				height="22"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<line x1="3" y1="22" x2="21" y2="22" />
-				<line x1="6" y1="18" x2="6" y2="11" />
-				<line x1="10" y1="18" x2="10" y2="11" />
-				<line x1="14" y1="18" x2="14" y2="11" />
-				<line x1="18" y1="18" x2="18" y2="11" />
-				<path d="M12 2 3 7.5h18z" />
-			</svg>
-		)
+			<>
+				<path d="M3 8h18v10H3z" strokeWidth="1.8" />
+				<path d="M3 8l9-5 9 5" strokeWidth="1.8" strokeLinejoin="round" />
+			</>
+		),
+		title: "Tidak memegang uangmu",
+		body: "Tidak ada saldo yang menginap di Semang dan tidak ada pencairan yang perlu kamu tunggu. Dananya memang tidak pernah singgah di sini."
 	},
 	{
-		title: "Mulai tanpa syarat verifikasi",
-		body: "Menagih otomatis jalan sejak hari pertama. Verifikasi identitas hanya diperlukan untuk mengaktifkan pelunasan online otomatis — bukan untuk mulai.",
 		icon: (
-			<svg
-				width="22"
-				height="22"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
-			</svg>
-		)
+			<>
+				<circle cx="12" cy="12" r="8.5" strokeWidth="1.8" />
+				<path d="M6 6l12 12" strokeWidth="1.8" />
+			</>
+		),
+		title: "Tidak menjual datamu",
+		body: "Data kost dan penyewa dipakai untuk menagih dan mencatat. Bukan untuk iklan, dan tidak dibagikan demi kepentingan komersial pihak lain."
 	},
 	{
-		title: "Datamu tetap aman",
-		body: "Berhenti berlangganan? Akun otomatis pindah ke paket Gratis, data tetap milikmu dan bisa diekspor kapan saja.",
 		icon: (
-			<svg
-				width="22"
-				height="22"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<ellipse cx="12" cy="5" rx="9" ry="3" />
-				<path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5" />
-				<path d="M3 12c0 1.7 4 3 9 3s9-1.3 9-3" />
-			</svg>
-		)
+			<>
+				<path d="M4 12h16" strokeWidth="1.8" />
+				<path d="M14 6l6 6-6 6" strokeWidth="1.8" strokeLinejoin="round" />
+			</>
+		),
+		title: "Tidak menyandera datamu",
+		body: "Berhenti berlangganan tidak menghapus apa pun, dan semua catatan bisa diekspor kapan saja ke CSV atau Excel."
 	}
 ];
 
 export function SecurityHero() {
+	// data-nav-dark: nav ikut gelap selama section ini masih di belakang nav
 	return (
-		<header className="bg-teal-900">
-			<div className="container space-y-10 py-10 md:py-14 lg:py-18">
-				<div className="space-y-4">
-					<div className="space-y-2.5">
-						<p className="text-xs font-bold tracking-widest text-teal-300 uppercase">
-							Keamanan &amp; kepercayaan
-						</p>
-						<h1 className="max-w-190 text-3xl font-extrabold tracking-tight text-balance text-white sm:text-4xl lg:text-5xl">
-							Uangmu tidak pernah menyentuh Semang.
-						</h1>
-					</div>
-					<p className="max-w-160 text-sm leading-relaxed text-pretty text-teal-200 sm:text-lg">
-						Prinsipnya sederhana: uang sewa langsung masuk ke rekeningmu sendiri — kami
-						tidak pernah memegangnya.
-					</p>
-				</div>
+		<header data-nav-dark className="bg-teal-900">
+			<div className="container pt-[clamp(32px,6vw,84px)] pb-[clamp(28px,5vw,64px)]">
+				<p className="mb-6 font-mono text-[11px] leading-normal font-bold tracking-widest text-teal-400 uppercase">
+					Keamanan dana &amp; data
+				</p>
+				<h1 className="text-title mb-5 max-w-225 font-extrabold text-balance text-white">
+					Semang mencatat uangmu. Semang tidak pernah memegangnya.
+				</h1>
+				<p className="mb-7 max-w-160 text-base leading-relaxed text-pretty text-teal-200 lg:mb-10 lg:text-lg">
+					Pemilik kost menyerahkan dua hal paling sensitif ke sebuah aplikasi: uang sewa
+					dan data penghuninya. Halaman ini menjelaskan persis apa yang kami lakukan
+					dengan keduanya, dan apa yang tidak.
+				</p>
 
-				<div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 md:gap-4 lg:gap-5">
-					{points.map((point) => (
+				<div className="grid border-t border-teal-600 lg:grid-cols-3">
+					{pillars.map((pillar) => (
 						<div
-							key={point.title}
-							className="space-y-3 rounded-md border border-teal-600 bg-teal-800 p-5 md:p-4.5 lg:space-y-4 lg:rounded-lg lg:p-6.5"
+							key={pillar.title}
+							className="border-teal-600 pt-7 pb-7 not-first:border-t lg:px-7 lg:pb-0 lg:not-first:border-t-0 lg:not-first:border-l lg:first:pl-0 lg:last:pr-0"
 						>
-							<div className="flex size-10 items-center justify-center rounded-md bg-teal-600 text-teal-200 lg:size-11">
-								{point.icon}
+							<div className="mb-4 grid size-11 place-items-center border-[1.5px] border-teal-400">
+								<svg
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									aria-hidden="true"
+									className="text-teal-350 size-5"
+								>
+									{pillar.icon}
+								</svg>
 							</div>
-							<div className="space-y-1.5 lg:space-y-2">
-								<h3 className="text-sm font-bold text-white lg:text-base">
-									{point.title}
-								</h3>
-								<p className="text-sm leading-relaxed text-teal-200">
-									{point.body}
-								</p>
-							</div>
+							<h2 className="mb-2 text-lg font-extrabold text-white">
+								{pillar.title}
+							</h2>
+							<p className="text-sm leading-relaxed text-teal-200">{pillar.body}</p>
 						</div>
 					))}
 				</div>
