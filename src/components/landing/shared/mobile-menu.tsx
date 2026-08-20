@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { cn, scrollToHash } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-// Pusat = tengah tombol burger: x = container padding 24px + setengah tombol 19px,
-// y = nav py-3 (12px) + 19px. Radius absolut (bukan persen) supaya lingkaran
-// identik di nav dan panel, meski tinggi kedua elemen jauh berbeda.
 // Ditulis utuh (bukan template literal) supaya terbaca scanner Tailwind.
-export const MENU_CLIP_OPEN = "[clip-path:circle(1200px_at_calc(100%_-_43px)_31px)]";
-export const MENU_CLIP_CLOSED = "[clip-path:circle(0px_at_calc(100%_-_43px)_31px)]";
+export const MENU_CLIP_OPEN = "[clip-path:inset(0_0_0_0)]";
+export const MENU_CLIP_CLOSED = "[clip-path:inset(0_0_100%_0)]";
+
+/** Durasi tirai. Harus sama dengan `duration-500` pada panel di bawah. */
+export const MENU_MS = 500;
+
+/** Tinggi nav mobile — panel mulai persis di bawahnya. */
+const MENU_TOP = "pt-14.5";
 
 type MobileMenuProps = {
 	links: { href: string; label: string }[];
@@ -17,6 +20,23 @@ type MobileMenuProps = {
 	open: boolean;
 	onClose: () => void;
 };
+
+function ChevronGlyph() {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2.2"
+			strokeLinecap="butt"
+			strokeLinejoin="miter"
+			aria-hidden="true"
+			className="size-4 text-teal-500"
+		>
+			<path d="m9 5 7 7-7 7" />
+		</svg>
+	);
+}
 
 export function MobileMenu({ links, pathname, open, onClose }: MobileMenuProps) {
 	useEffect(() => {
@@ -37,12 +57,19 @@ export function MobileMenu({ links, pathname, open, onClose }: MobileMenuProps) 
 		};
 	}, [open, onClose]);
 
+	// Kebijakan Privasi hanya muncul di menu mobile — di desktop tempatnya di footer.
+	const items = [...links, { href: "/privasi", label: "Kebijakan Privasi" }];
+
 	return (
 		<div
 			id="menu-mobile"
 			className={cn(
-				// ponytail: clip-path tumbuh dari titik tombol burger di nav (kanan atas)
-				"fixed inset-0 z-60 flex flex-col bg-teal-900 pt-16 transition-[clip-path] duration-500 ease-out md:hidden",
+				"fixed inset-x-0 top-0 z-60 flex h-dvh flex-col bg-teal-900 transition-[clip-path] duration-500 lg:hidden",
+				MENU_TOP,
+				// Buka melambat di ujung, tutup justru memburu ke ujung. Selain lazim untuk
+				// enter/exit, `ease-in` bikin tirai tetap menutupi strip nav sampai ~465ms —
+				// tanpa itu strip nav yang transparan menyingkap isi halaman ~145ms terakhir.
+				open ? "ease-out" : "ease-in",
 				open ? MENU_CLIP_OPEN : MENU_CLIP_CLOSED
 			)}
 			role="dialog"
@@ -50,59 +77,67 @@ export function MobileMenu({ links, pathname, open, onClose }: MobileMenuProps) 
 			aria-label="Menu navigasi"
 			inert={!open}
 		>
-			<nav className="container flex flex-1 flex-col justify-center gap-1">
-				{links.map((link, index) => (
-					<Link
-						key={link.href}
-						href={link.href}
-						className={cn(
-							"flex items-baseline gap-3 py-2.5 transition-all duration-500 ease-out",
-							open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-						)}
-						style={{ transitionDelay: open ? `${120 + index * 55}ms` : "0ms" }}
-						onClick={onClose}
-					>
-						<span className="font-mono text-xs font-bold text-teal-300">
-							{String(index + 1).padStart(2, "0")}
-						</span>
-						<span
+			<nav className="flex min-h-0 flex-1 flex-col justify-center-safe overflow-y-auto">
+				{items.map((item, index) => {
+					const active = pathname === item.href;
+					return (
+						<Link
+							key={item.href}
+							href={item.href}
+							aria-current={active ? "page" : undefined}
 							className={cn(
-								"text-4xl font-extrabold tracking-tight",
-								pathname === link.href ? "text-white" : "text-teal-200"
+								"focus-ring grid shrink-0 grid-cols-[26px_minmax(0,1fr)_auto] items-center gap-3.5 border-b border-teal-600 px-5 py-4.5 transition-all duration-500 ease-out last:border-b-0",
+								active && "border-l-teal-350 border-l-[3px] bg-teal-800 pl-[17px]",
+								open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
 							)}
+							style={{ transitionDelay: open ? `${120 + index * 55}ms` : "0ms" }}
+							onClick={onClose}
 						>
-							{link.label}
-						</span>
-					</Link>
-				))}
+							<span
+								className={cn(
+									"font-mono text-[11px] leading-none font-bold tracking-widest",
+									active ? "text-teal-350" : "text-teal-400"
+								)}
+							>
+								{String(index + 1).padStart(2, "0")}
+							</span>
+							<span
+								className={cn(
+									"text-[22px] font-extrabold tracking-tight",
+									active ? "text-white" : "text-teal-100"
+								)}
+							>
+								{item.label}
+							</span>
+							{!active && <ChevronGlyph />}
+						</Link>
+					);
+				})}
 			</nav>
 
 			<div
 				className={cn(
-					"container flex flex-col gap-2.5 pb-5.5 transition-all duration-500 ease-out",
+					"flex shrink-0 flex-col gap-3 border-t border-teal-600 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] transition-all duration-500 ease-out",
 					open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
 				)}
-				style={{ transitionDelay: open ? `${120 + links.length * 55}ms` : "0ms" }}
+				style={{ transitionDelay: open ? `${120 + items.length * 55}ms` : "0ms" }}
 			>
-				<a
-					href="#daftar"
-					className="shadow-warm-lg rounded-lg bg-white py-4 text-center text-base font-extrabold text-teal-900"
-					onClick={(event) => {
-						scrollToHash(event);
-						onClose();
-					}}
+				<Link
+					href="/register"
+					className="bg-brand focus-ring rounded-[4px] py-3.75 text-center text-base font-bold text-white"
+					onClick={onClose}
 				>
-					Coba gratis — 5 menit
-				</a>
+					Coba gratis 60 hari
+				</Link>
 				<Link
 					href="/login"
-					className="rounded-lg border-2 border-teal-600 bg-white/10 py-3.5 text-center text-base font-bold text-teal-100"
+					className="focus-ring rounded-[4px] border-[1.5px] border-teal-600 py-3.75 text-center text-base font-bold text-teal-100"
 					onClick={onClose}
 				>
 					Masuk
 				</Link>
-				<p className="text-center text-xs font-semibold text-teal-300">
-					Gratis sampai 5 kamar · tanpa kartu kredit
+				<p className="mt-1 font-mono text-[10.5px] leading-relaxed font-semibold tracking-wider text-teal-400 uppercase">
+					Tanpa kartu kredit · fitur Pro terbuka selama trial
 				</p>
 			</div>
 		</div>

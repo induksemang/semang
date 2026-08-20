@@ -3,12 +3,52 @@
 @layer base {
 	html {
 		scroll-behavior: smooth;
+		scroll-padding-top: 3.75rem;
+	}
+	@media (width >= 64rem) {
+		html {
+			scroll-padding-top: 4rem;
+		}
 	}
 }
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+	--color-brand: #3c8377;
+	--color-teal-350: #82b8ad;
+	--color-warm-25: #fcfbf8;
+
+	--text-display: clamp(33px, 5.2vw, 66px);
+	--text-display--line-height: 1.02;
+	--text-display--letter-spacing: -0.035em;
+
+	--text-title: clamp(30px, 4.6vw, 58px);
+	--text-title--line-height: 1.04;
+	--text-title--letter-spacing: -0.035em;
+
+	--text-title-sm: clamp(30px, 4.2vw, 52px);
+	--text-title-sm--line-height: 1.06;
+	--text-title-sm--letter-spacing: -0.035em;
+
+	--text-h2: clamp(27px, 3.2vw, 40px);
+	--text-h2--line-height: 1.1;
+	--text-h2--letter-spacing: -0.028em;
+
+	--text-h2-sm: clamp(26px, 3vw, 38px);
+	--text-h2-sm--line-height: 1.12;
+	--text-h2-sm--letter-spacing: -0.028em;
+
+	--text-cta: clamp(24px, 2.8vw, 34px);
+	--text-cta--line-height: 1.15;
+	--text-cta--letter-spacing: -0.025em;
+
+	--text-cta-lg: clamp(30px, 3.6vw, 46px);
+	--text-cta-lg--line-height: 1.08;
+	--text-cta-lg--letter-spacing: -0.03em;
+}
 
 @theme inline {
 	/* Shadcn semantic tokens */
@@ -206,10 +246,19 @@
 	--sidebar-ring: #82b8ad;
 }
 
+/* Cincin fokus keyboard. Warnanya ikut currentColor supaya otomatis kontras
+   di latar terang maupun di latar teal-900, tanpa varian terang/gelap. */
+@utility focus-ring {
+	&:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 2px;
+	}
+}
+
 @utility container {
 	margin-inline: auto;
-	max-width: 80rem;
-	padding-inline: 1.5rem;
+	max-width: 77.5rem; /* 1240px, lebar kolom teks desain */
+	padding-inline: clamp(20px, 4vw, 48px);
 	width: 100%;
 }
 

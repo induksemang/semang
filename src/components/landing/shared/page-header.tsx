@@ -1,38 +1,27 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type PageHeaderProps = {
 	eyebrow: string;
-	title: string;
-	description: React.ReactNode;
-	align?: "left" | "center";
+	title: ReactNode;
+	description: ReactNode;
+	/** Lebar maksimum paragraf pembuka — beda tipis antar halaman. */
+	leadClassName?: string;
 };
 
-export function PageHeader({ eyebrow, title, description, align = "left" }: PageHeaderProps) {
-	const center = align === "center";
+export function PageHeader({ eyebrow, title, description, leadClassName }: PageHeaderProps) {
 	return (
-		<header
-			className={cn(
-				"container space-y-4 pt-11 pb-8 md:pt-14 lg:pt-18 lg:pb-12",
-				center && "text-center"
-			)}
-		>
-			<div className="space-y-2.5">
-				<p className="text-primary text-xs font-bold tracking-widest uppercase">
-					{eyebrow}
-				</p>
-				<h1
-					className={cn(
-						"max-w-190 text-3xl font-extrabold tracking-tight text-balance text-teal-900 md:text-4xl lg:text-5xl",
-						center && "mx-auto"
-					)}
-				>
-					{title}
-				</h1>
-			</div>
+		<header className="container pt-[clamp(32px,6vw,80px)] pb-[clamp(28px,4vw,44px)]">
+			<p className="text-muted-foreground mb-6 font-mono text-[11px] leading-normal font-bold tracking-widest uppercase">
+				{eyebrow}
+			</p>
+			<h1 className="text-title mb-5 max-w-220 font-extrabold text-balance text-teal-900">
+				{title}
+			</h1>
 			<p
 				className={cn(
-					"text-warm-600 max-w-155 text-sm leading-relaxed text-pretty sm:text-base lg:text-lg",
-					center && "mx-auto"
+					"text-warm-600 max-w-160 text-base leading-relaxed text-pretty lg:text-lg",
+					leadClassName
 				)}
 			>
 				{description}

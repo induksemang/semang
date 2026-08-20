@@ -1,19 +1,49 @@
-type LogoMarkProps = {
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+
+type LogoLockupProps = {
+	/** `light` untuk latar terang, `dark` untuk latar teal-900. */
+	tone?: "light" | "dark";
 	className?: string;
 };
 
-/** Semang brand mark — the "antrean" arch with a status dot. */
-export function LogoMark({ className }: LogoMarkProps) {
+export function LogoLockup({ tone = "light", className }: LogoLockupProps) {
+	const dark = tone === "dark";
 	return (
-		<svg viewBox="0 0 32 32" fill="none" aria-hidden="true" className={className}>
-			<path
-				d="M9 27V11a7 7 0 0 1 14 0v16"
-				stroke="currentColor"
-				strokeWidth="2.4"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<circle cx="19.2" cy="18" r="1.4" fill="currentColor" />
-		</svg>
+		<span className={cn("flex items-center gap-2.75", className)}>
+			{/* Dua mark ditumpuk lalu disilangkan opacity-nya: src Image tidak bisa
+			    ditransisikan, jadi kalau ditukar begitu saja mark-nya menyentak di
+			    tengah gradasi warna nav (mis. saat keluar dari section gelap). */}
+			<span className="relative block size-8 shrink-0">
+				<Image
+					src="/logo.svg"
+					alt=""
+					width={32}
+					height={32}
+					className={cn(
+						"absolute inset-0 size-8 rounded-[4px] transition-opacity duration-300 ease-out",
+						dark && "opacity-0"
+					)}
+				/>
+				<Image
+					src="/logo-white.svg"
+					alt=""
+					width={32}
+					height={32}
+					className={cn(
+						"absolute inset-0 size-8 rounded-[4px] transition-opacity duration-300 ease-out",
+						!dark && "opacity-0"
+					)}
+				/>
+			</span>
+			<span
+				className={cn(
+					"text-lg font-extrabold tracking-tight transition-colors duration-300 ease-out",
+					dark ? "text-white" : "text-teal-900"
+				)}
+			>
+				Semang
+			</span>
+		</span>
 	);
 }
