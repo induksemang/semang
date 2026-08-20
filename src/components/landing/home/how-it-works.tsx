@@ -1,86 +1,81 @@
-import Link from "next/link";
-import { SectionHeading } from "../shared/section-heading";
+import { cn } from "@/lib/utils";
+import { ArrowLink, LedgerSection } from "../shared/ledger";
 
 const steps = [
 	{
-		num: "1",
-		title: "Isi 3 hal saja",
-		body: "Nama kost, jumlah kamar, harga sewa. Kamar dibuat otomatis; penyewa isi datanya sendiri lewat QR."
+		title: "Buat kost",
+		body: "Nama kost, jumlah kamar, harga sewa. Tiga isian, lalu tagihan pertamamu langsung tampil."
 	},
 	{
-		num: "2",
-		title: "Tagihan terkirim sendiri",
-		body: "Tiap siklus, tagihan & reminder terkirim otomatis via WhatsApp atas nama kost-mu."
+		title: "Sebar link per kamar",
+		body: "Penyewa mengisi nama dan nomornya sendiri dari browser. Kamu tidak perlu mengetik data siapa pun."
 	},
 	{
-		num: "3",
-		title: "Penyewa bayar online",
-		body: "QRIS, VA, atau e-wallet — satu link, satu nominal pasti."
+		title: "Tagihan berangkat",
+		body: "Tiga hari sebelum jatuh tempo, tiap penyewa menerima tagihannya lengkap dengan nominal pasti."
+	},
+	{
+		title: "Pelunasan tercatat",
+		body: "Uang masuk ke rekeningmu, kuitansi terbit, pengingat yang belum jalan dibatalkan sendiri."
 	}
 ];
 
 export function HowItWorks() {
 	return (
-		<section
-			id="cara-kerja"
-			className="container scroll-mt-16 space-y-10 py-10 md:py-14 lg:space-y-12 lg:py-18"
+		<LedgerSection
+			index="02"
+			label="Alur"
+			tone="teal"
+			className="border-t border-teal-200 bg-teal-50"
 		>
-			<SectionHeading
-				align="left"
-				eyebrow="Cara kerja"
-				title="Dari daftar sampai lunas — 4 langkah, 5 menit."
-			/>
+			<h2 className="text-h2 mb-10 max-w-155 font-extrabold text-balance text-teal-900">
+				Empat langkah di awal, lalu berjalan sendiri tiap bulan
+			</h2>
 
-			<div className="relative">
-				{/* Journey line */}
-				<div
+			<ol className="relative grid lg:grid-cols-4">
+				<span
 					aria-hidden
-					className="absolute top-6 right-6 left-6 hidden border-t-2 border-dashed border-teal-200 lg:block"
+					className="absolute inset-x-0 top-1.5 hidden h-px bg-teal-200 lg:block"
 				/>
-				<div className="relative grid sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
-					{steps.map((step) => (
-						<div key={step.num} className="flex gap-3.5 sm:flex-col sm:gap-4">
-							{/* Rel mobile: bulatan + garis penghubung putus-putus */}
-							<div className="flex flex-col items-center sm:contents">
-								<div className="bg-warm-canvas border-primary flex size-8 flex-none items-center justify-center rounded-full border-2 text-sm font-extrabold text-teal-700 sm:size-12 sm:text-lg">
-									{step.num}
-								</div>
+				{steps.map((step, index) => {
+					const last = index === steps.length - 1;
+					return (
+						<li
+							key={step.title}
+							className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 lg:relative lg:block lg:pt-7 lg:pr-[clamp(14px,2vw,24px)] lg:pb-7.5 lg:last:pr-0"
+						>
+							<div className="flex flex-col items-center lg:contents">
 								<span
 									aria-hidden
-									className="w-0 flex-1 border-l-2 border-dashed border-teal-200 sm:hidden"
+									className={cn(
+										"size-3.25 shrink-0 rounded-full ring-4 ring-teal-50 lg:absolute lg:top-0 lg:left-0",
+										last ? "lg:bg-brand bg-teal-900" : "bg-brand"
+									)}
 								/>
+								{!last && (
+									<span
+										aria-hidden
+										className="my-1 w-px flex-1 bg-teal-200 lg:hidden"
+									/>
+								)}
 							</div>
-							<div className="space-y-1.5 pb-5 sm:space-y-2 sm:pb-0">
-								<h3 className="text-base font-extrabold text-teal-900 sm:text-lg">
+							<div className={last ? undefined : "pb-5.5"}>
+								<p className="mb-2 font-mono text-[10.5px] leading-snug font-bold tracking-widest text-teal-400">
+									LANGKAH {index + 1}
+								</p>
+								<h3 className="mb-2 text-base font-extrabold text-teal-900">
 									{step.title}
 								</h3>
-								<p className="text-warm-600 text-sm leading-relaxed">{step.body}</p>
+								<p className="text-sm leading-relaxed text-teal-700">{step.body}</p>
 							</div>
-						</div>
-					))}
-					<div className="flex gap-3.5 sm:flex-col sm:gap-4">
-						<div className="bg-primary border-primary flex size-8 flex-none items-center justify-center rounded-full border-2 text-sm font-extrabold text-white sm:size-12 sm:text-xl">
-							✓
-						</div>
-						<div className="flex-1 space-y-1.5 rounded-2xl bg-teal-900 p-4.5 sm:space-y-2 sm:p-5 lg:-mt-1 lg:-ml-5">
-							<h3 className="text-base font-extrabold text-white sm:text-lg">
-								Lunas tercatat otomatis
-							</h3>
-							<p className="text-sm leading-relaxed text-teal-200">
-								Pembayaran masuk langsung melunasi tagihan — kuitansi digital
-								terkirim ke penyewa.
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
+						</li>
+					);
+				})}
+			</ol>
 
-			<Link
-				href="/cara-kerja"
-				className="text-primary inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600"
-			>
-				Lihat detail wizard &amp; siklus penagihan →
-			</Link>
-		</section>
+			<ArrowLink href="/cara-kerja" className="mt-6 lg:mt-0">
+				Lihat siklus bulanannya
+			</ArrowLink>
+		</LedgerSection>
 	);
 }

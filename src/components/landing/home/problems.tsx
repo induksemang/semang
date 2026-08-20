@@ -1,135 +1,72 @@
-import Link from "next/link";
-import { SectionHeading } from "../shared/section-heading";
+import { ArrowLink, LedgerSection } from "../shared/ledger";
 
-const notes = [
-	{ text: ["trf 500rb kmr 5", "…bulan apa?"], className: "mt-1.5 max-w-32 basis-28 -rotate-3" },
+const rows = [
 	{
-		text: ["bukti tf.jpg", "(terselip di 400 chat)"],
-		className: "max-w-36 basis-32 rotate-3"
+		number: "01",
+		title: "Sungkan menagih",
+		problem:
+			"Menagih orang yang tiap hari kamu temui di depan kamar itu tidak nyaman. Ditunda sehari, lalu seminggu, lalu tunggakannya menumpuk.",
+		answer: "Tagihan dan pengingat berangkat otomatis atas nama kost. Kamu tidak pernah lagi jadi orang yang menagih."
 	},
-	{ text: ["catatan hlm. 12", "≠ mutasi bank"], className: "mt-1.5 max-w-30 basis-26 -rotate-2" }
+	{
+		number: "02",
+		title: "Catatan berantakan",
+		problem:
+			"Bukti transfer terselip di chat, catatan sewa tersebar antara buku tulis dan ingatan. Saat ditanya siapa yang belum bayar, jawabannya perlu dicari dulu.",
+		answer: "Tiap tagihan punya nomor yang bisa disebut, status yang jelas, dan kuitansi digital. Laporan kas ikut terbarui sendiri."
+	},
+	{
+		number: "03",
+		title: "Verifikasi pembayaran melelahkan",
+		problem:
+			"Mencocokkan mutasi rekening satu per satu memakan waktu, dan bukti transfer yang diedit tetap mungkin lolos.",
+		answer: "Pembayaran lewat link tercatat otomatis oleh sistem Xendit. Tidak ada lagi gambar bukti transfer yang perlu dipercaya."
+	}
 ];
 
 export function Problems() {
 	return (
-		<section id="masalah" className="bg-warm-canvas scroll-mt-16 py-10 md:py-14 lg:py-18">
-			<div className="container space-y-10 lg:space-y-12">
-				<SectionHeading
-					align="left"
-					eyebrow="Kenapa Semang ada"
-					title="Buku catatan & WhatsApp manual menyisakan tiga masalah yang sama."
-				/>
+		<LedgerSection
+			index="01"
+			label="Masalah"
+			className="border-warm-200 bg-warm-canvas border-t"
+		>
+			<h2 className="text-h2 mb-3.5 max-w-155 font-extrabold text-balance text-teal-900">
+				Tiga hal yang paling menguras tenaga pemilik kost
+			</h2>
+			<p className="text-warm-600 mb-2 max-w-150 text-base leading-relaxed">
+				Urutannya kami ambil dari riset pemilik kost 5–20 kamar, bukan dari daftar fitur
+				yang ingin dijual.
+			</p>
 
-				<div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-12">
-					{/* Card 1: Sungkan menagih */}
-					<article className="bg-card border-border flex flex-col gap-5 rounded-xl border p-5 md:col-span-2 md:p-6 lg:col-span-7 lg:row-span-2 lg:p-8.5">
-						<div className="space-y-2.5">
-							<p className="text-danger text-xs font-extrabold tracking-wider uppercase">
-								Masalah №1 — yang paling sering
-							</p>
-							<h3 className="text-2xl font-extrabold tracking-tight text-teal-900">
-								Sungkan menagih
+			<div className="mt-7 grid auto-rows-fr">
+				{rows.map((row) => (
+					<div
+						key={row.number}
+						className="border-warm-200 grid items-stretch gap-2.5 border-t py-5 last:border-b lg:grid-cols-[36px_1fr_1fr] lg:gap-[clamp(16px,2.5vw,36px)] lg:py-0"
+					>
+						<div className="text-warm-300 font-mono text-xs leading-snug font-bold lg:py-6">
+							{row.number}
+						</div>
+						<div className="pb-1 lg:py-6">
+							<h3 className="text-warm-900 mb-2 text-lg font-extrabold tracking-tight">
+								{row.title}
 							</h3>
-							<p className="text-warm-600 max-w-120 text-base leading-relaxed">
-								Menagih terasa tidak enak — akhirnya ditunda, dan tunggakan menumpuk
-								diam-diam.
+							<p className="text-warm-600 text-sm leading-relaxed">{row.problem}</p>
+						</div>
+						<div className="lg:border-warm-200 border-l-2 border-teal-200 pl-3.5 lg:border-l lg:py-6 lg:pl-[clamp(16px,2.5vw,32px)]">
+							<p className="text-brand mb-2 font-mono text-[10.5px] leading-snug font-bold tracking-widest uppercase">
+								Di Semang
 							</p>
+							<p className="text-warm-700 text-sm leading-relaxed">{row.answer}</p>
 						</div>
-						<div className="bg-whatsapp-canvas flex flex-1 flex-col justify-center gap-2.5 rounded-lg px-3 py-3.5 md:px-3.5 md:py-4.5">
-							<div className="bg-card shadow-chat max-w-[92%] space-y-1 self-start rounded-[4px_14px_14px_14px] px-3.5 py-2.75 md:max-w-[88%]">
-								<div className="space-y-1.5">
-									<div className="text-xs font-bold text-black">
-										🧾 Semang · Kost Melati
-									</div>
-									<div className="text-xs leading-normal text-black">
-										Halo Rara, tagihan Kamar 3 · Juli — <b>Rp1.500.000</b>,
-										jatuh tempo 1 Juli.
-									</div>
-								</div>
-								<div className="text-right text-[10px] text-gray-600">08.00</div>
-							</div>
-							<div className="bg-whatsapp-bubble shadow-chat max-w-[80%] space-y-1 self-end rounded-[14px_4px_14px_14px] px-3.5 py-2.75">
-								<div className="text-xs leading-normal text-black">
-									Siap, kubayar sekarang 🙏
-								</div>
-								<div className="text-right text-[10px] text-gray-600">08.03 ✓✓</div>
-							</div>
-						</div>
-						<div className="flex items-center gap-2.5">
-							<span className="bg-primary flex size-5.5 flex-none items-center justify-center rounded-full text-xs font-extrabold text-white">
-								✓
-							</span>
-							<p className="text-sm font-bold text-teal-700">
-								Semang yang menagih, bukan kamu — atas nama kost-mu
-							</p>
-						</div>
-					</article>
-
-					{/* Card 2: Catatan berantakan */}
-					<article className="bg-warning-bg border-warning/20 flex flex-col gap-4 rounded-xl border p-5 md:p-6 lg:col-span-5 lg:p-7.5">
-						<div className="flex items-start justify-center -space-x-4 px-1 sm:-space-x-5 md:mb-3">
-							{notes.map((note) => (
-								<div
-									key={note.text[0]}
-									className={`bg-card border-border text-warm-500 min-w-0 shrink grow rounded-sm border px-2.5 py-1.5 text-[10px] leading-relaxed shadow-sm ${note.className}`}
-								>
-									{note.text[0]}
-									<br />
-									{note.text[1]}
-								</div>
-							))}
-						</div>
-						<div className="space-y-2">
-							<h3 className="text-xl font-extrabold tracking-tight text-teal-900">
-								Catatan berantakan
-							</h3>
-							<p className="text-warm-600 text-sm leading-relaxed">
-								Bukti transfer terselip di ratusan chat, buku catatan tidak pernah
-								cocok dengan rekening.
-							</p>
-						</div>
-						<div className="mt-auto flex items-center gap-2.5">
-							<span className="bg-primary flex size-5.5 flex-none items-center justify-center rounded-full text-xs font-extrabold text-white">
-								✓
-							</span>
-							<p className="text-sm font-bold text-teal-700">
-								Semua tercatat sendiri, rapi per kamar
-							</p>
-						</div>
-					</article>
-
-					{/* Card 3: Bukti transfer palsu */}
-					<article className="flex flex-col gap-3.5 rounded-xl border border-teal-600 bg-teal-900 p-5 md:p-6 lg:col-span-5 lg:p-7.5">
-						<span className="self-start rounded-md border border-dashed border-teal-500 px-2.5 py-1 font-mono text-[11px] font-bold tracking-wide text-teal-300">
-							bukti-tf-edit-v2-FINAL.jpg
-						</span>
-						<div className="space-y-2">
-							<h3 className="text-xl font-extrabold tracking-tight text-white">
-								Bukti transfer palsu
-							</h3>
-							<p className="text-sm leading-relaxed text-teal-200">
-								Mengecek mutasi satu-satu melelahkan, dan screenshot bukti kini bisa
-								dipalsukan siapa saja.
-							</p>
-						</div>
-						<div className="mt-auto flex items-center gap-2.5">
-							<span className="bg-primary flex size-5.5 flex-none items-center justify-center rounded-full text-xs font-extrabold text-white">
-								✓
-							</span>
-							<p className="text-sm font-bold text-teal-100">
-								Pembayaran online, terkonfirmasi otomatis
-							</p>
-						</div>
-					</article>
-				</div>
-
-				<Link
-					href="/cara-kerja"
-					className="text-primary inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600"
-				>
-					Lihat cara kerja lengkap →
-				</Link>
+					</div>
+				))}
 			</div>
-		</section>
+
+			<ArrowLink href="/cara-kerja" className="mt-6">
+				Lihat cara kerja lengkap
+			</ArrowLink>
+		</LedgerSection>
 	);
 }

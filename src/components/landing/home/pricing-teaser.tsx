@@ -1,59 +1,23 @@
-import Link from "next/link";
-import { SectionHeading } from "../shared/section-heading";
+import { Action } from "../shared/action";
+import { LedgerSection } from "../shared/ledger";
 
 export function PricingTeaser() {
 	return (
-		<section className="@container container py-10 md:py-14 lg:py-18">
-			<div className="flex flex-col items-center gap-y-5 sm:gap-y-8 @2xl:flex-row @2xl:flex-wrap @2xl:justify-center @2xl:gap-x-8 @3xl:gap-x-12">
-				<div className="min-w-0 space-y-6 @2xl:flex-1 @2xl:basis-90 @3xl:basis-95">
-					<SectionHeading
-						align="left"
-						eyebrow="Harga"
-						title="Bayar hanya untuk kamar yang terisi."
-						description="Kamar kosong tidak ditagih. Empat paket, dari Gratis selamanya sampai Bisnis multi-properti — semua termasuk pembayaran online tanpa markup ke penyewa."
-					/>
-					<Link
-						href="/harga"
-						className="text-primary hidden items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600 @2xl:inline-flex"
-					>
-						Lihat semua paket &amp; FAQ →
-					</Link>
+		<LedgerSection index="06" label="Harga" className="border-warm-200 bg-warm-canvas border-t">
+			<div className="flex flex-wrap items-end justify-between gap-[clamp(24px,4vw,56px)]">
+				<div className="min-w-0 flex-[1_1_420px]">
+					<h2 className="text-h2 mb-3.5 max-w-140 font-extrabold text-balance text-teal-900">
+						Dihitung per kamar terisi, mulai Rp2.000
+					</h2>
+					<p className="text-warm-600 max-w-140 text-base leading-relaxed">
+						Kamar yang kosong tidak menagihmu. Kost 10 kamar dengan 8 terisi membayar
+						Rp20.000 sebulan — kira-kira seharga sekali parkir dan segelas kopi.
+					</p>
 				</div>
-
-				<div className="mx-auto max-w-85 min-w-0 sm:mx-0 @2xl:flex-1 @2xl:basis-72 @3xl:basis-75">
-					<div className="shadow-teal-card relative rounded-lg border border-teal-700 bg-teal-700 p-6.5 lg:rounded-xl lg:p-7">
-						<span className="bg-primary absolute -top-2.75 left-6 rounded-full px-3 py-1.25 text-xs font-extrabold tracking-wide text-white uppercase">
-							Paling pas
-						</span>
-						<h3 className="text-lg font-extrabold text-white">Starter</h3>
-						<p className="mb-4.5 text-sm font-semibold text-teal-300">
-							Kost yang mulai berkembang
-						</p>
-						<div className="text-3xl font-extrabold tracking-tight text-white">
-							Rp2.000
-							<span className="text-sm font-semibold text-teal-200">
-								{" "}
-								/ kamar terisi / bln
-							</span>
-						</div>
-						<p className="mt-2.5 mb-5 text-xs font-semibold text-teal-300">
-							sampai 15 kamar · minimum Rp20.000/bln
-						</p>
-						<Link
-							href="/harga"
-							className="block rounded-md bg-white py-3.25 text-center text-sm font-bold text-teal-900 transition-colors hover:bg-teal-50"
-						>
-							Coba 60 hari gratis
-						</Link>
-					</div>
-					<Link
-						href="/harga"
-						className="text-primary mt-3.5 inline-flex items-center gap-1.5 text-sm font-bold transition-colors hover:text-teal-600 @2xl:hidden"
-					>
-						Lihat semua paket &amp; FAQ →
-					</Link>
-				</div>
+				<Action href="/harga" className="w-full flex-none lg:w-auto">
+					Lihat semua paket
+				</Action>
 			</div>
-		</section>
+		</LedgerSection>
 	);
 }
