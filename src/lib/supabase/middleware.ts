@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
 
 	const { pathname } = request.nextUrl;
 
-	const publicMarketingPages = ["/cara-kerja", "/fitur", "/harga", "/keamanan"];
+	const publicMarketingPages = ["/cara-kerja", "/fitur", "/harga", "/keamanan", "/privasi"];
 
 	const isPublicPage =
 		pathname === "/" ||
