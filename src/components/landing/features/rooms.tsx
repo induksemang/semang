@@ -42,7 +42,7 @@ export function Rooms() {
 			</p>
 
 			<div className="grid gap-[clamp(24px,3vw,48px)] lg:grid-cols-[1.1fr_1fr]">
-				<table className="w-full border-collapse text-left">
+				<table className="w-full border-separate border-spacing-0 text-left">
 					<thead>
 						<tr>
 							<th
@@ -57,15 +57,15 @@ export function Rooms() {
 						{statuses.map(([name, meaning]) => (
 							<tr
 								key={name}
-								className="max-lg:last:[&>*]:border-b-warm-200 max-lg:last:[&>*]:border-b"
+								className="max-lg:last:[&>*]:border-b-warm-200 lg:last:[&>*]:border-b-0"
 							>
 								<th
 									scope="row"
-									className="border-warm-100 text-warm-900 border-t py-3.25 pr-4 text-left text-sm font-bold whitespace-nowrap"
+									className="border-warm-100 text-warm-900 border-b py-3.25 pr-4 text-left text-sm font-bold whitespace-nowrap"
 								>
 									{name}
 								</th>
-								<td className="border-warm-100 text-warm-600 border-t py-3.25 text-sm leading-normal">
+								<td className="border-warm-100 text-warm-600 border-b py-3.25 text-sm leading-normal">
 									{meaning}
 								</td>
 							</tr>
