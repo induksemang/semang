@@ -49,7 +49,7 @@ export function DueDate() {
 						Tiap penyewa punya tanggal jatuh temponya sendiri. Masuk tanggal 15, maka
 						tagihannya jatuh tempo tanggal 15 tiap bulan.
 					</p>
-					<p className="border-warm-100 text-success-fg border-t pt-3.5 text-sm leading-relaxed font-semibold">
+					<p className="border-warm-200 text-success-fg border-t pt-3.5 text-sm leading-relaxed font-semibold">
 						Tidak pernah ada tagihan pertama yang perlu dipotong sebagian.
 					</p>
 				</div>
@@ -67,7 +67,7 @@ export function DueDate() {
 						Satu tanggal yang sama untuk semua penyewa, misalnya tanggal 1. Cocok untuk
 						kost yang sudah terbiasa menagih serempak.
 					</p>
-					<p className="border-warm-100 text-warning-fg border-t pt-3.5 text-sm leading-relaxed font-semibold">
+					<p className="border-warm-200 text-warning-fg border-t pt-3.5 text-sm leading-relaxed font-semibold">
 						Penyewa yang masuk di tengah bulan diatur lewat perlakuan tagihan pertama di
 						bawah.
 					</p>
