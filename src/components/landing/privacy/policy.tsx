@@ -195,7 +195,7 @@ export function Policy() {
 					<p className={`${th} block pb-2.5`}>Data dan tujuan</p>
 					<dl className="border-warm-200 border-b">
 						{purposes.map(([data, purpose]) => (
-							<div key={data} className="border-warm-100 border-t py-3">
+							<div key={data} className="border-warm-100 py-3 not-first:border-t">
 								<dt className="text-warm-900 mb-1 text-sm font-bold">{data}</dt>
 								<dd className="text-warm-600 text-[13.5px] leading-normal">
 									{purpose}
